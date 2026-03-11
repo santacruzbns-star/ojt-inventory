@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\rc;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 
-class InventoryController extends Controller
+class BranchController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+       $branches = Branch::All();
+
+       return view('branch.index', compact('branches'));
     }
 
     /**
@@ -28,13 +30,13 @@ class InventoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+     
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(rc $rc)
+    public function show(Branch $branch)
     {
         //
     }
@@ -42,7 +44,7 @@ class InventoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(rc $rc)
+    public function edit(Branch $branch)
     {
         //
     }
@@ -50,7 +52,7 @@ class InventoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, rc $rc)
+    public function update(Request $request, Branch $branch)
     {
         //
     }
@@ -58,7 +60,7 @@ class InventoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(rc $rc)
+    public function destroy(Branch $branch)
     {
         //
     }

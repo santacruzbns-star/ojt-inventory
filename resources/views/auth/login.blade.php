@@ -19,7 +19,7 @@
                 <!-- Input -->
                 <x-text-input id="email"
                     class="block mt-1 w-full"
-                    style="padding-left:44px; font-size: 15px; font-weight:bold;"
+                    style="padding-left:44px; font-size: 15px; "
                     type="text"
                     name="email"
                     :value="old('email')"

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>Goldtown | Inventory Tracking</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -39,6 +39,8 @@
                 height: 100%;
                 overflow: hidden;
                 z-index: 0;
+                
+                
             }
 
             /* square bubbles */
@@ -47,7 +49,9 @@
                 display: block;
                 background: rgba(255,255,255,0.15);
                 animation: floatSquare 20s linear infinite;
-                bottom: -150px;
+                bottom: -150px;.
+                color: rgb(255, 255, 255);
+                background-image:url('storage/img/logo.png');
             }
 
             .squares span:nth-child(1) { left: 10%; width: 40px; height: 40px; animation-duration: 15s; }
@@ -89,6 +93,11 @@
                 height: auto;
                 object-fit: contain;
                 margin-bottom: 24px;
+                cursor: pointer;
+            }
+
+            .logo:hover{
+                transform: translateY(-2px)
             }
 
             .login-form button {
@@ -148,6 +157,13 @@
                 font-size: 15px;
             }
 
+           .input-error {
+                color: #dc3545;
+                font-size: 13px;
+                margin-top: 4px;
+                font-weight: 500;
+            }
+
             @keyframes slideRight {
                 from { opacity: 0; transform: translateX(20px); }
                 to { opacity: 1; transform: translateX(0); }
@@ -166,9 +182,6 @@
                 100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
             }
 
-            /* ============================================
-               Global Slide-Up Loading Screen
-               ============================================ */
             #global-loader {
                 position: fixed;
                 top: 0;
