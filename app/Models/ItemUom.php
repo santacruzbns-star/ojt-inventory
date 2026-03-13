@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class ItemUom extends Model
-{
+{     protected $primaryKey = 'item_uom_id';
       protected $fillable = [
         'item_uom_name'
     ];

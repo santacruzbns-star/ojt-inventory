@@ -25,5 +25,7 @@ Route::resource('outbound', PersonnelController::class);
 // Route::resource('inventory', ItemCategoryController::class);
 Route::resource('inventory', ItemController::class);
 Route::post('/item-category/store', [ItemController::class, 'storeCategory'])->name('item-category.store');
+// web.php
+Route::post('/inventory/check-duplicate', [ItemController::class, 'checkDuplicate'])->name('inventory.checkDuplicate');
 
 require __DIR__.'/auth.php';

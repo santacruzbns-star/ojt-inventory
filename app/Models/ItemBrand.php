@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ItemBrand extends Model
 {
+    protected $primaryKey = 'item_brand_id';
     protected $fillable = [
         'item_brand_name'
     ];

@@ -7,6 +7,7 @@ use App\Models\ItemUom;
 use App\Models\ItemBrand;
 use App\Models\ItemCategory;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ItemController extends Controller
 {
@@ -15,13 +16,13 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $item_categories = ItemCategory::All();
-        $item_brands = ItemBrand::All();
-        $item_uoms = ItemUom::All();
-        $items = Item::All();
-        
+        $item_categories = ItemCategory::all();
+        $item_brands = ItemBrand::all();
+        $item_uoms = ItemUom::all();
+
         $items = Item::orderBy('created_at', 'desc')->paginate(10);
-        return view('inventory.index', compact('item_categories','item_brands','item_uoms','items'));
+
+        return view('inventory.index', compact('item_categories', 'item_brands', 'item_uoms', 'items'));
     }
 
     /**
@@ -35,47 +36,46 @@ class ItemController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-        {
-           $request->validate([
-            'item_name' => '|string|max:255',
-            'item_serialno' => 'string|max:255',
-            'item_quantity' => '|integer|max:255',
-            'item_remarks' => '|string|max:255',
-            'item_uom_name' => '|string|max:255',
-            'item_brand_name' => '|string|max:255',
-        
-            'item_category_id' => '|exists:item_categories,item_category_id'
-           
+  public function store(Request $request)
+    {
+        $request->validate([
+            'item_name'        => 'required|string|max:255',
+            'item_serialno'    => 'nullable|string|max:255',
+            'item_quantity'    => 'required|integer|max:999999',
+            'item_remark'      => 'nullable|string|max:255',
+            'item_uom_name'    => 'required|string|max:255',
+            'item_brand_name'  => 'required|string|max:255',
+            'item_category_id' => 'required|exists:item_categories,item_category_id'
         ]);
 
+        // First or create UOM and Brand
+        $brand = ItemBrand::firstOrCreate(['item_brand_name' => $request->item_brand_name]);
+        $uom = ItemUom::firstOrCreate(['item_uom_name' => $request->item_uom_name]);
 
-        $item_brands = ItemBrand::create([
-            'item_brand_name' => $request->item_brand_name
-        ]);
+        // Check for existing item with same combination including item_remark
+        $existingItem = Item::where('item_name', $request->item_name)
+                            ->where('item_brand_id', $brand->item_brand_id)
+                            ->where('item_uom_id', $uom->item_uom_id)
+                            ->where('item_remark', $request->item_remark)
+                            ->first();
 
-        $item_uoms = ItemUom::create([
-            'item_uom_name' => $request->item_uom_name
-        ]);
-
-
-        // Create personnel linked to branch
-        Item::create([
-            'item_name' => $request->item_name,
-            'item_serialno' => $request->item_serialno,
-            'item_quantity' => $request->item_quantity,
-            'item_remark' => $request->item_remark,
-            
-
-            'item_category_id' => $request->item_category_id,
-            'item_uom_id' => $item_uoms->id,
-            'item_brand_id' => $item_brands->id
-           
-        ]);
-
-        return redirect()->back()->with('success','Item added successfully');
-
+        if ($existingItem) {
+            return redirect()->back()->withErrors(['duplicate' => 'This item already exists with the same name, brand, UOM, and remark.']);
         }
+
+        // Create Item
+        Item::create([
+            'item_name'        => $request->item_name,
+            'item_serialno'    => $request->item_serialno,
+            'item_quantity'    => $request->item_quantity,
+            'item_remark'      => $request->item_remark,
+            'item_category_id' => $request->item_category_id,
+            'item_uom_id'      => $uom->item_uom_id,
+            'item_brand_id'    => $brand->item_brand_id,
+        ]);
+
+        return redirect()->back()->with('success', 'Item added successfully');
+    }
     public function storeCategory(Request $request)
     {
         $request->validate([
@@ -108,16 +108,58 @@ class ItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Item $item)
-    {
-        
+  public function update(Request $request, $item_id)
+{
+    $item = Item::findOrFail($item_id);
+
+    $item->item_name = $request->item_name;
+    $item->item_serialno = $request->item_serialno; // added
+    $item->item_quantity = $request->item_quantity;
+    $item->item_remark = $request->item_remark;
+
+    // Brand
+    if ($request->item_brand_name) {
+        $brand = ItemBrand::firstOrCreate([
+            'item_brand_name' => $request->item_brand_name
+        ]);
+        $item->item_brand_id = $brand->item_brand_id;
     }
 
+    // Unit of Measure
+    if ($request->item_uom_name) {
+        $uom = ItemUom::firstOrCreate([
+            'item_uom_name' => $request->item_uom_name
+        ]);
+        $item->item_uom_id = $uom->item_uom_id;
+    }
+
+    $item->save();
+
+    return redirect()->back()->with('success', 'Item updated successfully.');
+}
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Item $item)
+    public function destroy($item_id)
     {
-       
+        Item::where('item_id', $item_id)->delete();
+
+        return redirect()->back()->with('success','Item deleted successfully');
     }
+    // ItemController.php
+    
+    public function checkDuplicate(Request $request)
+    {
+        $brand = ItemBrand::where('item_brand_name', $request->item_brand_name)->first();
+        $uom = ItemUom::where('item_uom_name', $request->item_uom_name)->first();
+
+        $exists = Item::where('item_name', $request->item_name)
+                    ->where('item_brand_id', $brand?->item_brand_id)
+                    ->where('item_uom_id', $uom?->item_uom_id)
+                    ->where('item_remark', $request->item_remark)
+                    ->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+ 
 }
