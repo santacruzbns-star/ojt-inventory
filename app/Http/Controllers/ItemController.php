@@ -6,7 +6,10 @@ use App\Models\Item;
 use App\Models\ItemUom;
 use App\Models\ItemBrand;
 use App\Models\ItemCategory;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ItemsExport;
 use Illuminate\Http\Request;
+
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ItemController extends Controller
@@ -14,17 +17,114 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+ public function index(Request $request)
     {
+        $query = $request->get('search', '');
+        $remarkFilter = $request->get('remark'); 
+        $categoryId = $request->get('category'); // get selected category
+        $brandId = $request->get('brand');
+
         $item_categories = ItemCategory::all();
         $item_brands = ItemBrand::all();
         $item_uoms = ItemUom::all();
 
-        $items = Item::orderBy('created_at', 'desc')->paginate(10);
+        // Build query with optional search, remark, and category filter
+        $itemsQuery = Item::query();
 
-        return view('inventory.index', compact('item_categories', 'item_brands', 'item_uoms', 'items'));
+        if ($query) {
+            $itemsQuery->where(function($q) use ($query) {
+                $q->where('item_name', 'like', "%$query%")
+                ->orWhere('item_serialno', 'like', "%$query%");
+            });
+        }
+
+        if ($remarkFilter) {
+            $itemsQuery->where('item_remark', $remarkFilter);
+        }
+
+        if ($categoryId) {
+            $itemsQuery->where('item_category_id', $categoryId); // <-- apply filter here
+        }
+
+         if ($brandId) {
+            $itemsQuery->where('item_brand_id', $brandId); // <-- apply filter here
+        }
+
+        // Paginate results
+        $items = $itemsQuery->orderBy('created_at', 'desc')->paginate(10);
+        $items->appends([
+            'search' => $query,
+            'remark' => $remarkFilter,
+            'category' => $categoryId,
+            'brand' => $brandId
+        ]);
+
+        // Get unique item remarks for dropdown
+        $item_remarks = Item::select('item_remark')
+                            ->distinct()
+                            ->orderBy('item_remark')
+                            ->pluck('item_remark');
+
+        // EXPORT SINGLE ITEM PDF
+        if ($request->get('export') == 'pdf' && $request->has('item_id')) {
+            $item = Item::findOrFail($request->get('item_id'));
+            $pdf = Pdf::loadView('inventory.pdf-individual', compact('item'));
+            return $pdf->stream("item_{$item->item_id}.pdf");
+        }
+
+        // EXPORT ALL ITEMS PDF
+        if ($request->get('export') == 'pdf' && !$request->has('item_id')) {
+            $allItems = $itemsQuery->get(); // respect search, remark & category
+            $pdf = Pdf::loadView('inventory.pdf-forall', compact('allItems'));
+            return $pdf->stream('inventory.pdf');
+        }
+
+        // AJAX Table Update
+        if ($request->ajax() || $request->has('ajax')) {
+            return view('inventory.inventory-table', compact(
+                'items', 'item_categories', 'item_brands', 'item_uoms'
+            ))->render();
+        }
+
+        // EXPORT EXCEL
+        if ($request->get('export') == 'excel') {
+            $ids = $request->get('ids');
+            $dbQuery = Item::query();
+
+            if ($ids) {
+                $idArray = explode(',', $ids);
+                $dbQuery->whereIn('item_id', $idArray);
+            } else {
+                if ($query) {
+                    $dbQuery->where(function($q) use ($query) {
+                        $q->where('item_name', 'like', "%$query%")
+                        ->orWhere('item_serialno', 'like', "%$query%");
+                    });
+                }
+                if ($remarkFilter) {
+                    $dbQuery->where('item_remark', $remarkFilter);
+                }
+                if ($categoryId) {
+                    $dbQuery->where('item_category_id', $categoryId);
+                }
+                if ($brandId) {
+                    $dbQuery->where('item_brand_id', $brandId);
+                }
+            }
+
+            $filteredItems = $dbQuery->orderBy('created_at', 'desc')->get();
+            return Excel::download(new ItemsExport($filteredItems), 'inventory.xlsx');
+        }
+
+        return view('inventory.index', compact(
+            'item_categories', 
+            'item_brands', 
+            'item_uoms', 
+            'items', 
+            'item_remarks'
+        ));
     }
-
+            
     /**
      * Show the form for creating a new resource.
      */
@@ -142,9 +242,20 @@ class ItemController extends Controller
      */
     public function destroy($item_id)
     {
-        Item::where('item_id', $item_id)->delete();
+        Item::findOrFail($item_id)->delete();
 
-        return redirect()->back()->with('success','Item deleted successfully');
+        return redirect()->back()->with('success', 'Item deleted successfully');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (!empty($ids)) {
+            Item::whereIn('item_id', $ids)->delete();
+            return response()->json(['success' => true, 'message' => 'Selected items deleted successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'No items selected.'], 400);
     }
     // ItemController.php
     
@@ -161,5 +272,4 @@ class ItemController extends Controller
 
         return response()->json(['exists' => $exists]);
     }
- 
 }

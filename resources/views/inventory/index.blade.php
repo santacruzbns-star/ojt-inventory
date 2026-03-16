@@ -9,15 +9,92 @@
 
     <body>
         <div class="inventory_form container mt-4">
-            <!-- Button to Open Modal -->
-            <button style="font-weight:bold;" type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
-                data-bs-target="#category_modal">
-                Create Category
-            </button>
-            <button style="font-weight:bold;" type="button" class="btn btn-primary" data-bs-toggle="modal"
-                data-bs-target="#item_modal">
-                Add New Item
-            </button>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Buttons on the left -->
+                <div class="d-flex flex-column gap-2">
+                    <!-- Top row buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
+                            data-bs-target="#category_modal">
+                            Create Category
+                        </button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#item_modal">
+                            Add New Item
+                        </button>
+                    </div>
+
+                    <!-- Delete button below -->
+                    <button id="bulk_delete_btn" class="btn btn-danger" disabled>
+                        <i class="bi bi-trash"></i>
+                        Delete Selected
+                    </button>
+                </div>
+
+
+                <!-- Right Column: Search, Filters, Export -->
+                <div class="w-5">
+                    <!-- Top Row: Search Bar -->
+                    <div class="mb-2">
+                        <div class="input-group w-100">
+                            <input type="text" id="inventorySearch" class="form-control"
+                                placeholder="Search item...">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Middle Row: Dropdown Filters (Horizontal) -->
+                    <div class="d-flex gap-2 mb-3">
+                        <select name="remark" class="form-select form-select-sm" style="min-width: 120px;">
+                            <option value="">All Remarks</option>
+                            @foreach ($item_remarks as $remark)
+                                <option value="{{ $remark }}"
+                                    {{ request('remark') == $remark ? 'selected' : '' }}>
+                                    {{ $remark }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <select name="category" class="form-select form-select-sm" id="categoryFilter"
+                            style="min-width: 120px;">
+                            <option value="">All Categories</option>
+                            @foreach ($item_categories as $category)
+                                <option value="{{ $category->item_category_id }}"
+                                    {{ request('category') == $category->item_category_id ? 'selected' : '' }}>
+                                    {{ $category->item_category_name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <select name="brand" class="form-select form-select-sm" id="brandFilter"
+                            style="min-width: 120px;">
+                            <option value="">All Brands</option>
+                            @foreach ($item_brands as $brand)
+                                <option value="{{ $brand->item_brand_id }}"
+                                    {{ request('brand') == $brand->item_brand_id ? 'selected' : '' }}>
+                                    {{ $brand->item_brand_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Bottom Row: Export Buttons -->
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ route('inventory.index', ['export' => 'pdf', 'search' => request('search')]) }}"
+                            class="btn btn-danger d-flex align-items-center gap-1" target="_blank">
+                            <i class="bi bi-file-earmark-pdf"></i> PRINT PDF
+                        </a>
+
+                        <a href="#" id="export_excel_btn" class="btn btn-success d-flex align-items-center gap-1"
+                            data-bs-toggle="tooltip" title="Click if you want to export selected items">
+                            <i class="bi bi-file-earmark-excel"></i> SELECTED EXCEL
+                        </a>
+                    </div>
+                </div>
+
+            </div>
 
             <!-- Modal -->
             <div class="modal fade" id="category_modal" tabindex="-1">
@@ -104,8 +181,8 @@
 
                                 <!-- Serial Number (optional) -->
                                 <div class="form-floating mb-3">
-                                    <input type="text" name="item_serialno" class="form-control" id="item_serialno"
-                                        placeholder="Serial Number">
+                                    <input type="text" name="item_serialno" class="form-control"
+                                        id="item_serialno" placeholder="Serial Number">
                                     <label for="item_serialno">Serial Number (Optional)</label>
                                 </div>
 
@@ -125,9 +202,9 @@
 
                                 <!-- Quantity (optional) -->
                                 <div class="form-floating mb-3">
-                                    <input type="number" name="item_quantity" class="form-control" id="item_quantity"
-                                        placeholder="Quantity" min="1" max="99" required
-                                        oninput="this.value=this.value.slice(0,4)">
+                                    <input type="number" name="item_quantity" class="form-control"
+                                        id="item_quantity" placeholder="Quantity" min="1" max="99"
+                                        required oninput="this.value=this.value.slice(0,4)">
                                     <label for="item_quantity">Quantity</label>
                                     <div class="invalid-feedback">
                                         Quantity is required.
@@ -230,404 +307,166 @@
                 </div>
             </div>
 
-            <!-- Inventory Table -->
-            <div class="table-responsive mt-4">
-        
-                    <table class="table table-striped table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Product Name</th>
-                                <th>Category</th>
-                                <th>Brand Name</th>
-                                <th>Serial Number</th>
-                                <th>Unit of Measure</th>
-                                <th>Quantity</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        @forelse($items as $item)
-                            @php
-                                $remarkColor = [
-                                    'Good' => 'bg-success',
-                                    'Damaged' => 'bg-danger',
-                                    'Missing' => 'bg-warning text-dark',
-                                ];
-                            @endphp
-                            <tr>
-                                <td>{{ $item->item_name }}</td>
-                                <td>{{ $item->category ? $item->category->item_category_name : '-' }}</td>
-                                <td>{{ $item->brand ? $item->brand->item_brand_name : '-' }}</td>
-                                <td>{{ $item->item_serialno }}</td>
-                                <td>{{ $item->uom ? $item->uom->item_uom_name : '-' }}</td>
-                                <td>{{ $item->item_quantity ?? '-' }}</td>
-                                <td>
-                                    <span class="badge {{ $remarkColor[$item->item_remark] ?? 'bg-secondary' }}">
-                                        {{ $item->item_remark ?? '-' }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="dropdown position-static">
-                                        <button class="btn btn-light btn-sm dropdown-toggle" type="button"
-                                            id="actionMenu_{{ $item->item_id }}" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-
-                                            <i class="bi bi-three-dots-vertical fs-5"></i>
-
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="actionMenu_{{ $item->item_id }}">
-
-                                            <li>
-                                                <button type="button" class="dropdown-item text-primary"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#viewItemModal_{{ $item->item_id }}">
-                                                    View
-                                                </button>
-                                            </li>
-
-                                            <li>
-                                                <button type="button" class="dropdown-item" data-bs-toggle="modal"
-                                                    data-bs-target="#editItemModal_{{ $item->item_id }}">
-                                                    Edit
-                                                </button>
-                                            </li>
-
-                                            <li>
-                                                <form action="{{ route('inventory.destroy', $item->item_id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="dropdown-item text-danger"
-                                                        type="submit">Delete</button>
-                                                </form>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="modal fade" id="viewItemModal_{{ $item->item_id }}" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">View Item Details</h5>
-                                                    <button type="button" class="btn-close"
-                                                        data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-
-                                                    <ul class="list-group list-group-flush">
-                                                        <li class="list-group-item"><strong>Item Name:</strong>
-                                                            {{ $item->item_name }}</li>
-                                                        <li class="list-group-item"><strong>Category:</strong>
-                                                            {{ $item->category ? $item->category->item_category_name : '-' }}
-                                                        </li>
-                                                        <li class="list-group-item"><strong>Brand:</strong>
-                                                            {{ $item->brand ? $item->brand->item_brand_name : '-' }}
-                                                        </li>
-                                                        <li class="list-group-item"><strong>Serial Number:</strong>
-                                                            {{ $item->item_serialno ?? 'N/A' }}</li>
-                                                        <li class="list-group-item"><strong>Quantity:</strong>
-                                                            {{ $item->item_quantity ?? 'N/A' }}</li>
-                                                        <li class="list-group-item"><strong>Remark:</strong>
-                                                            {{ ucfirst($item->item_remark) ?? 'N/A' }}</li>
-                                                        <li class="list-group-item"><strong>Unit of Measure:</strong>
-                                                            {{ $item->uom ? $item->uom->item_uom_name : '-' }}</li>
-                                                    </ul>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Close</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="modal fade" id="editItemModal_{{ $item->item_id }}" tabindex="-1">
-                                        <div class="modal-dialog modal-lg">
-                                            <div class="modal-content">
-
-                                                <form action="{{ route('inventory.update', $item->item_id) }}"
-                                                    method="POST" class="needs-validation-update" novalidate>
-                                                    @csrf
-                                                    @method('PUT')
-
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Edit Item</h5>
-                                                        <button type="button" class="btn-close"
-                                                            data-bs-dismiss="modal"></button>
-                                                    </div>
-
-                                                    <div class="modal-body">
-
-                                                        {{-- Item Name --}}
-                                                        <div class="form-floating mb-3">
-                                                            <input type="text" class="form-control"
-                                                                name="item_name"
-                                                                id="edit_item_name_{{ $item->item_id }}"
-                                                                value="{{ old('item_name', $item->item_name) }}"
-                                                                placeholder="Item Name" required>
-
-                                                            <label>Item Name</label>
-
-                                                            <div class="invalid-feedback">
-                                                                Item Name is required.
-                                                            </div>
-                                                        </div>
-
-
-                                                        {{-- Serial Number --}}
-                                                        <div class="form-floating mb-3">
-                                                            <input type="text" name="item_serialno"
-                                                                class="form-control"
-                                                                value="{{ old('item_serialno', $item->item_serialno) }}"
-                                                                placeholder="Serial Number">
-
-                                                            <label>Serial Number (Optional)</label>
-                                                        </div>
-
-
-                                                        {{-- Unit of Measure --}}
-                                                        <div class="form-floating mb-3">
-                                                            <select name="item_uom_name" class="form-select">
-
-                                                                <option value="" disabled>Select Unit of Measure
-                                                                </option>
-
-                                                                <option value="Pcs"
-                                                                    {{ $item->uom?->item_uom_name == 'Pcs' ? 'selected' : '' }}>
-                                                                    Pcs</option>
-                                                                <option value="Set"
-                                                                    {{ $item->uom?->item_uom_name == 'Set' ? 'selected' : '' }}>
-                                                                    Set</option>
-                                                                <option value="Box"
-                                                                    {{ $item->uom?->item_uom_name == 'Box' ? 'selected' : '' }}>
-                                                                    Box</option>
-                                                                <option value="Roll"
-                                                                    {{ $item->uom?->item_uom_name == 'Roll' ? 'selected' : '' }}>
-                                                                    Roll</option>
-                                                                <option value="Pack"
-                                                                    {{ $item->uom?->item_uom_name == 'Pack' ? 'selected' : '' }}>
-                                                                    Pack</option>
-                                                                <option value="Pair"
-                                                                    {{ $item->uom?->item_uom_name == 'Pair' ? 'selected' : '' }}>
-                                                                    Pair</option>
-
-                                                            </select>
-
-                                                            <label>Unit of Measure</label>
-                                                        </div>
-
-
-                                                        {{-- Quantity --}}
-                                                        <div class="form-floating mb-3">
-                                                            <input type="number" name="item_quantity"
-                                                                class="form-control"
-                                                                value="{{ old('item_quantity', $item->item_quantity) }}"
-                                                                placeholder="Quantity" min="1" max="99"
-                                                                required oninput="this.value=this.value.slice(0,4)">
-
-                                                            <label>Quantity</label>
-
-                                                            <div class="invalid-feedback">
-                                                                Quantity is required.
-                                                            </div>
-                                                        </div>
-
-
-                                                        {{-- Remark --}}
-                                                        <div class="form-floating mb-3">
-                                                            <select name="item_remark" class="form-select" required>
-
-                                                                <option value="" disabled>Select Remark</option>
-
-                                                                <option value="Good"
-                                                                    {{ $item->item_remark == 'Good' ? 'selected' : '' }}>
-                                                                    Good</option>
-                                                                <option value="Damaged"
-                                                                    {{ $item->item_remark == 'Damaged' ? 'selected' : '' }}>
-                                                                    Damaged</option>
-                                                                <option value="Missing"
-                                                                    {{ $item->item_remark == 'Missing' ? 'selected' : '' }}>
-                                                                    Missing</option>
-
-                                                            </select>
-
-                                                            <label>Remark</label>
-                                                        </div>
-
-
-                                                        {{-- Category --}}
-                                                        <div class="form-floating mb-3">
-                                                            <select name="item_category_id" class="form-select"
-                                                                required>
-
-                                                                <option value="" disabled>Select Category
-                                                                </option>
-
-                                                                @foreach ($item_categories as $category)
-                                                                    <option value="{{ $category->item_category_id }}"
-                                                                        {{ $item->item_category_id == $category->item_category_id ? 'selected' : '' }}>
-
-                                                                        {{ $category->item_category_name }}
-
-                                                                    </option>
-                                                                @endforeach
-
-                                                            </select>
-
-                                                            <label>Category</label>
-
-                                                            <div class="invalid-feedback">
-                                                                Category is required.
-                                                            </div>
-                                                        </div>
-
-
-                                                        {{-- Brand --}}
-                                                        <div class="form-floating mb-3">
-                                                            <select name="item_brand_name" class="form-select"
-                                                                required>
-
-                                                                <option value="" disabled>Select Brand</option>
-
-                                                                <option value="Logitech"
-                                                                    {{ $item->brand?->item_brand_name == 'Logitech' ? 'selected' : '' }}>
-                                                                    Logitech</option>
-                                                                <option value="Microsoft"
-                                                                    {{ $item->brand?->item_brand_name == 'Microsoft' ? 'selected' : '' }}>
-                                                                    Microsoft</option>
-                                                                <option value="HP"
-                                                                    {{ $item->brand?->item_brand_name == 'HP' ? 'selected' : '' }}>
-                                                                    HP</option>
-                                                                <option value="Dell"
-                                                                    {{ $item->brand?->item_brand_name == 'Dell' ? 'selected' : '' }}>
-                                                                    Dell</option>
-                                                                <option value="Corsair"
-                                                                    {{ $item->brand?->item_brand_name == 'Corsair' ? 'selected' : '' }}>
-                                                                    Corsair</option>
-
-                                                                <option value="TP-Link"
-                                                                    {{ $item->brand?->item_brand_name == 'TP-Link' ? 'selected' : '' }}>
-                                                                    TP-Link</option>
-                                                                <option value="Cisco"
-                                                                    {{ $item->brand?->item_brand_name == 'Cisco' ? 'selected' : '' }}>
-                                                                    Cisco</option>
-                                                                <option value="Netgear"
-                                                                    {{ $item->brand?->item_brand_name == 'Netgear' ? 'selected' : '' }}>
-                                                                    Netgear</option>
-                                                                <option value="Ubiquiti"
-                                                                    {{ $item->brand?->item_brand_name == 'Ubiquiti' ? 'selected' : '' }}>
-                                                                    Ubiquiti</option>
-
-                                                                <option value="Seagate"
-                                                                    {{ $item->brand?->item_brand_name == 'Seagate' ? 'selected' : '' }}>
-                                                                    Seagate</option>
-                                                                <option value="Western Digital (WD)"
-                                                                    {{ $item->brand?->item_brand_name == 'Western Digital (WD)' ? 'selected' : '' }}>
-                                                                    Western Digital (WD)</option>
-                                                                <option value="Samsung"
-                                                                    {{ $item->brand?->item_brand_name == 'Samsung' ? 'selected' : '' }}>
-                                                                    Samsung</option>
-                                                                <option value="Kingston"
-                                                                    {{ $item->brand?->item_brand_name == 'Kingston' ? 'selected' : '' }}>
-                                                                    Kingston</option>
-
-                                                                <option value="Intel"
-                                                                    {{ $item->brand?->item_brand_name == 'Intel' ? 'selected' : '' }}>
-                                                                    Intel</option>
-                                                                <option value="AMD"
-                                                                    {{ $item->brand?->item_brand_name == 'AMD' ? 'selected' : '' }}>
-                                                                    AMD</option>
-                                                                <option value="Nvidia"
-                                                                    {{ $item->brand?->item_brand_name == 'Nvidia' ? 'selected' : '' }}>
-                                                                    Nvidia</option>
-                                                                <option value="ASUS"
-                                                                    {{ $item->brand?->item_brand_name == 'ASUS' ? 'selected' : '' }}>
-                                                                    ASUS</option>
-                                                                <option value="MSI"
-                                                                    {{ $item->brand?->item_brand_name == 'MSI' ? 'selected' : '' }}>
-                                                                    MSI</option>
-
-                                                                <option value="Canon"
-                                                                    {{ $item->brand?->item_brand_name == 'Canon' ? 'selected' : '' }}>
-                                                                    Canon</option>
-                                                                <option value="Epson"
-                                                                    {{ $item->brand?->item_brand_name == 'Epson' ? 'selected' : '' }}>
-                                                                    Epson</option>
-                                                                <option value="Brother"
-                                                                    {{ $item->brand?->item_brand_name == 'Brother' ? 'selected' : '' }}>
-                                                                    Brother</option>
-
-                                                                <option value="Apple"
-                                                                    {{ $item->brand?->item_brand_name == 'Apple' ? 'selected' : '' }}>
-                                                                    Apple</option>
-                                                                <option value="Xiaomi"
-                                                                    {{ $item->brand?->item_brand_name == 'Xiaomi' ? 'selected' : '' }}>
-                                                                    Xiaomi</option>
-                                                                <option value="Lenovo"
-                                                                    {{ $item->brand?->item_brand_name == 'Lenovo' ? 'selected' : '' }}>
-                                                                    Lenovo</option>
-                                                                <option value="Huawei"
-                                                                    {{ $item->brand?->item_brand_name == 'Huawei' ? 'selected' : '' }}>
-                                                                    Huawei</option>
-
-                                                                <option value="Belkin"
-                                                                    {{ $item->brand?->item_brand_name == 'Belkin' ? 'selected' : '' }}>
-                                                                    Belkin</option>
-                                                                <option value="UGREEN"
-                                                                    {{ $item->brand?->item_brand_name == 'UGREEN' ? 'selected' : '' }}>
-                                                                    UGREEN</option>
-                                                                <option value="Anker"
-                                                                    {{ $item->brand?->item_brand_name == 'Anker' ? 'selected' : '' }}>
-                                                                    Anker</option>
-
-                                                            </select>
-
-                                                            <label>Brand</label>
-
-                                                            <div class="invalid-feedback">
-                                                                Brand is required.
-                                                            </div>
-
-                                                        </div>
-
-                                                    </div>
-
-
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-light text-dark"
-                                                            data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="submit" class="btn btn-primary">Update
-                                                            Item</button>
-                                                    </div>
-
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center">No Product Found.</td>
-                            </tr>
-                        @endforelse
-
-                        </tbody>
-
-
-                    </table>
-                    <div class="d-flex justify-content-center mt-3">
-                        {{ $items->links('pagination::bootstrap-4') }}
-                    </div>
+            <table class="table table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="select_all">
+                        </th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Brand Name</th>
+                        <th>Serial Number</th>
+                        <th>Unit of Measure</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="table-data">
+                    @include('inventory.inventory-table')
+                </tbody>
+            </table>
+            <div class="d-flex justify-content-center mt-3">
+                {{ $items->links('pagination::bootstrap-4') }}
             </div>
-
-        </div>
-
-
     </body>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const selectAll = document.getElementById('select_all');
+        const bulkDeleteBtn = document.getElementById('bulk_delete_btn');
 
+        // Handle select all toggle
+        selectAll.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.select_item');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            bulkDeleteBtn.disabled = !this.checked;
+        });
+
+        // Enable/disable bulk delete on individual checkbox change
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('select_item')) {
+                const checkboxes = document.querySelectorAll('.select_item');
+                bulkDeleteBtn.disabled = ![...checkboxes].some(cb => cb.checked);
+                // Also update "select all" checkbox
+                const allChecked = [...checkboxes].every(cb => cb.checked);
+                selectAll.checked = allChecked;
+            }
+        });
+
+        // Bulk delete click
+        bulkDeleteBtn.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('.select_item');
+            const selectedIds = [...checkboxes]
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+
+            if (selectedIds.length === 0) return;
+
+            Swal.fire({
+                title: `Delete ${selectedIds.length} item(s)?`,
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch("{{ route('inventory.bulkDelete') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                ids: selectedIds
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: `${selectedIds.length} item(s) deleted.`,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Error', 'Something went wrong.', 'error');
+                            }
+                        });
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById("inventorySearch");
+            const remarkSelect = document.querySelector("select[name='remark']");
+            const categorySelect = document.querySelector("select[name='category']");
+            const brandSelect = document.querySelector("select[name='brand']");
+            const tableBody = document.getElementById("table-data");
+
+            if (!searchInput || !tableBody || !remarkSelect || !categorySelect || !brandSelect) return;
+
+            let timer;
+
+            function fetchTable() {
+                const query = searchInput.value.trim();
+                const remark = remarkSelect.value;
+                const category = categorySelect.value;
+                const brand = brandSelect.value; // include brand
+
+                const colCount = tableBody.closest("table").querySelectorAll("thead th").length;
+
+                tableBody.innerHTML = `<tr>
+            <td colspan="${colCount}" class="text-center text-muted" style="font-size:15px;font-weight:bold; color:gray;">
+                Loading...
+            </td>
+        </tr>`;
+
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    // Include brand in the URL
+                    const url =
+                        `{{ route('inventory.index') }}?search=${encodeURIComponent(query)}&remark=${encodeURIComponent(remark)}&category=${encodeURIComponent(category)}&brand=${encodeURIComponent(brand)}&ajax=1`;
+
+                    fetch(url, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'text/html'
+                            }
+                        })
+                        .then(res => {
+                            if (!res.ok) throw new Error("Server error: " + res.status);
+                            return res.text();
+                        })
+                        .then(html => {
+                            tableBody.innerHTML = html;
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            tableBody.innerHTML = `<tr>
+                    <td colspan="${colCount}" class="text-center text-danger" style="font-size:15px;font-weight:bold;">
+                        Failed to load data.
+                    </td>
+                </tr>`;
+                        });
+                }, 300);
+            }
+
+            searchInput.addEventListener("keyup", fetchTable);
+            remarkSelect.addEventListener("change", fetchTable);
+            categorySelect.addEventListener("change", fetchTable);
+            brandSelect.addEventListener("change", fetchTable);
+        });
+    </script>
     <script>
         $(document).ready(function() {
             // -------------------------
@@ -726,6 +565,31 @@
                 });
             });
 
+        });
+    </script>
+
+    <script>
+        // -------------------------
+        // EXPORT SELECTED TO EXCEL
+        // -------------------------
+        document.getElementById('export_excel_btn').addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const checkboxes = document.querySelectorAll('.select_item:checked');
+            const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+
+            let url = "{{ route('inventory.index', ['export' => 'excel']) }}";
+
+            const searchInput = document.getElementById("inventorySearch");
+            if (searchInput && searchInput.value) {
+                url += "&search=" + encodeURIComponent(searchInput.value);
+            }
+
+            if (selectedIds.length > 0) {
+                url += "&ids=" + selectedIds.join(',');
+            }
+
+            window.open(url, '_blank');
         });
     </script>
 

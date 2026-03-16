@@ -132,10 +132,14 @@
                 align-items: center;
             }
 
-            .nav-logo img {
-                height: 90px; /* Increased size of the logo */
+           .nav-logo img {
+                height: 90px;
                 width: auto;
                 object-fit: contain;
+                position: fixed;
+                top: 10px;     /* distance from top */
+                left: 30px;    /* distance from left */
+                z-index: 1000; /* keeps it above other elements */
             }
 
             .nav-menu {
