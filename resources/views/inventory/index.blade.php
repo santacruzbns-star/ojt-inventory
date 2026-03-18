@@ -41,10 +41,9 @@
 
                     <div class="d-flex gap-2 mb-3">
                         <select name="remark" class="form-select form-select-sm" style="min-width: 120px;">
-                            <option value="">All Remarks</option>
+                            <option value="">Remarks *</option>
                             @foreach ($item_remarks as $remark)
-                                <option value="{{ $remark }}"
-                                    {{ request('remark') == $remark ? 'selected' : '' }}>
+                                <option value="{{ $remark }}" {{ request('remark') == $remark ? 'selected' : '' }}>
                                     {{ $remark }}
                                 </option>
                             @endforeach
@@ -52,7 +51,7 @@
 
                         <select name="category" class="form-select form-select-sm" id="categoryFilter"
                             style="min-width: 120px;">
-                            <option value="">All Categories</option>
+                            <option value="">Categories *</option>
                             @foreach ($item_categories as $category)
                                 <option value="{{ $category->item_category_id }}"
                                     {{ request('category') == $category->item_category_id ? 'selected' : '' }}>
@@ -63,7 +62,7 @@
 
                         <select name="brand" class="form-select form-select-sm" id="brandFilter"
                             style="min-width: 120px;">
-                            <option value="">All Brands</option>
+                            <option value="">Brands *</option>
                             @foreach ($item_brands as $brand)
                                 <option value="{{ $brand->item_brand_id }}"
                                     {{ request('brand') == $brand->item_brand_id ? 'selected' : '' }}>
@@ -293,9 +292,9 @@
                             <th>Brand Name</th>
                             <th>Serial Number</th>
                             <th>Unit of Measure</th>
-                            <th>Quantity</th>
+                            <th>Total Item</th>
                             <th>Quantity Remaining</th>
-                            <th>Quantity Status</th>
+                            {{-- <th>Quantity Status</th> --}}
                             <th>Item Status</th>
                             <th>Action</th>
                         </tr>

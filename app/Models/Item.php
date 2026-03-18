@@ -33,4 +33,9 @@ class Item extends Model
     {
         return $this->belongsTo(ItemUom::class, 'item_uom_id');
     }
+
+    public function personnelItems()
+    {
+        return $this->hasMany(PersonnelItem::class, 'item_id', 'item_id');
+    }
 }

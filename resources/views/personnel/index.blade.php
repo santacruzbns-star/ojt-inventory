@@ -128,6 +128,7 @@
                             @csrf
                             <div class="modal-body">
 
+                                <!-- Personnel -->
                                 <div class="form-floating mb-3">
                                     <select name="personnel_id" class="form-select" id="personnel_id" required>
                                         <option value="" disabled selected>Select Personnel</option>
@@ -140,6 +141,7 @@
                                     <div class="invalid-feedback">Please select a personnel.</div>
                                 </div>
 
+                                <!-- Item -->
                                 <div class="form-floating mb-3">
                                     <select name="item_id" class="form-select" id="item_id" required>
                                         <option value="" disabled selected>Select Item</option>
@@ -151,6 +153,7 @@
                                     <div class="invalid-feedback">Please select an item.</div>
                                 </div>
 
+                                <!-- Quantity -->
                                 <div class="form-floating mb-3">
                                     <input type="number" name="personnel_item_quantity" class="form-control"
                                         id="personnel_item_quantity" placeholder="Quantity" min="1" required>
@@ -158,32 +161,33 @@
                                     <div class="invalid-feedback">Quantity is required and must be at least 1.</div>
                                 </div>
 
+                                <!-- Date Issued -->
                                 <div class="form-floating mb-3">
                                     <input type="date" name="personnel_date_issued" class="form-control"
-                                        id="personnel_item_receive">
-                                    <label for="personnel_item_receive">Receive Issued (Optional)</label>
-
+                                        id="personnel_date_issued">
+                                    <label for="personnel_date_issued">Date Issued (Optional)</label>
                                 </div>
 
-                                <div class="form-floating mb-3">
-                                    <input type="date" name="personnel_date_receive" class="form-control"
-                                        id="personnel_item_receive">
-                                    <label for="personnel_item_receive">Receive Date (optional)</label>
-
-                                </div>
+                                <!-- Remarks -->
                                 <div class="form-floating mb-3">
                                     <select name="personnel_item_remarks" class="form-select"
                                         id="personnel_item_remarks" required>
                                         <option value="" disabled selected>Select Remark</option>
                                         <option value="Received">Received</option>
-                                        <option value="Not Receive">Not Receive
-                                        </option>
-                                        <option value="Returned">Returned</option>
+                                        <option value="Not Receive">Not Receive</option>
                                         <option value="To be delivered">To be delivered</option>
                                     </select>
                                     <label for="personnel_item_remarks">Remarks</label>
                                     <div class="invalid-feedback">Remark is required.</div>
                                 </div>
+
+                                <!-- Receive Date (hidden by default) -->
+                                <div class="form-floating mb-3" id="receive_date_container" style="display:none;">
+                                    <input type="date" name="personnel_date_receive" class="form-control"
+                                        id="personnel_date_receive">
+                                    <label for="personnel_date_receive">Receive Date (optional)</label>
+                                </div>
+
                             </div>
 
                             <div class="modal-footer">
@@ -230,7 +234,23 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- JS to toggle Receive Date --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const remarksSelect = document.getElementById('personnel_item_remarks');
+            const receiveDateContainer = document.getElementById('receive_date_container');
 
+            remarksSelect.addEventListener('change', function() {
+                if (this.value === 'Received') {
+                    // Show receive date only if 'Received' is selected
+                    receiveDateContainer.style.display = 'block';
+                } else {
+                    receiveDateContainer.style.display = 'none';
+                    document.getElementById('personnel_date_receive').value = '';
+                }
+            });
+        });
+    </script>
     <script>
         // Session Success Alert
         @if (session('success'))
@@ -281,4 +301,5 @@
             });
         });
     </script>
+    
 </x-app-layout>

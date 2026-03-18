@@ -26,19 +26,23 @@ Route::middleware('auth')->group(function () {
    
    
 });
-  // Outbound
-    Route::resource('outbound', PersonnelItemController::class);
-    Route::post('/personnels/store', [PersonnelItemController::class, 'storePersonnel'])->name('personnels.store');
-
     // Inventory
     Route::resource('inventory', ItemController::class);
-  
-     Route::post('/item-category/store', [ItemController::class, 'storeCategory'])->name('item-category.store');
+    Route::post('/item-category/store', [ItemController::class, 'storeCategory'])->name('item-category.store');
     Route::post('/inventory/check-duplicate', [ItemController::class, 'checkDuplicate'])->name('inventory.checkDuplicate');
     Route::post('/inventory/bulk-delete', [ItemController::class, 'bulkDestroy'])
     ->name('inventory.bulkDelete');
-
     Route::get('/inventory/{item}/pdf', [ItemController::class, 'exportIndividualPDF'])
      ->name('inventory.export.individual.pdf');
+
+    // Outbound
+
+    // Route::put('outbound/update', PersonnelItemController::class)->name('outbound.update');
+    Route::resource('outbound', PersonnelItemController::class);
+    Route::post('/personnels/store', [PersonnelItemController::class, 'storePersonnel'])->name('personnels.store');
+
+   Route::put('/outbound/{outbound}/return', [PersonnelItemController::class, 'returnItem'])
+    ->name('outbound.return')
+    ->whereNumber('outbound');
     
 require __DIR__.'/auth.php';

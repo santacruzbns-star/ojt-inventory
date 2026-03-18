@@ -17,7 +17,7 @@
           <td>{{ $item->uom ? $item->uom->item_uom_name : '-' }}</td>
           <td>{{ $item->item_quantity ?? '-' }}</td>
           <td>{{ $item->item_quantity_remaining ?? '-' }}</td>
-          <td>
+          {{-- <td>
               @if ($item->item_quantity_status == 'Out of Stock')
                   <span class="badge bg-danger">Out of Stock</span>
               @elseif ($item->item_quantity_status == 'Low Stock')
@@ -25,7 +25,7 @@
               @else
                   <span class="badge bg-success">Available</span>
               @endif
-          </td>
+          </td> --}}
           <td>
               <span class="badge {{ $remarkColor[$item->item_remark] ?? 'bg-secondary' }}">
                   {{ $item->item_remark ?? '-' }}
@@ -33,8 +33,8 @@
           </td>
           <td>
               <div class="dropdown position-static">
-                  <button class="btn btn-light btn-sm dropdown-toggle" type="button"
-                      id="actionMenu_{{ $item->item_id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                  <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="actionMenu_{{ $item->item_id }}"
+                      data-bs-toggle="dropdown" aria-expanded="false">
 
                       <i class="bi bi-three-dots-vertical fs-5"></i>
 
