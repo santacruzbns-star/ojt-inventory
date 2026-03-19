@@ -41,9 +41,11 @@
 
                     <div class="d-flex gap-2 mb-3">
                         <select name="remark" class="form-select form-select-sm" style="min-width: 120px;">
-                            <option value="">Remarks *</option>
+                            <option value="" disabled>Select Remark </option>
+                            <option value="">Remarks </option>
                             @foreach ($item_remarks as $remark)
-                                <option value="{{ $remark }}" {{ request('remark') == $remark ? 'selected' : '' }}>
+                                <option value="{{ $remark }}"
+                                    {{ request('remark') == $remark ? 'selected' : '' }}>
                                     {{ $remark }}
                                 </option>
                             @endforeach
@@ -51,7 +53,8 @@
 
                         <select name="category" class="form-select form-select-sm" id="categoryFilter"
                             style="min-width: 120px;">
-                            <option value="">Categories *</option>
+                            <option value="" disabled>Select Category </option>
+                            <option value="">Categories </option>
                             @foreach ($item_categories as $category)
                                 <option value="{{ $category->item_category_id }}"
                                     {{ request('category') == $category->item_category_id ? 'selected' : '' }}>
@@ -62,7 +65,8 @@
 
                         <select name="brand" class="form-select form-select-sm" id="brandFilter"
                             style="min-width: 120px;">
-                            <option value="">Brands *</option>
+                            <option value="" disabled>Select Brand</option>
+                            <option value="">Brands </option>
                             @foreach ($item_brands as $brand)
                                 <option value="{{ $brand->item_brand_id }}"
                                     {{ request('brand') == $brand->item_brand_id ? 'selected' : '' }}>
@@ -71,7 +75,7 @@
                             @endforeach
                         </select>
                     </div>
-
+                    
                     <div class="d-flex gap-2 flex-wrap">
                         <a href="{{ route('inventory.index', ['export' => 'pdf', 'search' => request('search')]) }}"
                             class="btn btn-danger d-flex align-items-center gap-1" target="_blank">
@@ -269,7 +273,8 @@
 
 
 
-                            </div> <div class="modal-footer">
+                            </div>
+                            <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-light text-dark"
                                     data-bs-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-success">Submit</button>
@@ -304,11 +309,12 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <div class="d-flex justify-content-center mt-3">
                 {{ $items->links('pagination::bootstrap-4') }}
             </div>
-        </div> </body>
+        </div>
+    </body>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
