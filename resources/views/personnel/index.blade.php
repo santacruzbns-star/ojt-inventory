@@ -191,6 +191,8 @@
                                     <h6 class="text-muted mb-3"><i class="bi bi-person-badge me-1"></i> 1. Select
                                         Personnel</h6>
 
+
+
                                     <div class="input-group mb-2">
                                         <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
                                         <input type="text" id="personnelSearch" class="form-control"
@@ -249,6 +251,7 @@
                                     <div class="list-group list-group-flush border rounded-3"
                                         style="max-height: 250px; overflow-y: auto;" id="itemList">
                                         @foreach ($items as $item)
+                                            @continue($item->item_remark === 'Damaged' || $item->item_remark === 'Missing')
                                             @php
                                                 $qty = $item->item_quantity_remaining ?? 0;
                                                 $isOutOfStock = $qty <= 0;
@@ -386,6 +389,8 @@
             {{ $outbounds->links('pagination::bootstrap-4') }}
         </div>
         </div>
+
+
     </body>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -761,6 +766,25 @@
                 }
             });
         });
+
+        // Handle Excel Export (Selected or All filtered)
+        const exportExcelBtn = document.getElementById('export_excel_btn');
+        if (exportExcelBtn) {
+            exportExcelBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const checkboxes = document.querySelectorAll('.select_item:checked');
+                const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+
+                let urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('export', 'excel');
+
+                if (selectedIds.length > 0) {
+                    urlParams.set('ids', selectedIds.join(','));
+                }
+
+                window.location.href = "{{ route('outbound.index') }}?" + urlParams.toString();
+            });
+        }
     </script>
     <script>
         // Session Success Alert

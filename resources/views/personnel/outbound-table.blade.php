@@ -249,12 +249,7 @@
                                 <option value="Damaged">Damaged</option>
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Date Received</label>
-                            <input type="date" name="personnel_item_receive" class="form-control"
-                                value="{{ $outbound->personnel_date_receive }}" {{ $isReturned ? 'disabled' : '' }}
-                                required>
-                        </div>
+                      <input type="date" name="return_date" value="{{ date('Y-m-d') }}" required>
                     </div>
 
                     <div class="modal-footer">

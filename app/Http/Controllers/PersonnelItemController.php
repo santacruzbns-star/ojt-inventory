@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PersonnelItemsExport;
 
 class PersonnelItemController extends Controller
 {
@@ -67,6 +69,43 @@ class PersonnelItemController extends Controller
                 'outbounds',
                 'personnels'
             ))->render();
+        }
+
+        // EXPORT SINGLE ITEM PDF
+        if ($request->get('export') == 'pdf' && $request->has('personnel_item_id')) {
+            $itemId = $request->get('personnel_item_id');
+            $outbound = PersonnelItem::with(['personnel', 'personnel.branch', 'item'])->findOrFail($itemId);
+            $pdf = Pdf::loadView('personnel.pdf-individual', compact('outbound'));
+            return $pdf->stream("outbound_{$outbound->personnel_item_id}.pdf");
+        }
+
+        // EXPORT EXCEL
+        if ($request->get('export') == 'excel') {
+            $ids = $request->get('ids');
+            $dbQuery = PersonnelItem::with(['personnel', 'personnel.branch', 'item']);
+
+            if ($ids) {
+                $idArray = explode(',', $ids);
+                $dbQuery->whereIn('personnel_item_id', $idArray);
+            } else {
+                $dbQuery->when($search, function ($q) use ($search) {
+                    $q->where(function ($sub) use ($search) {
+                        $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
+                            ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
+                    });
+                })
+                    ->when($personnelFilter, fn($q) => $q->where('personnel_id', $personnelFilter))
+                    ->when($departmentFilter, function ($q) use ($departmentFilter) {
+                        $q->whereHas('personnel.branch', fn($q2) => $q2->where('branch_department', $departmentFilter));
+                    })
+                    ->when($branchFilter, function ($q) use ($branchFilter) {
+                        $q->whereHas('personnel.branch', fn($q2) => $q2->where('branch_id', $branchFilter));
+                    })
+                    ->when($remarksFilter, fn($q) => $q->where('personnel_item_remarks', $remarksFilter));
+            }
+
+            $filteredOutbounds = $dbQuery->latest()->get();
+            return Excel::download(new PersonnelItemsExport($filteredOutbounds), 'outbound.xlsx');
         }
 
         // for the entire pdf
@@ -255,48 +294,60 @@ class PersonnelItemController extends Controller
         $validated = $request->validate([
             'return_quantity' => 'required|integer|min:1|max:' . $outbound->personnel_item_quantity,
             'return_condition' => 'required|string|in:Good,Damaged',
+            'return_date' => 'required|date',
         ]);
 
         DB::transaction(function () use ($outbound, $validated) {
 
             $item = $outbound->item;
 
-            // Subtract returned quantity from original outbound
+            // Reduce borrowed quantity
             $outbound->personnel_item_quantity -= $validated['return_quantity'];
             $outbound->save();
 
             if ($validated['return_condition'] === 'Good') {
-                // Good: merge into stock
+
+                // ✅ ONLY add back to remaining (DO NOT touch item_quantity)
                 $item->item_quantity_remaining += $validated['return_quantity'];
-                $item->item_quantity_status = $item->item_quantity_remaining <= 0 ? 'Out of Stock' :
+
+                $item->item_quantity_status =
+                    $item->item_quantity_remaining <= 0 ? 'Out of Stock' :
                     ($item->item_quantity_remaining < ($item->item_quantity * 0.2) ? 'Low Stock' : 'Available');
+
                 $item->save();
 
-                // Record as PersonnelItem
+                // Record return
                 PersonnelItem::create([
                     'personnel_id' => $outbound->personnel_id,
                     'item_id' => $item->item_id,
                     'personnel_item_quantity' => $validated['return_quantity'],
-                    'personnel_date_receive' => $item->personnel_date_receive,
+                    'personnel_date_receive' => $validated['return_date'],
                     'personnel_item_remarks' => 'Returned',
                     'item_remark' => 'Good',
                 ]);
 
             } else {
-                // Damaged: check if a “Damaged” record for this item already exists
+
+                // ✅ Reduce ONLY remaining (since item is gone/damaged)
+                $item->item_quantity_remaining -= $validated['return_quantity'];
+                $item->save();
+
+                // Find or create damaged item
                 $existingDamaged = Item::where('item_name', $item->item_name)
                     ->where('item_remark', 'Damaged')
                     ->first();
 
                 if ($existingDamaged) {
-                    // Merge quantity into existing damaged item
+
+                    // ✅ Add to damaged stock
                     $existingDamaged->item_quantity += $validated['return_quantity'];
                     $existingDamaged->item_quantity_remaining += $validated['return_quantity'];
                     $existingDamaged->save();
 
                     $damagedItemId = $existingDamaged->item_id;
+
                 } else {
-                    // Create new damaged item
+
                     $damagedItem = $item->replicate();
                     $damagedItem->item_quantity = $validated['return_quantity'];
                     $damagedItem->item_quantity_remaining = $validated['return_quantity'];
@@ -307,12 +358,12 @@ class PersonnelItemController extends Controller
                     $damagedItemId = $damagedItem->item_id;
                 }
 
-                // Record as PersonnelItem
+                // Record damaged return
                 PersonnelItem::create([
                     'personnel_id' => $outbound->personnel_id,
                     'item_id' => $damagedItemId,
                     'personnel_item_quantity' => $validated['return_quantity'],
-                     'personnel_date_receive' => $item->personnel_date_receive,
+                    'personnel_date_receive' => $validated['return_date'],
                     'personnel_item_remarks' => 'Returned',
                     'item_remark' => 'Damaged',
                 ]);

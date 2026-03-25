@@ -30,7 +30,8 @@
                                 <img src="storage/img/available-item.png" alt="error" class="available-icon">
                             </div>
                             <div class="summary-meta">
-                                <div class="summary-value">{{ $availableItem }}</div>
+                                
+                                <div class="summary-value">{{ $itemRemaining }}</div>
                                 <div class="summary-title">Available Items</div>
                             </div>
                         </div>
@@ -111,7 +112,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted">No recent activity</td>
+                                    <td colspan="5" class="text-center text-muted">No recent activity</td>
                                 </tr>
                             @endforelse
                         </tbody>

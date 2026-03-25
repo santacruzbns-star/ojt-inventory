@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('item_uom_id');
             $table->string('item_name');
             $table->string('item_serialno')->nullable();
-            $table->integer('item_quantity');
+            $table->integer('item_quantity')->nullable();
             $table->integer('item_quantity_remaining');
             $table->string('item_quantity_status');
             $table->string('item_remark');
