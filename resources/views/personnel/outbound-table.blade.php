@@ -1,21 +1,22 @@
+@php
+    $remarkColor = [
+        'To be delivered' => 'bg-info text-dark',
+        'Not Receive' => 'bg-danger',
+        'Issued' => 'bg-warning text-dark',
+        'Received' => 'bg-success',
+        'Returned' => 'bg-primary',
+    ];
+@endphp
 @forelse ($outbounds as $outbound)
-    @php
-        $remarkColor = [
-            'To be delivered' =>
-                'bg-info text-dark                                                                                                                      ',
-            'Not Receive' => 'bg-danger',
-            'Issued' => 'bg-warning text-dark ',
-            'Received' => 'bg-success',
-            'Returned' => 'bg-primary ',
-        ];
-    @endphp
     <tr>
         <td>
             <input type="checkbox" class="select_item" value="{{ $outbound->personnel_item_id }}">
         </td>
         <td class="text-center">{{ $outbound->personnel?->personnel_name ?? '-' }}</td>
         <td class="text-center">{{ $outbound->item?->item_name ?? '-' }}</td>
-        <td class="text-center">{{ $outbound->personnel_date_issued }}</td>
+        <td class="text-center">
+            {{ \Carbon\Carbon::parse($outbound->personnel_date_issued)->setTimezone('Asia/Manila')->format('M d, Y ') }}
+        </td>
         <td class="text-center">{{ $outbound->personnel_item_quantity }}</td>
         <td class="text-center">{{ $outbound->item?->uom?->item_uom_name ?? '-' }}</td>
         <td class="text-center">
@@ -74,24 +75,38 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Custodian:</strong>
-                            {{ $outbound->personnel ? $outbound->personnel->personnel_name : '-' }}</li>
-                        <li class="list-group-item"><strong>Item Name:</strong> {{ $outbound->item->item_name }}</li>
+                    <div class="row g-4">
+                        <div class="col-md-6 border-end">
+                            <h6 class="text-muted mb-3"><i class="bi bi-info-circle me-1"></i> Personnel
+                                Identification</h6>
+                            <p><strong>Custodian:</strong>
+                                {{ $outbound->personnel ? $outbound->personnel->personnel_name : '-' }}</p>
+                            <p><strong>Branch:</strong> {{ $outbound->personnel?->branch?->branch_name ?? '-' }}</p>
+                            <p><strong>Department:</strong>
+                                {{ $outbound->personnel?->branch?->branch_department ?? '-' }}</p>
 
-                        <li class="list-group-item"><strong>Date Issued: </strong>
-                            {{ $outbound->personnel_date_issued }}</li>
-                        <li class="list-group-item"><strong>Unit of Measure:</strong>
-                            {{ $outbound->item ? $outbound->item->uom->item_uom_name : '-' }}</li>
-                        <li class="list-group-item"><strong>Date Received:</strong>
-                            {{ $outbound->personnel_date_receive ?? 'N/A' }}</li>
-                        <li class="list-group-item"><strong>Branch:</strong>
-                            {{ $outbound->personnel?->branch?->branch_name ?? '-' }}</li>
-                        <li class="list-group-item"><strong>Department:</strong>
-                            {{ $outbound->personnel?->branch?->branch_department ?? '-' }}</li>
-                        <li class="list-group-item"><strong>Status:</strong>
-                            {{ $outbound->personnel_item_remarks }}</li>
-                    </ul>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3"><i class="bi bi-box-seam me-1"></i> Item
+                                Information</h6>
+                            <p><strong>Item Name:</strong>
+                                {{ $outbound->item->item_name }}</p>
+                            <p><strong>Unit of Measure:</strong>
+                                {{ $outbound->item ? $outbound->item->uom->item_uom_name : '-' }}</p>
+                            <p><strong>Date Issued:</strong>
+                                {{ \Carbon\Carbon::parse($outbound->personnel_date_issued)->setTimezone('Asia/Manila')->format('M d, Y ') }}
+                            </p>
+                            <p><strong>Date Received:</strong>
+                                {{ \Carbon\Carbon::parse($outbound->personnel_date_receive)->setTimezone('Asia/Manila')->format('M d, Y ') }}
+                            </p>
+
+                            <p><strong>Status:</strong> <span
+                                    class="badge {{ $remarkColor[$outbound->personnel_item_remarks] ?? 'bg-secondary' }}">
+                                    {{ $outbound->personnel_item_remarks ?? '-' }}
+                                </span></p>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <!-- PDF button -->
@@ -211,7 +226,8 @@
                     $isReturned = $outbound->personnel_item_remarks === 'Returned';
                 @endphp
 
-                <form action="{{ route('outbound.return', $outbound->personnel_item_id) }}" method="POST">
+                <form action="{{ route('outbound.return', $outbound->personnel_item_id) }}" method="POST"
+                    class="needs-validation" novalidate>
                     @csrf
                     @method('PUT')
 
@@ -228,14 +244,24 @@
                     <div class="modal-body">
 
                         {{-- Returned Quantity --}}
-                        <div class="mb-3">
-                            <label for="return_quantity_{{ $outbound->personnel_item_id }}"
-                                class="form-label">Returned Quantity</label>
-
+                        <div class="form-floating mb-3">
                             <input type="number" name="return_quantity"
-                                id="return_quantity_{{ $outbound->personnel_item_id }}" class="form-control"
-                                min="1" max="{{ $outbound->personnel_item_quantity }}"
-                                {{ $isReturned ? 'disabled' : '' }} required>
+                                id="return_quantity_{{ $outbound->personnel_item_id }}"
+                                class="form-control @error('return_quantity') is-invalid @enderror"
+                                placeholder="Return Quantity" min="1"
+                                max="{{ $outbound->personnel_item_quantity }}" value="{{ old('return_quantity') }}"
+                                {{ $isReturned ? 'readonly' : '' }} required>
+
+                            <label for="return_quantity_{{ $outbound->personnel_item_id }}" value="1">
+                                Returned Quantity
+                            </label>
+
+                            <div class="invalid-feedback">
+                                Please enter a valid return quantity.
+                            </div>
+                            <div class="form-text text-muted">
+                                Max allowed: {{ $outbound->personnel_item_quantity }}
+                            </div>
                         </div>
 
                         {{-- Condition --}}
@@ -249,7 +275,17 @@
                                 <option value="Damaged">Damaged</option>
                             </select>
                         </div>
-                      <input type="date" name="return_date" value="{{ date('Y-m-d') }}" required>
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="return_date" name="return_date"
+                                value="{{ date('Y-m-d') }}" min="{{ date('Y-m-d') }}"
+                                {{ $isReturned ? 'disabled' : '' }} required>
+
+                            <label for="return_date">Return Date</label>
+
+                            <div class="invalid-feedback">
+                                Return date cannot be in the past.
+                            </div>
+                        </div>
                     </div>
 
                     <div class="modal-footer">
@@ -273,3 +309,57 @@
         </td>
     </tr>
 @endforelse
+
+<script>
+    // QUANTITY VALIDATION
+    document.querySelectorAll('[id^="return_quantity_"]').forEach(input => {
+        input.addEventListener('input', function() {
+            const max = parseInt(this.getAttribute('max'));
+            const value = parseInt(this.value);
+
+            if (value > max) {
+                this.classList.add('is-invalid');
+                this.setCustomValidity(`Cannot exceed ${max}`);
+                this.parentElement.querySelector('.invalid-feedback').innerText =
+                    `Cannot exceed ${max}.`;
+            } else if (value < 1 || isNaN(value)) {
+                this.classList.add('is-invalid');
+                this.setCustomValidity(`Minimum is 1`);
+                this.parentElement.querySelector('.invalid-feedback').innerText =
+                    `Minimum is 1.`;
+            } else {
+                this.classList.remove('is-invalid');
+                this.setCustomValidity('');
+            }
+        });
+    });
+
+    // DATE VALIDATION (NO PAST DATE)
+    document.querySelectorAll('input[name="return_date"]').forEach(input => {
+
+        const today = new Date().toISOString().split('T')[0];
+
+        // set min dynamically (extra safety)
+        input.setAttribute('min', today);
+
+        input.addEventListener('input', function() {
+            if (this.value < today) {
+                this.classList.add('is-invalid');
+                this.setCustomValidity('Date cannot be in the past');
+
+                // create feedback if not exists
+                let feedback = this.parentElement.querySelector('.invalid-feedback');
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    this.parentElement.appendChild(feedback);
+                }
+
+                feedback.innerText = 'Date cannot be in the past';
+            } else {
+                this.classList.remove('is-invalid');
+                this.setCustomValidity('');
+            }
+        });
+    });
+</script>

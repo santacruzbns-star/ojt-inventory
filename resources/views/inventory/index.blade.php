@@ -567,12 +567,12 @@
                     Swal.fire({
                         title: 'Are you sure?',
                         text: 'This item will be deleted.',
-                        icon: 'warning',
+                        icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#dc3545',
                         cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'Yes, delete it',
-                        cancelButtonText: 'No'
+                        confirmButtonText: '<i class="fa fa-trash"></i> Yes, delete it',
+                        cancelButtonText: '<i class="fa fa-times"></i>  No'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             form.submit();

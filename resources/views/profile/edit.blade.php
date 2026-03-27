@@ -53,7 +53,7 @@
             
         </div>
 
-        <div class="row mt-2">
+        {{-- <div class="row mt-2">
             <div class="col-12">
                 <div class="card border border-danger border-opacity-25 bg-danger bg-opacity-10 shadow-sm rounded-4 animate-card" style="animation-delay: 0.3s;">
                     <div class="card-body p-4 p-md-5">
@@ -62,7 +62,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
     </div>

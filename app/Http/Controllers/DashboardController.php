@@ -17,7 +17,7 @@ class DashboardController extends Controller
 
         // Total damaged items
         $damagedItem = Item::where('item_remark', 'Damaged')
-            ->sum('item_quantity');
+            ->sum('item_quantity_remaining');
 
         // Remaining items 
         $itemRemaining = Item::where('item_remark', '!=', 'Damaged')
@@ -25,6 +25,7 @@ class DashboardController extends Controller
 
         // Available items 
         $goodItemTotal = Item::where('item_remark', 'Good')
+            ->where('item_remark', '!=', 'Damaged')
             ->sum('item_quantity');
 
         $availableItem = $goodItemTotal - $outboundCount;

@@ -307,7 +307,7 @@ class PersonnelItemController extends Controller
 
             if ($validated['return_condition'] === 'Good') {
 
-                // ✅ ONLY add back to remaining (DO NOT touch item_quantity)
+                // ✅ Add back to remaining only
                 $item->item_quantity_remaining += $validated['return_quantity'];
 
                 $item->item_quantity_status =
@@ -328,21 +328,19 @@ class PersonnelItemController extends Controller
 
             } else {
 
-                // ✅ Reduce ONLY remaining from original item
-                $item->item_quantity_remaining -= $validated['return_quantity'];
                 $item->save();
 
-                // Find or create damaged item
+                // ✅ Find existing damaged item (MERGE)
                 $existingDamaged = Item::where('item_name', $item->item_name)
                     ->where('item_remark', 'Damaged')
                     ->first();
 
                 if ($existingDamaged) {
 
-                    // ✅ Set total to 0 (as per your requirement)
+                    // ✅ ALWAYS ZERO total quantity
                     $existingDamaged->item_quantity = 0;
 
-                    // ✅ Add to remaining
+                    // ✅ Accumulate damaged count in remaining
                     $existingDamaged->item_quantity_remaining += $validated['return_quantity'];
 
                     $existingDamaged->item_quantity_status = 'Damaged';
@@ -352,14 +350,14 @@ class PersonnelItemController extends Controller
 
                 } else {
 
+                    // ✅ Create damaged item once
                     $damagedItem = $item->replicate();
 
-                    // ✅ Opposite logic
-                    $damagedItem->item_quantity = 0;
+                    $damagedItem->item_quantity = 0; // 🔥 always zero
                     $damagedItem->item_quantity_remaining = $validated['return_quantity'];
-
                     $damagedItem->item_quantity_status = 'Damaged';
                     $damagedItem->item_remark = 'Damaged';
+
                     $damagedItem->save();
 
                     $damagedItemId = $damagedItem->item_id;

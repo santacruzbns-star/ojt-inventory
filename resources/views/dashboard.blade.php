@@ -30,8 +30,8 @@
                                 <img src="storage/img/available-item.png" alt="error" class="available-icon">
                             </div>
                             <div class="summary-meta">
-                                
-                                <div class="summary-value">{{ $goodItemTotal }}</div>
+
+                                <div class="summary-value">{{ $itemRemaining }}</div>
                                 <div class="summary-title">Available Items</div>
                             </div>
                         </div>
@@ -58,7 +58,7 @@
                             </div>
                         </div>
                     </div>
-                   
+
                 </div>
             </div>
         </div>
@@ -196,11 +196,11 @@
                     <span>Total Children</span>
                 </li>
                 ${data.topZones.map(zone => `
-                                                                                                                        <li class="barangay-item">
-                                                                                                                            <span>${zone.zone}</span>
-                                                                                                                            <span>${zone.total}</span>
-                                                                                                                        </li>
-                                                                                                                    `).join('')}
+                                                                                                                                <li class="barangay-item">
+                                                                                                                                    <span>${zone.zone}</span>
+                                                                                                                                    <span>${zone.total}</span>
+                                                                                                                                </li>
+                                                                                                                            `).join('')}
             `;
                     })
                     .catch(error => console.error('Error fetching chart data:', error));
@@ -209,7 +209,7 @@
             // Load initial chart on page load
             window.addEventListener('load', updateChart);
         </script>
-        
+
         <script>
             @if (session('success'))
                 Swal.fire({

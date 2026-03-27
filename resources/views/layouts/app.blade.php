@@ -30,6 +30,7 @@
 
     <header class="modern-header">
         <nav class="nav-container">
+            <span id="liveClock" class="fw-bold"></span>
 
             <a href="/" class="nav-logo">
                 <img src="{{ asset('storage/img/login-logo.png') }}" alt="Goldtown Logo">
@@ -126,18 +127,20 @@
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You will be logged out of your session.",
-                icon: 'warning',
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#0d324d', // Matches your primary color
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, logout',
-                cancelButtonText: 'No, cancel'
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: 'gray',
+
+                confirmButtonText: '<i class="fa fa-sign-out-alt"></i> Yes, logout',
+                cancelButtonText: '<i class="fa fa-times"></i> No, cancel',
+
+                buttonsStyling: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Submit the form if the user clicks 'Yes'
                     document.getElementById('logout-form').submit();
                 }
-            })
+            });
         }
 
         const Toast = Swal.mixin({
@@ -181,6 +184,7 @@
             });
         @endif
     </script>
+
 </body>
 
 </html>

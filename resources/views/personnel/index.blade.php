@@ -183,22 +183,17 @@
                         @csrf
                         <input type="hidden" name="personnel_id" id="selected_personnel_id" required>
                         <input type="hidden" name="item_id" id="selected_item_id" required>
-
                         <div class="modal-body p-4">
                             <div class="row g-4">
 
                                 <div class="col-md-4 border-end pe-md-3">
                                     <h6 class="text-muted mb-3"><i class="bi bi-person-badge me-1"></i> 1. Select
                                         Personnel</h6>
-
-
-
                                     <div class="input-group mb-2">
                                         <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
                                         <input type="text" id="personnelSearch" class="form-control"
                                             placeholder="Search name or ID...">
                                     </div>
-
                                     <div class="list-group list-group-flush border rounded-3"
                                         style="max-height: 250px; overflow-y: auto;" id="personnelList">
                                         @foreach ($personnels as $personnel)

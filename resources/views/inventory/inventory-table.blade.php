@@ -1,12 +1,12 @@
+  @php
+      $remarkColor = [
+          'Good' => 'bg-success',
+          'Damaged' => 'bg-danger',
+          'Missing' => 'bg-warning text-dark',
+          'Returned' => 'bg-primary ',
+      ];
+  @endphp
   @forelse($items as $item)
-      @php
-          $remarkColor = [
-              'Good' => 'bg-success',
-              'Damaged' => 'bg-danger',
-              'Missing' => 'bg-warning text-dark',
-              'Returned' => 'bg-primary ',
-          ];
-      @endphp
       <tr>
           <td>
               <input type="checkbox" class="select_item" value="{{ $item->item_id }}">
