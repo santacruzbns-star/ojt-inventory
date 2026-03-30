@@ -65,7 +65,7 @@
 
                       <li>
                           <form action="{{ route('inventory.destroy', $item->item_id) }}" method="POST"
-                              class="d-inline">
+                              class="d-inline item-delete-form">
                               @csrf
                               @method('DELETE')
                               <button class="dropdown-item text-danger" type="submit">Delete</button>
@@ -362,6 +362,7 @@
                                   </div>
 
                               </div>
+                              
 
 
                               <div class="modal-footer">

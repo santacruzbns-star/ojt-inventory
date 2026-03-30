@@ -57,7 +57,7 @@ class ItemController extends Controller
         $items = $itemsQuery->orderBy('created_at', 'desc')->get();
 
         // Paginate manually (using the collection of regular items)
-        $perPage = 10;
+        $perPage = 5;
         $page = $request->get('page', 1);
         $itemsPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
             $items->forPage($page, $perPage),
@@ -218,8 +218,12 @@ class ItemController extends Controller
             'item_brand_id' => $brand->item_brand_id,
         ]);
 
-        return redirect()->back()->with('success', 'Item added successfully');
+        return response()->json([
+            'success' => true,
+            'message' => 'Item added successfully'
+        ]);
     }
+
     public function storeCategory(Request $request)
     {
         $request->validate([
