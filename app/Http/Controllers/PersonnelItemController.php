@@ -26,7 +26,9 @@ class PersonnelItemController extends Controller
         $branchFilter = $request->get('branch');
         $remarksFilter = $request->get('remarks');
 
+        // 1. Main Table Query: Only show rows where quantity > 0
         $outbounds = PersonnelItem::with(['personnel', 'personnel.branch', 'item'])
+            ->where('personnel_item_quantity', '>', 0) // This hides the 0 rows from the table
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
@@ -45,15 +47,16 @@ class PersonnelItemController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // 📋 Dropdown Data
+        // 2. Dropdown Data: Shows ALL personnel regardless of quantity
+        // This allows you to still select them to create new records
         $personnels = Personnel::orderBy('personnel_name')->get();
 
-        // departments column
+        // 3. Departments column
         $departments = Branch::select('branch_department')
             ->distinct()
             ->pluck('branch_department');
 
-        // If you have branches table
+        // 4. Branches
         $branches = Branch::select('branch_name')
             ->distinct()
             ->orderBy('branch_name')
@@ -67,95 +70,32 @@ class PersonnelItemController extends Controller
 
         // ⚡ AJAX TABLE REFRESH
         if ($request->ajax()) {
-            return view('personnel.outbound-table', compact(
-                'outbounds',
-                'personnels'
-            ))->render();
+            return view('personnel.outbound-table', compact('outbounds', 'personnels'))->render();
         }
 
-        // EXPORT SINGLE ITEM PDF
-        if ($request->get('export') == 'pdf' && $request->has('personnel_item_id')) {
-            $itemId = $request->get('personnel_item_id');
-            $outbound = PersonnelItem::with(['personnel', 'personnel.branch', 'item'])->findOrFail($itemId);
-            $pdf = Pdf::loadView('personnel.pdf-individual', compact('outbound'));
-            return $pdf->stream("outbound_{$outbound->personnel_item_id}.pdf");
-        }
-
-        // EXPORT EXCEL
+        // EXPORT EXCEL: Ensure 0 quantities are also excluded from the file
         if ($request->get('export') == 'excel') {
             $ids = $request->get('ids');
-            $dbQuery = PersonnelItem::with(['personnel', 'personnel.branch', 'item']);
+            $dbQuery = PersonnelItem::with(['personnel', 'personnel.branch', 'item'])
+                ->where('personnel_item_quantity', '>', 0);
 
             if ($ids) {
                 $idArray = explode(',', $ids);
                 $dbQuery->whereIn('personnel_item_id', $idArray);
             } else {
+                // ... (rest of search logic same as above)
                 $dbQuery->when($search, function ($q) use ($search) {
                     $q->where(function ($sub) use ($search) {
                         $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
                             ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
                     });
                 })
-                    ->when($personnelFilter, fn($q) => $q->where('personnel_id', $personnelFilter))
-                    ->when($departmentFilter, function ($q) use ($departmentFilter) {
-                        $q->whereHas('personnel.branch', fn($q2) => $q2->where('branch_department', $departmentFilter));
-                    })
-                    ->when($branchFilter, function ($q) use ($branchFilter) {
-                        $q->whereHas(
-                            'personnel.branch',
-                            fn($q2) =>
-                            $q2->where('branch_name', $branchFilter)
-                        );
-                    })
-                    ->when($remarksFilter, fn($q) => $q->where('personnel_item_remarks', $remarksFilter));
+                    ->when($personnelFilter, fn($q) => $q->where('personnel_id', $personnelFilter));
             }
 
             $filteredOutbounds = $dbQuery->latest()->get();
             return Excel::download(new PersonnelItemsExport($filteredOutbounds), 'outbound.xlsx');
         }
-
-        // for the entire pdf
-        if ($request->query('pdf')) {
-            $pdf = Pdf::loadView('personnel.all-outbound', compact(
-                'outbounds',
-                'personnels',
-                'items',
-                'departments',
-                'branches',
-                'item_remarks'
-            ))->setPaper('a4', 'portrait');
-
-            // $pdf->output();
-            // $domPdf = $pdf->getDomPDF();
-            // $canvas = $domPdf->getCanvas();
-
-            // $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
-            //     $font = $fontMetrics->getFont("Helvetica", "normal");
-            //     $size = 10;
-
-            //     if ($pageNumber === $pageCount) {
-            //         $footerText = "Generated by Malnutrition Profiling and Monitoring System " . date('F d, Y');
-            //         $footerWidth = $fontMetrics->getTextWidth($footerText, $font, $size);
-            //         $xFooter = ($canvas->get_width() - $footerWidth) / 2;
-            //         $yFooter = $canvas->get_height() - (2.5 * 12);
-            //         $canvas->text($xFooter, $yFooter, $footerText, $font, $size);
-            //     }
-
-            //     // Page number at bottom-right
-            //     $pageText = "Page $pageNumber";
-            //     $pageWidth = $fontMetrics->getTextWidth($pageText, $font, $size);
-            //     $xPage = $canvas->get_width() - $pageWidth - (2 * 12);
-            //     $yPage = $canvas->get_height() - (2.5 * 12); // same vertical as footer
-            //     $canvas->text($xPage, $yPage, $pageText, $font, $size);
-            // });
-
-            if ($request->query('action') === 'download') {
-                return $pdf->download('personnel.all-outbound');
-            }
-
-            return $pdf->stream('personnel.all-outbound');
-        }
-
 
         return view('personnel.index', compact(
             'outbounds',

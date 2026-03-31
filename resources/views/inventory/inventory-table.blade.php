@@ -65,7 +65,7 @@
 
                       <li>
                           <form action="{{ route('inventory.destroy', $item->item_id) }}" method="POST"
-                              class="d-inline item-delete-form">
+                              class="d-inline">
                               @csrf
                               @method('DELETE')
                               <button class="dropdown-item text-danger" type="submit">Delete</button>
@@ -352,19 +352,12 @@
                                               Anker</option>
 
                                       </select>
-
                                       <label>Brand</label>
-
                                       <div class="invalid-feedback">
                                           Brand is required.
                                       </div>
-
                                   </div>
-
                               </div>
-                              
-
-
                               <div class="modal-footer">
                                   <button type="button" class="btn btn-outline-light text-dark"
                                       data-bs-dismiss="modal">Cancel</button>
@@ -384,3 +377,10 @@
               Found.</td>
       </tr>
   @endforelse
+  <tr class="pagination-row">
+    <td colspan="11">
+        <div id="pagination-container" class="d-flex justify-content-center mt-3">
+            {{ $items->links('pagination::bootstrap-4') }}
+        </div>
+    </td>
+</tr>

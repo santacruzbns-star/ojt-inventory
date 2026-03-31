@@ -473,13 +473,13 @@
                     </div>
                 </div>
             </div>
-           
+
             <div class="table-responsive w-100">
                 <table class="table table-striped w-100">
                     <thead class="table-light">
                         <tr>
                             <th>
-                                <input type="checkbox" id="select_all">
+                                <input type="checkbox" id="select_all" >
                             </th>
                             <th>Product Name</th>
                             <th>Category</th>
@@ -497,12 +497,10 @@
                         @include('inventory.inventory-table')
                     </tbody>
                 </table>
-            </div>
 
-            <div class="d-flex justify-content-center mt-3">
-                {{ $items->links('pagination::bootstrap-4') }}
             </div>
         </div>
+
     </body>
     <script>
         window.itemsData = @json(
@@ -513,7 +511,7 @@
                 ];
             }));
 
-         window.routes = {
+        window.routes = {
             inventoryIndex: "{{ route('inventory.index') }}",
             checkDuplicate: "{{ route('inventory.checkDuplicate') }}",
             bulkDelete: "{{ route('inventory.bulkDelete') }}"
@@ -525,5 +523,5 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="storage/js/inventory/inventory.js"></script>
-    
+
 </x-app-layout>

@@ -96,15 +96,16 @@ class ItemController extends Controller
         }
 
         // AJAX Table Update
-        if ($request->ajax() || $request->has('ajax')) {
-            return view('inventory.inventory-table', [
-                'items' => $itemsPaginated,
-                'item_categories' => $item_categories,
-                'item_brands' => $item_brands,
-                'item_uoms' => $item_uoms
-            ])->render();
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('inventory.inventory-table', [
+                    'items' => $itemsPaginated,
+                    'item_categories' => $item_categories,
+                    'item_brands' => $item_brands,
+                    'item_uoms' => $item_uoms,
+                ])->render(),
+            ]);
         }
-
         // EXPORT EXCEL
         if ($request->get('export') == 'excel') {
             $ids = $request->get('ids');
@@ -345,6 +346,29 @@ class ItemController extends Controller
     public function bulkDestroy(Request $request)
     {
         $ids = $request->input('ids', []);
+        $selectAll = $request->input('all', false); // New flag from JS
+
+        // 1. Logic for "Select All" (Across all pages)
+        if ($selectAll) {
+            $query = Item::query();
+
+            // Apply same filters as your index page so you don't delete 
+            // things the user isn't currently looking at!
+            if ($request->has('category') && $request->category != '') {
+                $query->where('item_category_id', $request->category);
+            }
+            if ($request->has('brand') && $request->brand != '') {
+                $query->where('item_brand_id', $request->brand);
+            }
+            if ($request->has('search') && $request->search != '') {
+                $query->where('item_name', 'like', '%' . $request->search . '%');
+            }
+
+            $query->delete();
+            return response()->json(['success' => true, 'message' => 'All filtered items deleted.']);
+        }
+
+        // 2. Logic for "Selected Page Items"
         if (!empty($ids)) {
             Item::whereIn('item_id', $ids)->delete();
             return response()->json(['success' => true, 'message' => 'Selected items deleted successfully.']);
