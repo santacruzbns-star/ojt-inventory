@@ -12,7 +12,7 @@ class DashboardController extends Controller
         $itemCount = Item::sum('item_quantity');
 
         // Total outbound quantity (Received)
-        $outboundCount = PersonnelItem::where('personnel_item_remarks', 'Received')
+        $outboundCount = PersonnelItem::whereIn('personnel_item_remarks', ['Received', 'Not Receive'])
             ->sum('personnel_item_quantity');
 
         // Total damaged items
@@ -31,7 +31,8 @@ class DashboardController extends Controller
         $availableItem = $goodItemTotal - $outboundCount;
 
         // Recent 5 activities
-        $recentActivities = PersonnelItem::latest()
+        $recentActivities = PersonnelItem::where('personnel_item_quantity', '>', 0)
+            ->latest()
             ->take(5)
             ->get();
 

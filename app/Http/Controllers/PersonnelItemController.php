@@ -44,7 +44,7 @@ class PersonnelItemController extends Controller
             })
             ->when($remarksFilter, fn($q) => $q->where('personnel_item_remarks', $remarksFilter))
             ->latest()
-            ->paginate(10)
+            ->paginate(5)
             ->withQueryString();
 
         // 2. Dropdown Data: Shows ALL personnel regardless of quantity
@@ -70,7 +70,10 @@ class PersonnelItemController extends Controller
 
         // ⚡ AJAX TABLE REFRESH
         if ($request->ajax()) {
-            return view('personnel.outbound-table', compact('outbounds', 'personnels'))->render();
+            return response()->json([
+                'success' => true,
+                'table' => view('personnel.outbound-table', compact('outbounds', 'personnels'))->render()
+            ]);
         }
 
         // EXPORT EXCEL: Ensure 0 quantities are also excluded from the file
@@ -171,21 +174,34 @@ class PersonnelItemController extends Controller
         $request->validate([
             'branch_name' => 'required|string|max:255',
             'branch_department' => 'required|string|max:255',
-            'personnel_name' => 'required|string|max:255', // ✅ allow duplicates if you want
+            'personnel_name' => 'required|string|max:255',
         ]);
 
-        // ✅ Reuse or create branch
+        // 1. Reuse or create branch
         $branch = Branch::firstOrCreate([
             'branch_name' => $request->branch_name,
             'branch_department' => $request->branch_department
         ]);
 
-        // ✅ ALWAYS create new personnel (reuse branch_id only)
-        Personnel::create([
-            'branch_id' => $branch->branch_id, // ⚠️ IMPORTANT (not ->id)
+        // 2. Create the personnel
+        $personnel = Personnel::create([
+            'branch_id' => $branch->branch_id,
             'personnel_name' => $request->personnel_name,
         ]);
 
+        // 3. Load the branch relationship for the AJAX response
+        $personnel->load('branch');
+
+        // 4. Check if the request is AJAX
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'personnel' => $personnel,
+                'message' => 'Personnel added successfully'
+            ]);
+        }
+
+        // Fallback for standard form submission
         return redirect()->back()->with('success', 'Personnel added successfully');
     }
     /**
@@ -217,7 +233,10 @@ class PersonnelItemController extends Controller
         $validated = $request->validate([
             'personnel_id' => 'required|exists:personnels,personnel_id',
             'personnel_item_quantity' => 'required|integer|min:1',
-            'personnel_item_receive' => 'required|date',
+            // Validate Date Issued (since we added it to the modal)
+            'personnel_date_issued' => 'required|date',
+            // Make Date Received required ONLY if remarks is 'Received'
+            'personnel_item_receive' => 'required_if:personnel_item_remarks,Received|nullable|date',
             'personnel_item_remarks' => 'required|string',
         ]);
 
@@ -225,7 +244,9 @@ class PersonnelItemController extends Controller
             $outbound->update([
                 'personnel_id' => $validated['personnel_id'],
                 'personnel_item_quantity' => $validated['personnel_item_quantity'],
-                'personnel_date_receive' => $validated['personnel_item_receive'],
+                'personnel_date_issued' => $validated['personnel_date_issued'], // Added this
+                // Use null if it wasn't provided (not received yet)
+                'personnel_date_receive' => $validated['personnel_item_receive'] ?? $outbound->personnel_date_receive,
                 'personnel_item_remarks' => $validated['personnel_item_remarks'],
             ]);
         });
@@ -318,9 +339,31 @@ class PersonnelItemController extends Controller
      */
     public function destroy($personnel_item_id)
     {
-        PersonnelItem::findOrFail($personnel_item_id)->delete();
+        try {
+            $item = PersonnelItem::findOrFail($personnel_item_id);
+            $item->delete();
 
-        return redirect()->back()->with('success', 'Item deleted successfully');
+            // Check if the request is an AJAX/Fetch request
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item deleted successfully.'
+                ]);
+            }
+
+            // Fallback for standard form submissions
+            return redirect()->back()->with('success', 'Item deleted successfully');
+
+        } catch (\Exception $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete item: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to delete item.');
+        }
     }
 
     public function bulkPersonnelDestroy(Request $request)

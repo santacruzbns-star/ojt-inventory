@@ -122,14 +122,14 @@
                                     <i class="bi bi-person-plus me-1"></i> Add Personnel
                                 </h6>
 
-                                <form action="{{ route('personnels.store') }}" method="POST" class="needs-validation"
-                                    novalidate>
+                                <form id="addPersonnelForm" action="{{ route('personnels.store') }}" method="POST"
+                                    class="needs-validation" novalidate>
                                     @csrf
 
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" name="personnel_name"
                                             placeholder="Enter Name" required>
-                                        <label>Personnel Name</label>
+                                        <label>Input Personnel Name</label>
                                     </div>
 
                                     <div class="form-floating mb-3">
@@ -172,67 +172,72 @@
 
                             <!-- MIDDLE: PERSONNEL LIST -->
                             <div class="col-md-4 border-end">
-
-                                <h6 class="text-muted mb-3">
-                                    <i class="bi bi-people me-1"></i> Personnel List
+                                <h6 class="text-muted mb-3 d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-people me-1"></i> Personnel List</span>
+                                    <span class="badge bg-secondary rounded-pill"
+                                        id="personnelCount">{{ $personnels->count() }}</span>
                                 </h6>
 
-                                <div class="input-group mb-2">
-                                    <span class="input-group-text bg-light">
-                                        <i class="bi bi-search"></i>
+                                <div class="input-group mb-2 shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-search text-muted"></i>
                                     </span>
-                                    <input type="text" id="personnelSearchView" class="form-control"
-                                        placeholder="Search personnel...">
+                                    <input type="text" id="personnelSearchView"
+                                        class="form-control border-start-0 ps-0" placeholder="Quick search...">
                                 </div>
 
-                                <div class="list-group list-group-flush border rounded-3"
-                                    style="max-height: 350px; overflow-y: auto;" id="personnelListView">
+                                <div class="list-group list-group-flush border rounded-3 overflow-hidden"
+                                    style="max-height: 400px; overflow-y: auto;" id="personnelListView">
 
                                     @foreach ($personnels as $personnel)
-                                        <div class="position-relative">
-
+                                        <div class="personnel-row position-relative border-bottom">
                                             <form action="{{ route('personnels.delete', $personnel->personnel_id) }}"
-                                                method="POST" class="delete-form">
+                                                method="POST"
+                                                class="delete-form position-absolute top-50 end-0 translate-middle-y me-2"
+                                                style="z-index: 5;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    ✕
+                                                <button type="submit"
+                                                    class="btn btn-link text-danger p-1 border-0 shadow-none hover-scale"
+                                                    title="Remove">
+                                                    <i class="bi bi-trash3-fill"></i>
                                                 </button>
                                             </form>
 
-                                            <!-- MAIN BUTTON -->
                                             <button type="button"
-                                                class="list-group-item list-group-item-action personnel-view-item pe-5"
+                                                class="list-group-item list-group-item-action personnel-view-item border-0 py-2 pe-5"
                                                 data-id="{{ $personnel->personnel_id }}"
                                                 data-name="{{ $personnel->personnel_name }}"
                                                 data-branch="{{ $personnel->branch->branch_name ?? 'N/A' }}"
                                                 data-dept="{{ $personnel->branch->branch_department ?? 'N/A' }}">
 
-                                                <h6 class="mb-1 text-truncate">
-                                                    {{ $personnel->personnel_name }}
-                                                </h6>
-
-                                                <small class="text-muted">
-                                                    {{ $personnel->branch->branch_name ?? 'N/A' }} |
-                                                    {{ $personnel->branch->branch_department ?? 'N/A' }}
-                                                </small>
+                                                <div class="d-flex flex-column">
+                                                    <strong class="text-dark mb-0 text-truncate"
+                                                        style="max-width: 90%;">
+                                                        {{ $personnel->personnel_name }}
+                                                    </strong>
+                                                    <small class="text-muted text-uppercase"
+                                                        style="font-size: 0.7rem;">
+                                                        {{ $personnel->branch->branch_name ?? 'N/A' }} |
+                                                        {{ $personnel->branch->branch_department ?? 'N/A' }}
+                                                    </small>
+                                                </div>
                                             </button>
-
                                         </div>
                                     @endforeach
-
                                 </div>
 
-                                <!-- SELECTED PERSON -->
-                                <div class="mt-3 p-2 bg-light rounded border d-none" id="selectedPersonnelView">
-                                    <span style="font-size: xx-small, font-weight: bold;">Selected Personnel</span>
-                                    <h6 class="mb-0 text-primary" id="view_person_name"></h6>
-                                    <small>
-                                        <span id="view_branch"></span> •
-                                        <span id="view_dept"></span>
-                                    </small>
+                                <div class="mt-3 p-3 bg-white rounded border shadow-sm d-none"
+                                    id="selectedPersonnelView">
+                                    <div class="text-uppercase text-muted fw-bold"
+                                        style="font-size: 0.65rem; letter-spacing: 0.05rem;">Active Selection</div>
+                                    <h6 class="mb-0 text-primary fw-bold" id="view_person_name"></h6>
+                                    <div class="text-secondary small">
+                                        <i class="bi bi-geo-alt-fill me-1"></i><span id="view_branch"></span>
+                                        <span class="mx-1">•</span>
+                                        <i class="bi bi-building me-1"></i><span id="view_dept"></span>
+                                    </div>
                                 </div>
-
                             </div>
 
                             <!-- RIGHT: ASSIGNED ITEMS -->
@@ -415,7 +420,7 @@
                                             <option value="" disabled selected>Select Remark</option>
                                             <option value="Received">Received</option>
                                             <option value="Not Receive">Not Receive</option>
-                                            <option value="To be delivered">To be delivered</option>
+                                            {{-- <option value="To be delivered">To be delivered</option> --}}
                                         </select>
                                         <label for="personnel_item_remarks">Remarks</label>
                                         <div class="invalid-feedback">Remark is required.</div>
@@ -451,6 +456,7 @@
                         <th><input type="checkbox" id="select_all"></th>
                         <th>Custodian</th>
                         <th>Product Name</th>
+                        <th>Serial Number</th>
                         <th>Date Issued</th>
                         <th>Quantity</th>
                         <th>Unit of Measure</th>
@@ -462,629 +468,34 @@
                     </tr>
                 </thead>
                 <tbody id="table-data">
-
                     @include('personnel.outbound-table')
                 </tbody>
             </table>
-        </div>
-
-        <div class="d-flex justify-content-center mt-3">
-            {{ $outbounds->links('pagination::bootstrap-4') }}
         </div>
         </div>
 
 
     </body>
+    <script>
+        window.outboundData = {
+            csrfToken: "{{ csrf_token() }}",
+            routes: {
+                index: "{{ route('outbound.index') }}",
+                bulkDelete: "{{ route('outbound.bulkDelete') }}",
 
+            },
+            items: @json(
+                $items->map(function ($item) {
+                    return [
+                        'name' => $item->item_name,
+                        'category_id' => $item->item_category_id,
+                    ];
+                }))
+        };
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
+    <script src="{{ asset('storage/js/personnel/personnel.js') }}"></script>
 
-            // DELETE PERSONNEL (AJAX)
-            $(document).on('submit', '#personnel_modal .delete-form', function(e) {
-                e.preventDefault();
-
-                let form = this;
-                let url = $(form).attr('action');
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'This personnel will be deleted.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, delete it',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-
-                    if (result.isConfirmed) {
-
-                        $.ajax({
-                            url: url,
-                            type: 'POST',
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                _method: 'DELETE'
-                            },
-                            success: function() {
-
-                                // ✅ remove entire personnel block
-                                $(form).closest('.position-relative').fadeOut(200,
-                                    function() {
-                                        $(this).remove();
-                                    });
-
-                                // ✅ success toast
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Deleted!',
-                                    timer: 1000,
-                                    showConfirmButton: false
-                                });
-
-                                // ✅ clear selected view if deleted
-                                $('#selectedPersonnelView').addClass('d-none');
-
-                            },
-                            error: function() {
-                                Swal.fire('Error', 'Delete failed.', 'error');
-                            }
-                        });
-
-                    }
-
-                });
-
-            });
-
-        });
-    </script>
-    <script>
-        document.querySelectorAll('.delete-personnel-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation(); // 🚫 prevent parent click
-
-                const id = this.getAttribute('data-id');
-
-                Swal.fire({
-                    title: "Delete this personnel?",
-                    text: "This cannot be undone!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#dc3545",
-                    confirmButtonText: "Delete"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-
-                        fetch(`/personnels/${id}/delete`, {
-                                method: 'DELETE',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json'
-                                }
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.success) {
-                                    this.closest('.position-relative')
-                                        .remove(); // ✅ instant UI remove
-
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Deleted!',
-                                        timer: 1200,
-                                        showConfirmButton: false
-                                    });
-                                } else {
-                                    Swal.fire('Error', data.message || 'Failed.', 'error');
-                                }
-                            });
-
-                    }
-                });
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const searchInput = document.getElementById('personnelSearchView');
-            const personnelItems = document.querySelectorAll('.personnel-view-item');
-            const container = document.getElementById('assignedItemsContainer');
-
-            if (!searchInput) return;
-
-            // SEARCH
-            searchInput.addEventListener('input', function() {
-                let val = this.value.toLowerCase();
-
-                personnelItems.forEach(item => {
-                    item.classList.toggle('d-none',
-                        !item.innerText.toLowerCase().includes(val)
-                    );
-                });
-            });
-
-            // CLICK PERSON
-            personnelItems.forEach(item => {
-                item.addEventListener('click', function() {
-
-                    // highlight
-                    personnelItems.forEach(btn => btn.classList.remove('active', 'bg-primary',
-                        'text-white'));
-                    this.classList.add('active', 'bg-primary', 'text-white');
-
-                    // show selected
-                    document.getElementById('view_person_name').innerText = this.dataset.name;
-                    document.getElementById('view_branch').innerText = this.dataset.branch;
-                    document.getElementById('view_dept').innerText = this.dataset.dept;
-                    document.getElementById('selectedPersonnelView').classList.remove('d-none');
-
-                    let id = this.dataset.id;
-
-                    container.innerHTML = `<div class="text-muted">Loading...</div>`;
-
-                    fetch(`/personnel/${id}/items`, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(res => res.text())
-                        .then(html => {
-                            container.innerHTML = html;
-                        })
-                        .catch(() => {
-                            container.innerHTML =
-                                `<div class="text-danger">Failed to load items.</div>`;
-                        });
-
-                });
-            });
-
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            // Form and Error elements
-            const form = document.getElementById('outboundForm');
-            const submitBtn = document.getElementById('submitBtn');
-
-            // Personnel Elements
-            const pSearchInput = document.getElementById('personnelSearch');
-            const personnelItems = document.querySelectorAll('.personnel-item');
-            const pHiddenInput = document.getElementById('selected_personnel_id');
-            const pDisplayCard = document.getElementById('selectedPersonnelCard');
-            const pErrorDiv = document.getElementById('personnelError');
-
-            // Item Elements
-            const iSearchInput = document.getElementById('itemSearch');
-            const itemBtns = document.querySelectorAll('.item-btn');
-            const iHiddenInput = document.getElementById('selected_item_id');
-            const iDisplayCard = document.getElementById('selectedItemCard');
-            const iErrorDiv = document.getElementById('itemError');
-
-            // Quantity Elements
-            const qtyInput = document.getElementById('personnel_item_quantity');
-            const qtyErrorText = document.getElementById('qtyErrorText');
-            const qtyAvailableText = document.getElementById('qtyAvailableText');
-            let maxAvailableQty = 0;
-
-            /* =========================================
-               1. Generic Search Function
-               ========================================= */
-            function attachSearch(searchInput, listItems) {
-                if (!searchInput) return;
-                searchInput.addEventListener('input', function(e) {
-                    const searchTerm = e.target.value.toLowerCase();
-                    listItems.forEach(item => {
-                        const textData = item.innerText.toLowerCase();
-                        if (textData.includes(searchTerm)) {
-                            item.classList.remove('d-none');
-                        } else {
-                            item.classList.add('d-none');
-                        }
-                    });
-                });
-            }
-
-            attachSearch(pSearchInput, personnelItems);
-            attachSearch(iSearchInput, itemBtns);
-
-            /* =========================================
-               2. Personnel Selection Logic
-               ========================================= */
-            personnelItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    personnelItems.forEach(btn => btn.classList.remove('active', 'bg-primary',
-                        'text-white'));
-                    this.classList.add('active', 'bg-primary', 'text-white');
-
-                    personnelItems.forEach(btn => {
-                        const textElements = btn.querySelectorAll(
-                            '.text-muted, .text-light');
-                        if (btn.classList.contains('active')) {
-                            textElements.forEach(el => {
-                                el.classList.remove('text-muted');
-                                el.classList.add('text-light');
-                            });
-                        } else {
-                            textElements.forEach(el => {
-                                el.classList.remove('text-light');
-                                el.classList.add('text-muted');
-                            });
-                        }
-                    });
-
-                    pHiddenInput.value = this.getAttribute('data-id');
-                    pErrorDiv.classList.remove('d-block');
-
-                    document.getElementById('display_personnel_name').innerText = this.getAttribute(
-                        'data-name');
-                    document.getElementById('display_branch').innerText = this.getAttribute(
-                        'data-branch');
-                    document.getElementById('display_dept').innerText = this.getAttribute(
-                        'data-dept');
-                    pDisplayCard.classList.remove('d-none');
-                });
-            });
-
-            /* =========================================
-               3. Item Selection & Stock Logic
-               ========================================= */
-            itemBtns.forEach(item => {
-                item.addEventListener('click', function() {
-                    if (this.hasAttribute('disabled')) return; // Extra safety check
-
-                    itemBtns.forEach(btn => btn.classList.remove('active', 'bg-success',
-                        'text-white'));
-                    this.classList.add('active', 'bg-success', 'text-white');
-
-                    itemBtns.forEach(btn => {
-                        const textElements = btn.querySelectorAll(
-                            '.text-muted, .text-light');
-                        if (btn.classList.contains('active')) {
-                            textElements.forEach(el => {
-                                el.classList.remove('text-muted');
-                                el.classList.add('text-light');
-                            });
-                        } else {
-                            textElements.forEach(el => {
-                                el.classList.remove('text-light');
-                                el.classList.add('text-muted');
-                            });
-                        }
-                    });
-
-                    iHiddenInput.value = this.getAttribute('data-id');
-                    iErrorDiv.classList.remove('d-block');
-
-                    // Update Selected Item Card
-                    document.getElementById('display_item_name').innerText = this.getAttribute(
-                        'data-name');
-                    document.getElementById('display_item_brand').innerText = this.getAttribute(
-                        'data-brand');
-                    document.getElementById('display_item_sn').innerText = this.getAttribute(
-                        'data-serial');
-                    iDisplayCard.classList.remove('d-none');
-
-                    // --- Update Quantity Validation Rules ---
-                    maxAvailableQty = parseInt(this.getAttribute('data-qty'));
-
-                    qtyInput.disabled = false;
-                    qtyInput.max = maxAvailableQty;
-                    qtyInput.value = 1; // Auto-fill 1 for convenience
-                    qtyInput.classList.remove('is-invalid');
-
-                    qtyAvailableText.classList.remove('d-none');
-                    qtyAvailableText.innerText =
-                        `Max available: ${maxAvailableQty} ${this.getAttribute('data-uom')}`;
-                    submitBtn.disabled = false;
-                });
-            });
-
-            /* =========================================
-               4. Quantity Input Live Validation
-               ========================================= */
-            if (qtyInput) {
-                qtyInput.addEventListener('input', function() {
-                    const currentVal = parseInt(this.value);
-
-                    if (!iHiddenInput.value) {
-                        this.classList.add('is-invalid');
-                        qtyErrorText.innerText = `Please select an item first.`;
-                        submitBtn.disabled = true;
-                    } else if (currentVal > maxAvailableQty) {
-                        this.classList.add('is-invalid');
-                        qtyErrorText.innerText = `Cannot exceed stock limit (${maxAvailableQty}).`;
-                        submitBtn.disabled = true;
-                    } else if (currentVal < 1 || isNaN(currentVal)) {
-                        this.classList.add('is-invalid');
-                        qtyErrorText.innerText = `Quantity must be at least 1.`;
-                        submitBtn.disabled = true;
-                    } else {
-                        this.classList.remove('is-invalid');
-                        submitBtn.disabled = false;
-                    }
-                });
-            }
-
-            /* =========================================
-               5. Form Final Submit Validation
-               ========================================= */
-            if (form) {
-                form.addEventListener('submit', function(event) {
-                    let isValid = true;
-
-                    // Check Personnel
-                    if (!pHiddenInput.value) {
-                        pErrorDiv.classList.add('d-block');
-                        isValid = false;
-                    }
-
-                    // Check Item
-                    if (!iHiddenInput.value) {
-                        iErrorDiv.classList.add('d-block');
-                        isValid = false;
-                    }
-
-                    // Check Quantity
-                    const finalQty = parseInt(qtyInput.value);
-                    if (!iHiddenInput.value || finalQty > maxAvailableQty || finalQty < 1 || isNaN(
-                            finalQty)) {
-                        qtyInput.classList.add('is-invalid');
-                        isValid = false;
-                    }
-
-                    if (!isValid) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                });
-            }
-
-            /* =========================================
-               6. Remarks Logic for "Received" Date
-               ========================================= */
-            const remarkSelect = document.getElementById('personnel_item_remarks');
-            const receiveDateContainer = document.getElementById('receive_date_container');
-            const receiveDateInput = document.getElementById('personnel_date_receive');
-
-            if (remarkSelect && receiveDateContainer && receiveDateInput) {
-                remarkSelect.addEventListener('change', function() {
-                    if (this.value === 'Received') {
-                        receiveDateContainer.style.display = 'block';
-                        receiveDateInput.setAttribute('required', 'required');
-                    } else {
-                        receiveDateContainer.style.display = 'none';
-                        receiveDateInput.removeAttribute('required');
-                        receiveDateInput.value = '';
-                    }
-                });
-            }
-        });
-    </script>
-    {{-- search filtering --}}
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const searchInput = document.getElementById("OutboundSearch");
-            const personnelSelect = document.querySelector("select[name='personnel']");
-            const departmentSelect = document.querySelector("select[name='department']");
-            const branchSelect = document.querySelector("select[name='branch']");
-            const remarksSelect = document.querySelector("select[name='remarks']");
-            const tableBody = document.getElementById("table-data");
-
-            if (!tableBody) return;
-
-            let timer;
-
-            function fetchTable() {
-                const search = searchInput ? searchInput.value.trim() : '';
-                const personnel = personnelSelect ? personnelSelect.value : '';
-                const department = departmentSelect ? departmentSelect.value : '';
-                const branch = branchSelect ? branchSelect.value : '';
-                const remarks = remarksSelect ? remarksSelect.value : '';
-                const colCount = tableBody.closest("table").querySelectorAll("thead th").length;
-
-                tableBody.innerHTML = `
-            <tr>
-                <td colspan="${colCount}" class="text-center text-muted fw-bold">Loading...</td>
-            </tr>
-        `;
-
-                clearTimeout(timer);
-                timer = setTimeout(() => {
-                    const url =
-                        `{{ route('outbound.index') }}?search=${encodeURIComponent(search)}&personnel=${encodeURIComponent(personnel)}&department=${encodeURIComponent(department)}&branch=${encodeURIComponent(branch)}&remarks=${encodeURIComponent(remarks)}&ajax=1`;
-
-                    fetch(url, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'text/html'
-                            }
-                        })
-                        .then(res => res.text())
-                        .then(html => {
-                            tableBody.innerHTML = html;
-                        })
-                        .catch(() => {
-                            tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="${colCount}" class="text-center text-danger fw-bold">Failed to load data.</td>
-                    </tr>
-                `;
-                        });
-
-                }, 300);
-            }
-
-            // Listen to all filters
-            if (searchInput) searchInput.addEventListener("keyup", fetchTable);
-            if (personnelSelect) personnelSelect.addEventListener("change", fetchTable);
-            if (departmentSelect) departmentSelect.addEventListener("change", fetchTable);
-            if (branchSelect) branchSelect.addEventListener("change", fetchTable);
-            if (remarksSelect) remarksSelect.addEventListener("change", fetchTable);
-        });
-    </script>
-    {{-- JS to toggle Receive Date --}}
-    <script>
-        const selectAll = document.getElementById('select_all');
-        const bulkDeleteBtn = document.getElementById('bulk_delete_btn');
-
-        // Handle select all toggle
-        selectAll.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.select_item');
-            checkboxes.forEach(cb => cb.checked = this.checked);
-            bulkDeleteBtn.disabled = !this.checked;
-        });
-
-        // Enable/disable bulk delete on individual checkbox change
-        document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('select_item')) {
-                const checkboxes = document.querySelectorAll('.select_item');
-                bulkDeleteBtn.disabled = ![...checkboxes].some(cb => cb.checked);
-                // Also update "select all" checkbox
-                const allChecked = [...checkboxes].every(cb => cb.checked);
-                selectAll.checked = allChecked;
-            }
-        });
-
-        // Bulk delete click
-        bulkDeleteBtn.addEventListener('click', function() {
-            const checkboxes = document.querySelectorAll('.select_item');
-            const selectedIds = [...checkboxes]
-                .filter(cb => cb.checked)
-                .map(cb => cb.value);
-
-            if (selectedIds.length === 0) return;
-
-            Swal.fire({
-                title: `Delete ${selectedIds.length} item(s)?`,
-                text: "This action cannot be undone!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete!',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch("{{ route('outbound.bulkDelete') }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                ids: selectedIds
-                            })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Deleted!',
-                                    text: `${selectedIds.length} item(s) deleted.`,
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire('Error', 'Something went wrong.', 'error');
-                            }
-                        });
-                }
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const remarksSelect = document.getElementById('personnel_item_remarks');
-            const receiveDateContainer = document.getElementById('receive_date_container');
-
-            remarksSelect.addEventListener('change', function() {
-                if (this.value === 'Received') {
-                    // Show receive date only if 'Received' is selected
-                    receiveDateContainer.style.display = 'block';
-                } else {
-                    receiveDateContainer.style.display = 'none';
-                    document.getElementById('personnel_date_receive').value = '';
-                }
-            });
-        });
-
-        // Handle Excel Export (Selected or All filtered)
-        const exportExcelBtn = document.getElementById('export_excel_btn');
-        if (exportExcelBtn) {
-            exportExcelBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const checkboxes = document.querySelectorAll('.select_item:checked');
-                const selectedIds = Array.from(checkboxes).map(cb => cb.value);
-
-                let urlParams = new URLSearchParams(window.location.search);
-                urlParams.set('export', 'excel');
-
-                if (selectedIds.length > 0) {
-                    urlParams.set('ids', selectedIds.join(','));
-                }
-
-                window.location.href = "{{ route('outbound.index') }}?" + urlParams.toString();
-            });
-        }
-    </script>
-    <script>
-        // Session Success Alert
-        @if (session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: '{{ session('success') }}',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        @endif
-
-        // Bootstrap Validation
-        document.addEventListener("DOMContentLoaded", function() {
-            const forms = document.querySelectorAll('.needs-validation');
-            Array.from(forms).forEach(f => {
-                f.addEventListener('submit', event => {
-                    if (!f.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    f.classList.add('was-validated');
-                }, false);
-            });
-        });
-
-        // SweetAlert Confirmation for specific forms
-        const confirmForms = document.querySelectorAll(".text-confirm-submit");
-        confirmForms.forEach(function(form) {
-            form.addEventListener("submit", function(e) {
-                if (form.checkValidity()) {
-                    e.preventDefault();
-                    Swal.fire({
-                        title: "Confirm Submission?",
-                        text: "Are you sure you want to save this record?",
-                        icon: "question",
-                        showCancelButton: true,
-                        confirmButtonColor: "#198754", // Bootstrap Success
-                        cancelButtonColor: "#6c757d",
-                        confirmButtonText: "Yes, submit it!",
-                        cancelButtonText: "Cancel"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                }
-            });
-        });
-    </script>
 
 </x-app-layout>
