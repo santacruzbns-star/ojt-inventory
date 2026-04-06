@@ -1,25 +1,42 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
-
-    <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
+
+    <div class="form-header">
+        <h3>{{ __('Reset Password') }}</h3>
+        <p style="line-height: 1.5;">
+            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+        </p>
+    </div>
 
     <form method="POST" action="{{ route('password.email') }}">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="form-group">
+            <label for="email">{{ __('Email') }}</label>
+            <div class="input-wrapper">
+                <i class="fa-regular fa-envelope icon-left"></i>
+                <input 
+                    id="email" 
+                    type="email" 
+                    name="email" 
+                    value="{{ old('email') }}" 
+                    placeholder="name@example.com"
+                    required 
+                    autofocus>
+            </div>
+            @error('email')
+                <span class="input-error">{{ $message }}</span>
+            @enderror
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
+        <button type="submit" style="margin-top: 24px;">
+            {{ __('Email Password Reset Link') }}
+        </button>
+
+        <div class="form-options" style="justify-content: center; margin-top: 16px;">
+            @if (Route::has('login'))
+                <a href="{{ route('login') }}"><i class="fa-solid fa-arrow-left" style="margin-right: 6px;"></i> Back to Login</a>
+            @endif
         </div>
     </form>
 </x-guest-layout>

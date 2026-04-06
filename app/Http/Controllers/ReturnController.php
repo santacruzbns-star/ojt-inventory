@@ -15,6 +15,9 @@ class ReturnController extends Controller
     public function index(Request $request)
     {
         // 1. Define the filters (Search, etc.)
+
+        $returnItem = PersonnelItem::count('personnel_item_quantity');
+
         $search = $request->get('search');
 
         // 2. Define $outbounds (History of items that have been 'Returned')
@@ -79,7 +82,7 @@ class ReturnController extends Controller
             'departments',
             'branches',
             'item_remarks',
-            'itemsWithStats'
+            'itemsWithStats','returnItem'
         ));
     }
 }
