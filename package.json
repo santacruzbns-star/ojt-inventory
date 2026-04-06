@@ -5,7 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "start": "some command to be run", 
+        "start": "webpack-dev-server --mode development", 
         "test": "(eslint lib || true) && jest"
     },
     "devDependencies": {
