@@ -14,22 +14,18 @@
                 <h5 class="text-secondary fw-bold mb-3">Item Usage Overview</h5>
                 <div class="d-flex flex-nowrap overflow-auto pb-3" style="gap: 1.2rem; scrollbar-width: thin;">
                     @foreach ($itemsWithStats as $index => $stat)
-                        {{-- Only show cards for items that have stock or activity --}}
                         @if ($stat['available'] > 0 || $stat['percentage_taken'] > 0)
                             <div class="flex-shrink-0" style="width: 260px;">
                                 <div class="card border-0 shadow-sm text-center p-3 h-100 bg-white dark:bg-gray-800">
-                                    <h6 class="fw-bold text-gray-700 dark:text-gray-300 text-truncate mb-3"
-                                        title="{{ $stat['name'] }}">
+                                    <h6 class="fw-bold text-gray-700 dark:text-gray-300 text-truncate mb-3" title="{{ $stat['name'] }}">
                                         {{ $stat['name'] }}
                                     </h6>
 
                                     <div class="position-relative mx-auto mb-3" style="height: 130px; width: 130px;">
                                         <canvas id="chart-{{ $index }}"></canvas>
                                         <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                            <small class="text-muted d-block"
-                                                style="font-size: 0.65rem; line-height: 1;">Taken</small>
-                                            <span
-                                                class="fw-bold fs-5 text-gray-800 dark:text-white">{{ $stat['percentage_taken'] }}%</span>
+                                            <small class="text-muted d-block" style="font-size: 0.65rem; line-height: 1;">Taken</small>
+                                            <span class="fw-bold fs-5 text-gray-800 dark:text-white">{{ $stat['percentage_taken'] }}%</span>
                                         </div>
                                     </div>
 
@@ -52,17 +48,17 @@
 
                             <script>
                                 (function() {
-                                    const renderChart = () => {
-                                        const ctx = document.getElementById('chart-{{ $index }}');
-                                        if (!ctx) return;
-                                        new Chart(ctx, {
+                                    const initChart = () => {
+                                        const canvas = document.getElementById('chart-{{ $index }}');
+                                        if (!canvas) return;
+
+                                        new Chart(canvas, {
                                             type: 'doughnut',
                                             data: {
                                                 datasets: [{
-                                                    data: [{{ $stat['percentage_taken'] }},
-                                                        {{ 100 - $stat['percentage_taken'] }}
-                                                    ],
-                                                    backgroundColor: ['#17a2b8', '#e9ecef'],
+                                                    // data[0] is Taken, data[1] is Remaining
+                                                    data: [{{ $stat['percentage_taken'] }}, {{ 100 - $stat['percentage_taken'] }}],
+                                                    backgroundColor: ['#17a2b8', '#f3f4f6'],
                                                     borderWidth: 0,
                                                     cutout: '82%'
                                                 }]
@@ -70,23 +66,21 @@
                                             options: {
                                                 responsive: true,
                                                 maintainAspectRatio: false,
-                                                animation: {
-                                                    duration: 1000
-                                                },
+                                                animation: { duration: 1000 },
                                                 plugins: {
-                                                    legend: {
-                                                        display: false
-                                                    },
-                                                    tooltip: {
-                                                        enabled: false
-                                                    }
+                                                    legend: { display: false },
+                                                    tooltip: { enabled: false }
                                                 }
                                             }
                                         });
                                     };
-                                    window.addEventListener('load', renderChart);
-                                })
-                                ();
+
+                                    if (document.readyState === 'complete') {
+                                        initChart();
+                                    } else {
+                                        window.addEventListener('load', initChart);
+                                    }
+                                })();
                             </script>
                         @endif
                     @endforeach
@@ -120,8 +114,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center py-4 text-muted">No return records found.
-                                        </td>
+                                        <td colspan="5" class="text-center py-4 text-muted">No return records found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -137,51 +130,4 @@
 
         </div>
     </div>
-    <script>
-        (function() {
-            const renderChart = () => {
-                const canvas = document.getElementById('chart-{{ $index }}');
-                if (!canvas) return;
-
-                // Destroy existing chart instance if it exists (prevents overlap)
-                const existingChart = Chart.getChart(canvas);
-                if (existingChart) {
-                    existingChart.destroy();
-                }
-
-                new Chart(canvas, {
-                    type: 'doughnut',
-                    data: {
-                        datasets: [{
-                            data: [{{ $stat['percentage_taken'] }},
-                                {{ 100 - $stat['percentage_taken'] }}
-                            ],
-                            backgroundColor: ['#17a2b8', '#e9ecef'],
-                            borderWidth: 0,
-                            cutout: '80%'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                enabled: false
-                            }
-                        }
-                    }
-                });
-            };
-
-            // Run immediately if Chart.js is ready, otherwise wait
-            if (window.Chart) {
-                renderChart();
-            } else {
-                window.addEventListener('load', renderChart);
-            }
-        })();
-    </script>
 </x-app-layout>
