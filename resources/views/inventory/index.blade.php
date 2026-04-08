@@ -357,9 +357,9 @@
                                         </div>
 
                                         <!-- BRAND -->
-                                        <div class="form-floating mb-3">
+                                        {{-- <div class="form-floating mb-3">
                                             <select name="item_brand_name" class="form-select" id="item_brand_name"
-                                                required>
+                                                >
                                                 <option value="" disabled selected>Select Brand</option>
                                                 <option value="Logitech">Logitech</option>
                                                 <option value="Microsoft">Microsoft</option>
@@ -406,7 +406,7 @@
                                                 <option value="AmazonBasics">AmazonBasics</option>
                                             </select>
                                             <label for="item_brand_name">Brand</label>
-                                        </div>
+                                        </div> --}}
 
                                         <!-- SERIAL -->
                                         <div class="form-floating mb-3">
@@ -483,7 +483,7 @@
                             </th>
                             <th>Product Name</th>
                             <th>Category</th>
-                            <th>Brand Name</th>
+                            {{-- <th>Brand Name</th> --}}
                             <th>Serial Number</th>
                             <th>Unit of Measure</th>
                             <th>Total Item</th>

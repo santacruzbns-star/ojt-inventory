@@ -371,7 +371,7 @@
                                                             class="bi bi-upc-scan me-1"></i>{{ $item->item_serialno ?? 'N/A' }}</span>
                                                 </div>
                                                 <div class="text-muted" style="font-size: 0.7rem;">
-                                                    Cat: {{ $item->category->item_category_name ?? 'N/A' }} &bull; UOM:
+                                                    Category: {{ $item->category->item_category_name ?? 'N/A' }} &bull; UOM:
                                                     {{ $item->uom->item_uom_name ?? '-' }}
                                                 </div>
                                             </button>
@@ -387,7 +387,7 @@
                                             style="font-size: 0.7rem;">Item to Issue:</p>
                                         <h6 class="mb-0 text-success" id="display_item_name"></h6>
                                         <div class="small text-muted mt-1" style="font-size: 0.8rem;">
-                                            Brand: <span id="display_item_brand"></span> &bull; SN: <span
+                                             <span id="display_item_brand"></span> &bull; SN: <span
                                                 id="display_item_sn"></span>
                                         </div>
                                     </div>

@@ -20,7 +20,7 @@
                   -
               @endif
           </td>
-          <td>{{ $item->brand ? $item->brand->item_brand_name : '-' }}</td>
+          {{-- <td>{{ $item->brand ? $item->brand->item_brand_name : '-' }}</td> --}}
           <td>{{ $item->item_serialno ?? '-' }}</td>
           <td>{{ $item->uom ? $item->uom->item_uom_name : '-' }}</td>
           <td>{{ $item->item_quantity ?? '-' }}</td>
@@ -89,8 +89,8 @@
                                       <p><strong>Name:</strong> {{ $item->item_name }}</p>
                                       <p><strong>Category:</strong>
                                           {{ $item->category ? $item->category->item_category_name : '-' }}</p>
-                                      <p><strong>Brand:</strong>
-                                          {{ $item->brand ? $item->brand->item_brand_name : '-' }}</p>
+                                      {{-- <p><strong>Brand:</strong>
+                                          {{ $item->brand ? $item->brand->item_brand_name : '-' }}</p> --}}
                                       <p><strong>Serial Number:</strong> {{ $item->item_serialno ?? '-' }}</p>
                                   </div>
 
@@ -119,7 +119,8 @@
                   </div>
               </div>
 
-              <div class="modal fade" id="editItemModal_{{ $item->item_id }}" tabindex="-1">
+              <div class="modal fade" id="edit
+              ItemModal_{{ $item->item_id }}" tabindex="-1">
                   <div class="modal-dialog modal-xl">
                       <div class="modal-content">
                           <form action="{{ route('inventory.update', $item->item_id) }}" method="POST"
@@ -182,7 +183,7 @@
                                               <div class="invalid-feedback">Category is required.</div>
                                           </div>
 
-                                          <div class="form-floating mb-3">
+                                          {{-- <div class="form-floating mb-3">
                                               <select name="item_brand_name" class="form-select" required>
                                                   <option value="" disabled selected>Select Brand</option>
                                                   <option value="Logitech">Logitech</option>
@@ -230,7 +231,7 @@
                                                   <option value="AmazonBasics">AmazonBasics</option>
                                               </select>
                                               <label>Brand</label>
-                                          </div>
+                                          </div> --}}
 
                                           <div class="form-floating mb-3">
                                               <select name="item_remark" class="form-select" required>

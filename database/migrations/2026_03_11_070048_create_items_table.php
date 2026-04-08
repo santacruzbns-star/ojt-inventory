@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id('item_id');
             $table->unsignedBigInteger('item_category_id');
-            $table->unsignedBigInteger('item_brand_id');
+            $table->unsignedBigInteger('item_brand_id')->nullable();
             $table->unsignedBigInteger('item_uom_id');
             $table->string('item_name');
             $table->string('item_serialno')->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->foreign('item_brand_id') 
                 ->references('item_brand_id')
                 ->on('item_brands')
-                ->onDelete('cascade');
+                ->onDelete('cascade')->nullable();
             
             $table->foreign('item_uom_id') 
                 ->references('item_uom_id')
