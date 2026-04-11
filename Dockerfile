@@ -2,11 +2,13 @@
 FROM php:8.2-apache
 
 # 1. Install system dependencies for Laravel & PhpSpreadsheet
+# Added libpq-dev for PostgreSQL support
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libpq-dev \
     zip \
     curl \
     unzip \
@@ -17,8 +19,9 @@ RUN apt-get update && apt-get install -y \
 # 2. Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 3. Install PHP extensions (Added zip for your Excel needs)
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+# 3. Install PHP extensions
+# Added pdo_pgsql here to fix the "could not find driver" error
+RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip
 
 # 4. Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -33,8 +36,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # 8. Bypassing Render's "Locked Shell"
-# This will try to create your tables during the build phase.
-# The '|| true' ensures the build doesn't fail if the DB is busy.
+# This will create your tables during the build phase.
 RUN php artisan migrate --force || true
 
 # 9. Build your Frontend (Tailwind/Vite)
