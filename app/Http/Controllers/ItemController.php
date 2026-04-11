@@ -54,7 +54,7 @@ class ItemController extends Controller
         }
 
         // Get regular items
-        $items = $itemsQuery->orderBy('created_at', 'desc')->get();
+        $items = $itemsQuery->orderBy('updated_at', 'desc')->get();
 
         // Paginate manually (using the collection of regular items)
         $perPage = 5;
@@ -158,79 +158,112 @@ class ItemController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    // 1. Validation
-    $request->validate([
-        'item_name' => 'nullable|string|max:255', 
-        'item_serialno' => 'nullable|string|max:255',
-        'item_quantity' => 'required|integer|min:0|max:999999',
-        'item_remark' => 'nullable|string|max:255',
-        'item_uom_name' => 'required|string|max:255',
-        'item_brand_name' => 'nullable|string|max:255',
-        'item_category_id' => 'required|exists:item_categories,item_category_id'
-    ]);
-
-    // 2. Handle Category and Auto-generated Name
-    $category = ItemCategory::findOrFail($request->item_category_id);
-    $baseName = $category->item_category_name;
-
-    // Find the last item in this category to increment the suffix (e.g., "Laptop 001")
-    $lastItem = Item::where('item_category_id', $category->item_category_id)
-        ->where('item_name', 'like', $baseName . ' %')
-        ->orderBy('item_name', 'desc')
-        ->first();
-
-    if ($lastItem) {
-        preg_match('/(\d+)$/', $lastItem->item_name, $matches);
-        $nextNumber = isset($matches[1]) ? (int) $matches[1] + 1 : 1;
-    } else {
-        $nextNumber = 1;
-    }
-
-    $formattedNumber = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-    $generatedName = $baseName . ' ' . $formattedNumber;
-
-    // Use manual name if provided, otherwise use generated name
-    $finalName = $request->filled('item_name') ? $request->item_name : $generatedName;
-
-    // 3. Handle UOM (Always required based on your validation)
-    $uom = ItemUom::firstOrCreate([
-        'item_uom_name' => $request->item_uom_name
-    ]);
-
-    // 4. Handle Brand (Safe Nullable Logic)
-    // If brand name is null/empty, we set ID to null instead of creating a blank record
-    $brandId = null;
-    if ($request->filled('item_brand_name')) {
-        $brand = ItemBrand::firstOrCreate([
-            'item_brand_name' => $request->item_brand_name
+    {
+        // 1. Validation
+        $request->validate([
+            'item_name' => 'nullable|string|max:255',
+            'item_serialno' => 'nullable|string|max:255',
+            'item_quantity' => 'required|integer|min:0|max:999999',
+            'item_remark' => 'nullable|string|max:255',
+            'item_uom_name' => 'required|string|max:255',
+            'item_brand_name' => 'nullable|string|max:255',
+            'item_category_id' => 'required|exists:item_categories,item_category_id'
         ]);
-        $brandId = $brand->item_brand_id;
+
+        // 2. Resolve Brand and UOM early
+        $brandId = null;
+        if ($request->filled('item_brand_name')) {
+            $brand = ItemBrand::firstOrCreate(['item_brand_name' => $request->item_brand_name]);
+            $brandId = $brand->item_brand_id;
+        }
+        $uom = ItemUom::firstOrCreate(['item_uom_name' => $request->item_uom_name]);
+
+        // 3. Resolve Name Logic
+        $category = ItemCategory::findOrFail($request->item_category_id);
+        $baseName = $category->item_category_name;
+
+        if (!$request->filled('item_name')) {
+            $lastItem = Item::where('item_category_id', $category->item_category_id)
+                ->where('item_name', 'like', $baseName . ' %')
+                ->orderBy('item_name', 'desc')
+                ->first();
+
+            if ($lastItem) {
+                preg_match('/(\d+)$/', $lastItem->item_name, $matches);
+                $nextNumber = isset($matches[1]) ? (int) $matches[1] + 1 : 1;
+            } else {
+                $nextNumber = 1;
+            }
+            $finalName = $baseName . ' ' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        } else {
+            $finalName = $request->item_name;
+        }
+
+        // 4. DUPLICATE & MERGE LOGIC (Updated to include Item Status/Remark)
+        // Now we check for Name + Brand + Serial + Remark
+        $existingItem = Item::where('item_name', $finalName)
+            ->where('item_brand_id', $brandId)
+            ->where('item_serialno', $request->item_serialno)
+            ->where('item_remark', $request->item_remark) // 🔥 This separates them by status
+            ->first();
+
+        if ($existingItem) {
+            $existingItem->item_quantity += $request->item_quantity;
+            $existingItem->item_quantity_remaining += $request->item_quantity;
+
+            // Recalculate Stock Status (Available, Low, Out)
+            if ($existingItem->item_quantity_remaining <= 0) {
+                $existingItem->item_quantity_status = 'Out of Stock';
+            } elseif ($existingItem->item_quantity_remaining < ($existingItem->item_quantity * 0.2)) {
+                $existingItem->item_quantity_status = 'Low Stock';
+            } else {
+                $existingItem->item_quantity_status = 'Available';
+            }
+
+            $existingItem->touch(); // Move to top of list
+            $existingItem->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Item quantities merged for status: {$request->item_remark}",
+                'data' => $existingItem
+            ]);
+        }
+
+        // 5. SERIAL UNIQUE CHECK (Only for NEW items)
+        if ($request->filled('item_serialno')) {
+            $serialExists = Item::where('item_serialno', $request->item_serialno)->exists();
+            if ($serialExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "The serial number '{$request->item_serialno}' is already registered."
+                ], 422);
+            }
+        }
+
+        // 6. Create New Item
+        $quantityStatus = $request->item_quantity > 0 ? 'Available' : 'Out of Stock';
+
+        $item = Item::create([
+            'item_name' => $finalName,
+            'item_serialno' => $request->item_serialno,
+            'item_quantity' => $request->item_quantity,
+            'item_quantity_remaining' => $request->item_quantity,
+            'item_quantity_status' => $quantityStatus,
+            'item_remark' => $request->item_remark,
+            'item_category_id' => $request->item_category_id,
+            'item_uom_id' => $uom->item_uom_id,
+            'item_brand_id' => $brandId,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'New item added successfully',
+            'data' => $item
+        ]);
     }
-
-    // 5. Determine Quantity Status
-    $quantityStatus = $request->item_quantity > 0 ? 'Available' : 'Out of Stock';
-
-    // 6. Save the Item
-    $item = Item::create([
-        'item_name' => $finalName,
-        'item_serialno' => $request->item_serialno,
-        'item_quantity' => $request->item_quantity,
-        'item_quantity_remaining' => $request->item_quantity,
-        'item_quantity_status' => $quantityStatus,
-        'item_remark' => $request->item_remark,
-        'item_category_id' => $request->item_category_id,
-        'item_uom_id' => $uom->item_uom_id,
-        'item_brand_id' => $brandId, // Will be null if no brand name was sent
-    ]);
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Item added successfully',
-        'data' => $item
-    ]);
-}
-
+     
+    
     public function storeCategory(Request $request)
     {
         $request->validate([
@@ -250,7 +283,6 @@ class ItemController extends Controller
             'item_category_icon' => $category->item_category_icon
         ]);
     }
-
     /**
      * Display the specified resource.
      */
@@ -335,18 +367,65 @@ class ItemController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($item_id)
+    public function destroy(Request $request, $item_id)
     {
-        Item::findOrFail($item_id)->delete();
+        $item = Item::findOrFail($item_id);
+        $deleteQty = $request->input('delete_qty');
 
-        return redirect()->back()->with('success', 'Item deleted successfully');
+        // If user entered a number and it's less than the total remaining
+        if (!empty($deleteQty) && is_numeric($deleteQty) && $deleteQty < $item->item_quantity_remaining) {
+
+            $item->item_quantity -= $deleteQty;
+            $item->item_quantity_remaining -= $deleteQty;
+
+            // Recalculate status logic
+            if ($item->item_quantity_remaining == 0) {
+                $item->item_quantity_status = 'Out of Stock';
+            } elseif ($item->item_quantity_remaining < ($item->item_quantity * 0.2)) {
+                $item->item_quantity_status = 'Low Stock';
+            } else {
+                $item->item_quantity_status = 'Available';
+            }
+
+            $item->save();
+
+            return response()->json([
+                'success' => true,
+                'deleted_entirely' => false,
+                'message' => "Removed $deleteQty items from stock."
+            ]);
+        }
+
+        // Otherwise, delete the entire record
+        $item->delete();
+
+        return response()->json([
+            'success' => true,
+            'deleted_entirely' => true,
+            'message' => 'Item deleted successfully.'
+        ]);
     }
 
     public function destroyCategory($id)
     {
-        ItemCategory::findOrFail($id)->delete();
+        $category = ItemCategory::findOrFail($id);
 
-        return redirect()->back()->with('success', 'Category deleted successfully.');
+        // Check if there are any items using this category
+        $itemCount = Item::where('item_category_id', $id)->count();
+
+        if ($itemCount > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => "Cannot delete category. There are still $itemCount item(s) assigned to it."
+            ], 422); // 422 Unprocessable Entity
+        }
+
+        $category->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Category deleted successfully.'
+        ]);
     }
 
     public function bulkDestroy(Request $request)
@@ -387,12 +466,12 @@ class ItemController extends Controller
     public function checkDuplicate(Request $request)
     {
         $brand = ItemBrand::where('item_brand_name', $request->item_brand_name)->first();
-        $uom = ItemUom::where('item_uom_name', $request->item_uom_name)->first();
+        // We only find the ID if the brand actually exists
+        $brandId = $brand ? $brand->item_brand_id : null;
 
         $exists = Item::where('item_name', $request->item_name)
-            ->where('item_brand_id', $brand?->item_brand_id)
-            ->where('item_uom_id', $uom?->item_uom_id)
-            ->where('item_remark', $request->item_remark)
+            ->where('item_brand_id', $brandId)
+            ->where('item_serialno', $request->item_serialno) // Match serial (null matches null)
             ->exists();
 
         return response()->json(['exists' => $exists]);

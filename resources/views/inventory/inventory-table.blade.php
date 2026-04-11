@@ -24,7 +24,7 @@
           <td>{{ $item->item_serialno ?? '-' }}</td>
           <td>{{ $item->uom ? $item->uom->item_uom_name : '-' }}</td>
           <td>{{ $item->item_quantity ?? '-' }}</td>
-          <td>{{ $item->item_quantity_remaining ?? '-' }}</td>
+          <td class="item-qty-value">{{ $item->item_quantity_remaining ?? '-' }}</td>
           {{-- <td>
               @if ($item->item_quantity_status == 'Out of Stock')
                   <span class="badge bg-danger">Out of Stock</span>
@@ -119,8 +119,7 @@
                   </div>
               </div>
 
-              <div class="modal fade" id="edit
-              ItemModal_{{ $item->item_id }}" tabindex="-1">
+              <div class="modal fade" id="editItemModal_{{ $item->item_id }}" tabindex="-1">
                   <div class="modal-dialog modal-xl">
                       <div class="modal-content">
                           <form action="{{ route('inventory.update', $item->item_id) }}" method="POST"

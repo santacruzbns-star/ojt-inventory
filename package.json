@@ -3,9 +3,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "test": "jest"
+        "start": "react-scripts start",
+        "dev": "vite",
+        "build": "vite build",
+        "test": "jest"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
@@ -19,6 +20,4 @@
         "tailwindcss": "^3.1.0",
         "vite": "^7.0.7"
     }
-
-    
 }

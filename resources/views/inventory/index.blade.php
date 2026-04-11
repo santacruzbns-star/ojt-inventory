@@ -142,6 +142,85 @@
                                                         </a>
                                                     </li>
 
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-printer">
+                                                            <i class="bi bi-printer me-2"></i> Printer / Scanner
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-battery-charging">
+                                                            <i class="bi bi-battery-charging me-2"></i> UPS / Battery
+                                                            Backup
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-hdd-stack">
+                                                            <i class="bi bi-hdd-stack me-2"></i> Network Switch / Hub
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-plug">
+                                                            <i class="bi bi-plug me-2"></i> Power Supply / PSU
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-fingerprint">
+                                                            <i class="bi bi-fingerprint me-2"></i> Biometric Device
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-person-bounding-box">
+                                                            <i class="bi bi-person-bounding-box me-2"></i> Face
+                                                            Recognition
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-cpu-fill">
+                                                            <i class="bi bi-cpu-fill me-2"></i> Motherboard / Mainboard
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-ethernet">
+                                                            <i class="bi bi-ethernet me-2"></i> Ethernet Adapter / NIC
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-droplet-half">
+                                                            <i class="bi bi-droplet-half me-2"></i> Printer Ink / Toner
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-lightning-charge">
+                                                            <i class="bi bi-lightning-charge me-2"></i> Charger / Power
+                                                            Adapter
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item icon-option" href="#"
+                                                            data-value="bi-telephone">
+                                                            <i class="bi bi-telephone me-2"></i> Telephone / Landline
+                                                        </a>
+                                                    </li>
 
                                                     <!-- COMPUTERS -->
                                                     <li><a class="dropdown-item icon-option" href="#"
@@ -479,7 +558,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>
-                                <input type="checkbox" id="select_all" >
+                                <input type="checkbox" id="select_all">
                             </th>
                             <th>Product Name</th>
                             <th>Category</th>

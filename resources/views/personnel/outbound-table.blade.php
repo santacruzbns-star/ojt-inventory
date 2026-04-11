@@ -324,13 +324,13 @@
     </div>
 @empty
     <tr>
-        <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold; color:gray">
+        <td colspan="12" class="text-center" style="font-size:15px;font-weight:bold; color:gray">
             No Record Found.
         </td>
     </tr>
 @endforelse
 <tr class="pagination-row">
-    <td colspan="11">
+    <td colspan="12">
         <div id="pagination-container" class="d-flex justify-content-center mt-3">
             {{-- Wrap in a class for easier targeting --}}
             <div class="ajax-pagination">
