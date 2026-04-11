@@ -1,0 +1,394 @@
+/* =======================
+   Overview cards - Slightly smaller with hover
+   ======================= */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.7rem; /* slightly smaller gap */
+    
+}
+
+@media (max-width: 1024px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 640px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Overview cards */
+.summary-card {
+    background-color: #ffffff;
+    padding: 1rem; /* slightly smaller */
+    border-radius: 0.7rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    border: 1px solid #e5e7eb;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
+}
+
+.summary-card-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem; /* slightly smaller */
+}
+
+.icon-box {
+    width: 80px;  /* slightly smaller */
+    height: 80px;
+    background-color: #ffffff;
+    border: 1px solid #898989;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.icon-box i {
+    font-size: 32px; /* slightly smaller icon */
+    color: #374151;
+}
+
+.summary-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.summary-value {
+    font-size: 1.5rem; /* slightly smaller number */
+    font-weight: 800;
+    color: #111827;
+}
+
+.summary-title {
+    margin-top: 5px;
+    font-size: 1rem; /* slightly smaller label */
+    line-height: 1.3rem;
+    color: #374151;
+    font-weight: bold;
+    
+}
+
+/* =======================
+   Charts and list
+   ======================= */
+.charts-section {
+    margin-top: 1.1rem;
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 0.7rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.charts-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.9rem;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.search-input,
+.month-select {
+    padding: 0.55rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.3rem;
+    background-color: white;
+    font-size: 0.95rem;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.95rem;
+}
+
+.chart-box {
+    background-color: white;
+    padding: 0.95rem;
+    border-radius: 0.7rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    height: 260px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-box canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+h4 {
+    text-align: center;
+    margin-bottom: 0.45rem;
+    color: #374151;
+    font-size: 1rem;
+}
+
+/* =======================
+   Top Barangay section
+   ======================= */
+.top-barangay-section {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.7rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.barangay-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.barangay-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 1.1rem;
+}
+
+.barangay-item:last-child {
+    border-bottom: none;
+}
+
+/* =======================
+   Three-grid summary below
+   ======================= */
+.three-grid-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.95rem;
+    margin-top: 1.1rem;
+}
+
+.grid-card {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.7rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.grid-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+}
+
+.grid-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.grid-card p {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.summary-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+}
+
+.summary-title {
+    font-size: 1rem;
+    line-height: 1.3rem;
+}
+
+.barangay-item {
+    font-size: 1.1rem;
+}
+
+/* =======================
+   Small screens tweaks
+   ======================= */
+@media (max-width: 640px) {
+    .summary-card-inner {
+        align-items: center;
+    }
+    .icon-box {
+        width: 90px;
+        height: 70px;
+    }
+    .summary-value {
+        font-size: 1.4rem;
+    }
+    .summary-title {
+        font-size: 0.95rem;
+    }
+}
+
+/* =======================
+   Monthly Measurements Chart
+   ======================= */
+#monthlyMeasurementsChart {
+    height: 300px !important;
+    width: 100% !important;
+    display: block;
+}
+
+/* =======================
+   Sex Distribution Chart
+   ======================= */
+#sexDistributionChart {
+    height: 300px !important;
+    width: 60% !important;
+    display: block;
+}
+
+/* =======================
+   Optional: Chart containers
+   ======================= */
+.chart-box {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.7rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* =======================
+   Menu icons
+   ======================= */
+.menu-icon1,
+.menu-icon2 {
+    width: 3.90rem;
+    height: auto;
+    object-fit: contain;
+}
+
+.damaged-icon{
+    width: 3.70rem;
+    height: auto;
+    object-fit: contain;
+    
+}
+.available-icon{
+    width: 5rem;
+    height: auto;
+    object-fit: contain;
+}
+
+.damaged-value{
+    font-size: 1.70rem;
+    font-weight: bold;
+    color: red;
+}
+.calendar-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: auto;
+    overflow: hidden; /* prevents horizontal scroll */
+}
+
+/* Calendar container */
+#calendar {
+    width: 100%;
+    margin: auto;
+}
+
+/* Month title ONLY */
+.fc .fc-toolbar-title {
+    font-size: 18px !important;
+    font-weight: 600;
+}
+
+/* Keep day headers small */
+.fc .fc-col-header-cell {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+/* Day numbers */
+.fc .fc-daygrid-day-number {
+    font-size: 10px;
+    font-weight: bold;
+    color: rgb(60, 60, 60);
+}
+
+/* Buttons */
+.fc .fc-button {
+    font-size: 12px !important;
+    padding: 3px 6px !important;
+    border-radius: 6px;
+}
+
+/* Fix calendar height and prevent vertical scroll */
+.fc .fc-scroller-liquid-absolute {
+    overflow: hidden !important;
+    max-height: none !important;
+}
+
+.fc .fc-daygrid-body {
+    width: 100% !important;
+}
+
+/* Optional: card hover animation */
+.calendar-wrapper .fc {
+    transition: transform 0.3s ease;
+}
+
+.calendar-wrapper .fc:hover {
+    transform: translateY(1px);
+}
+.fc .fc-day-today {
+    background-color: #92baee !important; /* light yellow */
+    border-radius: 6px;
+}
+/* Table wrapper */
+.charts-grid .p-3 {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Status color coding */
+.charts-grid tbody td:nth-child(3) {
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.charts-grid tbody td:nth-child(3)[data-status="Received"] {
+    color: #16a34a; /* green */
+}
+
+.charts-grid tbody td:nth-child(3)[data-status="Damaged"] {
+    color: #dc2626; /* red */
+}
+
+/* Timestamp small text */
+.charts-grid tbody td small {
+    display: block;
+    color: #6b7280;
+    font-size: 11px;
+}
+
+
+
+.charts-grid tbody tr {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+th, td{
+    text-align: center;
+    color: red;
+}
