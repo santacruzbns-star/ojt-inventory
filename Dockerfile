@@ -50,6 +50,6 @@ RUN a2enmod rewrite
 # 12. Expose port 80
 EXPOSE 80
 
-# 13. THE FIX: Run migrations and then start Apache
-# This ensures migrations run every time the container starts up.
-CMD php artisan migrate --force && apache2-foreground
+# 13. THE FIX: Creates storage link, runs migrations, and starts Apache
+# Using sh -c is the most reliable way to chain these commands on Render.
+CMD ["sh", "-c", "php artisan storage:link && php artisan migrate --force && apache2-foreground"]
