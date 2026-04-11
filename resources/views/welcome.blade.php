@@ -9,19 +9,19 @@
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800" rel="stylesheet" />
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
+
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
         :root {
             /* Deep Blue Theme Colors */
-            --bg-base: #0d324d; 
+            --bg-base: #0d324d;
             --bg-darker: #092438;
-            --accent-blue: #1e6091; 
-            --accent-green: #7e9c65; 
+            --accent-blue: #1e6091;
+            --accent-green: #7e9c65;
             --text-main: #ffffff;
             --text-light: rgba(255, 255, 255, 0.7);
             --border-light: rgb(255, 255, 255);
@@ -37,9 +37,9 @@
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
-            
+
             /* Modern Box Grid Background */
-            background-image: 
+            background-image:
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 50px 50px;
@@ -174,14 +174,52 @@
             transform: scale(1.05);
         }
 
-        .img-main { top: 15%; left: 5%; width: 60%; height: 70%; z-index: 2; border: 2px solid var(--accent-blue); }
-        .img-top-right { top: 0; right: 0; width: 45%; height: 45%; z-index: 1; }
-        .img-bottom-right { bottom: 5%; right: 5%; width: 50%; height: 40%; z-index: 3; }
+        .img-main {
+            top: 15%;
+            left: 5%;
+            width: 60%;
+            height: 70%;
+            z-index: 2;
+            border: 2px solid var(--accent-blue);
+        }
+
+        .img-top-right {
+            top: 0;
+            right: 0;
+            width: 45%;
+            height: 45%;
+            z-index: 1;
+        }
+
+        .img-bottom-right {
+            bottom: 5%;
+            right: 5%;
+            width: 50%;
+            height: 40%;
+            z-index: 3;
+        }
 
         /* SECTIONS GENERAL */
-        .section-padding { padding: 100px 0; }
-        .section-title { font-weight: 800; font-size: 2.5rem; margin-bottom: 1rem; letter-spacing: -0.5px; }
-        .section-tag { color: var(--accent-green); text-transform: uppercase; font-weight: 700; letter-spacing: 2px; font-size: 0.85rem; margin-bottom: 0.5rem; display: block; }
+        .section-padding {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .section-tag {
+            color: var(--accent-green);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
 
         /* ABOUT SECTION */
         .about-section {
@@ -205,7 +243,11 @@
             border-color: var(--accent-blue);
         }
 
-        .feature-icon { font-size: 2rem; color: var(--accent-blue); margin-bottom: 1.5rem; }
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--accent-blue);
+            margin-bottom: 1.5rem;
+        }
 
         /* DOCUMENTATION ACCORDION */
         .docs-section {
@@ -235,16 +277,37 @@
             border-bottom: 1px solid var(--border-light);
         }
 
-        .accordion-button::after { filter: invert(1); }
-        .accordion-body { color: var(--text-light); line-height: 1.7; padding: 1.5rem; }
+        .accordion-button::after {
+            filter: invert(1);
+        }
+
+        .accordion-body {
+            color: var(--text-light);
+            line-height: 1.7;
+            padding: 1.5rem;
+        }
 
         /* FOOTER */
-        footer { background-color: #061926; border-top: 1px solid var(--border-light); }
+        footer {
+            background-color: #061926;
+            border-top: 1px solid var(--border-light);
+        }
 
         @media (max-width: 991px) {
-            .image-composition { height: 400px; margin-top: 3rem; }
-            .hero-section { padding: 120px 0 60px; min-height: auto; }
-            .navbar { background: rgba(13, 50, 77, 0.95); backdrop-filter: blur(10px); }
+            .image-composition {
+                height: 400px;
+                margin-top: 3rem;
+            }
+
+            .hero-section {
+                padding: 120px 0 60px;
+                min-height: auto;
+            }
+
+            .navbar {
+                background: rgba(13, 50, 77, 0.95);
+                backdrop-filter: blur(10px);
+            }
         }
     </style>
 </head>
@@ -257,7 +320,8 @@
                 GOLDTOWN
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border-color: rgba(255,255,255,0.5);">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                style="border-color: rgba(255,255,255,0.5);">
                 <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
             </button>
 
@@ -266,11 +330,12 @@
                     <li class="nav-item"><a class="nav-link px-3" href="#home">Home</a></li>
                     <li class="nav-item"><a class="nav-link px-3" href="#about">About</a></li>
                     <li class="nav-item"><a class="nav-link px-3" href="#docs">Documentation</a></li>
-                    
+
                     @if (Route::has('login'))
                         @auth
                             <li class="nav-item">
-                                <a href="{{ url('/dashboard') }}" class="btn btn-custom btn-secondary-custom ms-lg-3">Dashboard</a>
+                                <a href="{{ url('/dashboard') }}"
+                                    class="btn btn-custom btn-secondary-custom ms-lg-3">Dashboard</a>
                             </li>
                         @else
                             <li class="nav-item">
@@ -278,7 +343,8 @@
                             </li>
                             @if (Route::has('register'))
                                 <li class="nav-item">
-                                    <a href="{{ route('register') }}" class="btn btn-custom btn-secondary-custom ms-lg-3">Get Started</a>
+                                    <a href="{{ route('register') }}"
+                                        class="btn btn-custom btn-secondary-custom ms-lg-3">Get Started</a>
                                 </li>
                             @endif
                         @endauth
@@ -297,7 +363,8 @@
                         Management System
                     </h1>
                     <p class="hero-subtitle">
-                        Manage and monitor company inventory, stock levels, and product movement in one streamlined, high-performance platform.
+                        Manage and monitor company inventory, stock levels, and product movement in one streamlined,
+                        high-performance platform.
                     </p>
                     <div class="d-flex flex-wrap gap-3">
                         <a href="#about" class="btn btn-custom btn-primary-custom">Explore Platform</a>
@@ -308,17 +375,18 @@
                 <div class="col-lg-6" data-aos="fade-left" data-aos-duration="1200" data-aos-delay="200">
                     <div class="image-composition">
                         <div class="img-box img-top-right">
-                            <img src="/storage/img/goldtown3.png" alt="Shipping Containers">
+                            <img src="{{ asset('storage/img/goldtown3.png') }}" alt="Shipping Containers">
                         </div>
                         <div class="img-box img-main">
-                            <img src="/storage/img/gwapa.png" alt="Inventory Manager">
+                            <img src="{{ asset('storage/img/gwapa.png') }}" alt="Inventory Manager">
                         </div>
                         <div class="img-box img-bottom-right">
-                            <img src="/storage/img/gwapo.png" alt="Warehouse Automation">
+                            <img src="{{ asset('storage/img/gwapo.png') }}" alt="Warehouse Automation">
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </section>
 
@@ -329,7 +397,9 @@
                     <span class="section-tag">About Goldtown</span>
                     <h2 class="section-title">Built for scale, designed for simplicity.</h2>
                     <p class="text-light fs-5 lh-lg">
-                        Goldtown was engineered to bridge the gap between complex enterprise resource planning and intuitive, daily operational software. We give warehouse managers and business owners complete visibility into their supply chain without the clutter.
+                        Goldtown was engineered to bridge the gap between complex enterprise resource planning and
+                        intuitive, daily operational software. We give warehouse managers and business owners complete
+                        visibility into their supply chain without the clutter.
                     </p>
                 </div>
             </div>
@@ -339,21 +409,24 @@
                     <div class="feature-card">
                         <i class="bi bi-box-seam feature-icon"></i>
                         <h4 class="fw-bold mb-3">Real-time Tracking</h4>
-                        <p class="text-light mb-0">Monitor stock levels as they change. Our instantaneous sync ensures you never oversell or run out of critical components.</p>
+                        <p class="text-light mb-0">Monitor stock levels as they change. Our instantaneous sync ensures
+                            you never oversell or run out of critical components.</p>
                     </div>
                 </div>
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="feature-card">
                         <i class="bi bi-graph-up-arrow feature-icon"></i>
                         <h4 class="fw-bold mb-3">Advanced Analytics</h4>
-                        <p class="text-light mb-0">Generate comprehensive reports on product velocity, seasonal trends, and ROI with just two clicks.</p>
+                        <p class="text-light mb-0">Generate comprehensive reports on product velocity, seasonal trends,
+                            and ROI with just two clicks.</p>
                     </div>
                 </div>
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="feature-card">
                         <i class="bi bi-shield-check feature-icon"></i>
                         <h4 class="fw-bold mb-3">Secure Infrastructure</h4>
-                        <p class="text-light mb-0">Enterprise-grade encryption keeps your proprietary supplier data and financial metrics locked down and compliant.</p>
+                        <p class="text-light mb-0">Enterprise-grade encryption keeps your proprietary supplier data and
+                            financial metrics locked down and compliant.</p>
                     </div>
                 </div>
             </div>
@@ -373,52 +446,74 @@
                     <div class="accordion" id="docsAccordion">
                         <div class="accordion-item">
                             <h2 class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                     <i class="bi bi-terminal me-2"></i> Initial Setup & Configuration
                                 </button>
                             </h2>
-                            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#docsAccordion">
+                            <div id="collapseOne" class="accordion-collapse collapse show"
+                                data-bs-parent="#docsAccordion">
                                 <div class="accordion-body">
-                                    To begin using Goldtown, navigate to your admin dashboard and configure your primary warehouse locations. You can bulk-import existing inventory via a CSV template provided in the settings tab. Ensure all product SKUs are unique before finalizing the import to prevent database conflicts.
+                                    To begin using Goldtown, navigate to your admin dashboard and configure your primary
+                                    warehouse locations. You can bulk-import existing inventory via a CSV template
+                                    provided in the settings tab. Ensure all product SKUs are unique before finalizing
+                                    the import to prevent database conflicts.
                                 </div>
                             </div>
                         </div>
 
                         <div class="accordion-item">
                             <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                                     <i class="bi bi-upc-scan me-2"></i> Adding New Products
                                 </button>
                             </h2>
-                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#docsAccordion">
+                            <div id="collapseTwo" class="accordion-collapse collapse"
+                                data-bs-parent="#docsAccordion">
                                 <div class="accordion-body">
-                                    Click the <strong>"Add Product"</strong> button on the main dashboard. You will be prompted to enter the Item Name, Category, Base Cost, Retail Price, and Starting Quantity. You can also assign barcode data to enable integration with physical handheld scanners on the warehouse floor.
+                                    Click the <strong>"Add Product"</strong> button on the main dashboard. You will be
+                                    prompted to enter the Item Name, Category, Base Cost, Retail Price, and Starting
+                                    Quantity. You can also assign barcode data to enable integration with physical
+                                    handheld scanners on the warehouse floor.
                                 </div>
                             </div>
                         </div>
 
                         <div class="accordion-item">
                             <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseThree" aria-expanded="false"
+                                    aria-controls="collapseThree">
                                     <i class="bi bi-bell me-2"></i> Setting Low Stock Alerts
                                 </button>
                             </h2>
-                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#docsAccordion">
+                            <div id="collapseThree" class="accordion-collapse collapse"
+                                data-bs-parent="#docsAccordion">
                                 <div class="accordion-body">
-                                    Goldtown allows you to set automated thresholds. Go to <strong>Inventory > Manage Alerts</strong>. Select a specific product or a whole category, and define the minimum stock level. Once inventory dips below this number, the system will automatically dispatch an email alert to the assigned procurement manager.
+                                    Goldtown allows you to set automated thresholds. Go to <strong>Inventory > Manage
+                                        Alerts</strong>. Select a specific product or a whole category, and define the
+                                    minimum stock level. Once inventory dips below this number, the system will
+                                    automatically dispatch an email alert to the assigned procurement manager.
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="accordion-item">
                             <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseFour" aria-expanded="false"
+                                    aria-controls="collapseFour">
                                     <i class="bi bi-people me-2"></i> User Roles & Permissions
                                 </button>
                             </h2>
-                            <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#docsAccordion">
+                            <div id="collapseFour" class="accordion-collapse collapse"
+                                data-bs-parent="#docsAccordion">
                                 <div class="accordion-body">
-                                    The system supports three standard roles: <strong>Admin</strong> (full access), <strong>Manager</strong> (can edit stock and view reports), and <strong>Staff</strong> (can only view inventory and process outgoing orders). Roles can be assigned or revoked instantly from the User Management panel.
+                                    The system supports three standard roles: <strong>Admin</strong> (full access),
+                                    <strong>Manager</strong> (can edit stock and view reports), and
+                                    <strong>Staff</strong> (can only view inventory and process outgoing orders). Roles
+                                    can be assigned or revoked instantly from the User Management panel.
                                 </div>
                             </div>
                         </div>
@@ -469,4 +564,5 @@
     </script>
 
 </body>
+
 </html>
