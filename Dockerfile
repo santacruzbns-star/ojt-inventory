@@ -1,8 +1,7 @@
 # Use an official PHP image with Apache
 FROM php:8.2-apache
 
-# 1. Install system dependencies for Laravel & PhpSpreadsheet
-# Added libpq-dev for PostgreSQL support
+# 1. Install system dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
@@ -20,7 +19,6 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 3. Install PHP extensions
-# Added pdo_pgsql here to fix the "could not find driver" error
 RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip
 
 # 4. Get latest Composer
@@ -35,25 +33,23 @@ COPY . .
 # 7. Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# 8. Bypassing Render's "Locked Shell"
-# This will create your tables during the build phase.
-RUN php artisan migrate --force || true
-
-# 9. Build your Frontend (Tailwind/Vite)
+# 8. Build your Frontend (Tailwind/Vite)
 RUN npm install && npm run build
 
-# 10. Set permissions for Laravel
+# 9. Set permissions for Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 11. Update Apache config to point to /public
+# 10. Update Apache config to point to /public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# 12. Enable Apache mod_rewrite for Laravel routes
+# 11. Enable Apache mod_rewrite for Laravel routes
 RUN a2enmod rewrite
 
-# 13. Expose port 80
+# 12. Expose port 80
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+# 13. THE FIX: Run migrations and then start Apache
+# This ensures migrations run every time the container starts up.
+CMD php artisan migrate --force && apache2-foreground
