@@ -8,7 +8,7 @@
 
     <title>Goldtown | Inventory Tracking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="storage/img/goldtown2.png">
+    <link rel="icon" type="image/x-icon" href="/storage/img/goldtown2.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -405,7 +405,7 @@
     <div id="global-loader">
         <div class="loader-content">
             <div class="loader-wrapper">
-                <img src="{{ asset('storage/img/dawg.gif') }}" alt="Loading" class="loader-image">
+                <img src="{{ asset('/storage/img/dawg.gif') }}" alt="Loading" class="loader-image">
             </div>
             <p class="loading-text">LOADING...</p>
         </div>
@@ -414,7 +414,7 @@
     <header class="modern-header">
         <nav class="nav-container">
             <a href="/" class="nav-logo">
-                <img src="{{ asset('storage/img/login-logo.png') }}" alt="Goldtown Logo">
+                <img src="{{ asset('/storage/img/login-logo.png') }}" alt="Goldtown Logo">
             </a>
 
             <ul class="nav-menu">

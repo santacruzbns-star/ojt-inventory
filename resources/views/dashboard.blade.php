@@ -16,7 +16,7 @@
                     <div class="summary-card">
                         <div class="summary-card-inner">
                             <div class="icon-box">
-                                <img src="storage/img/totalitem.png" alt="error" class="menu-icon2">
+                                <img src="/storage/img/totalitem.png" alt="error" class="menu-icon2">
                             </div>
                             <div class="summary-meta">
                                 <div class="summary-value">{{ $itemCount }}</div>
@@ -27,7 +27,7 @@
                     <div class="summary-card">
                         <div class="summary-card-inner">
                             <div class="icon-box">
-                                <img src="storage/img/available-item.png" alt="error" class="available-icon">
+                                <img src="/storage/img/available-item.png" alt="error" class="available-icon">
                             </div>
                             <div class="summary-meta">
 
@@ -39,7 +39,7 @@
                     <div class="summary-card">
                         <div class="summary-card-inner">
                             <div class="icon-box">
-                                <img src="storage/img/packaging.png" alt="error" class="damaged-icon">
+                                <img src="/storage/img/packaging.png" alt="error" class="damaged-icon">
                             </div>
                             <div class="summary-meta">
                                 <div class="damaged-value">{{ $damagedItem }}</div>
@@ -50,7 +50,7 @@
                     <div class="summary-card">
                         <div class="summary-card-inner">
                             <div class="icon-box">
-                                <img src="storage/img/outbound.png" alt="error" class="menu-icon1">
+                                <img src="/storage/img/outbound.png" alt="error" class="menu-icon1">
                             </div>
                             <div class="summary-meta">
                                 <div class="summary-value">{{ $outboundCount }}</div>

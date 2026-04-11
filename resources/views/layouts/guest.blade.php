@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Goldtown | Inventory Tracking</title>
-    <link rel="icon" type="image/x-icon" href="storage/img/goldtown2.png">
+    <link rel="icon" type="image/x-icon" href="/storage/img/goldtown2.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
@@ -401,7 +401,7 @@
     <div id="global-loader">
         <div class="loader-content">
             <div class="loader-wrapper">
-                <img src="storage/img/dawg.gif" alt="Loading" class="loader-image">
+                <img src="/storage/img/dawg.gif" alt="Loading" class="loader-image">
             </div>
             <p class="loading-text">LOADING...</p>
         </div>
@@ -414,7 +414,7 @@
                 <i class="fa-solid fa-share-nodes"></i>
             </button>
 
-            <img class="logo" src="storage/img/login-logo.png" alt="login logo">
+            <img class="logo" src="/storage/img/login-logo.png" alt="login logo">
 
             {{ $slot }}
 

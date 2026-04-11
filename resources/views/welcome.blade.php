@@ -308,13 +308,13 @@
                 <div class="col-lg-6" data-aos="fade-left" data-aos-duration="1200" data-aos-delay="200">
                     <div class="image-composition">
                         <div class="img-box img-top-right">
-                            <img src="storage/img/goldtown3.png" alt="Shipping Containers">
+                            <img src="/storage/img/goldtown3.png" alt="Shipping Containers">
                         </div>
                         <div class="img-box img-main">
-                            <img src="storage/img/gwapa.png" alt="Inventory Manager">
+                            <img src="/storage/img/gwapa.png" alt="Inventory Manager">
                         </div>
                         <div class="img-box img-bottom-right">
-                            <img src="storage/img/gwapo.png" alt="Warehouse Automation">
+                            <img src="/storage/img/gwapo.png" alt="Warehouse Automation">
                         </div>
                     </div>
                 </div>
