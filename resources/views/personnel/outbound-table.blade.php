@@ -131,7 +131,8 @@
                     $isReceived = $outbound->personnel_item_remarks === 'Received';
                 @endphp
 
-                <form action="{{ route('outbound.update', $outbound->personnel_item_id) }}" method="POST">
+                <form action="{{ route('outbound.update', $outbound->personnel_item_id) }}" method="POST"
+                    class="needs-validation-update" novalidate>
                     @csrf
                     @method('PUT')
 
@@ -232,7 +233,7 @@
 
                 {{-- Form maintains "needs-validation" and "novalidate" for Bootstrap JS --}}
                 <form action="{{ route('outbound.return', $outbound->personnel_item_id) }}" method="POST"
-                    class="needs-validation" novalidate>
+                    class="needs-validation-return" novalidate>
                     @csrf
                     @method('PUT')
 

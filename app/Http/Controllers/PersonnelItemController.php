@@ -28,7 +28,7 @@ class PersonnelItemController extends Controller
 
         // 1. Main Table Query: Only show rows where quantity > 0
         $outbounds = PersonnelItem::with(['personnel', 'personnel.branch', 'item'])
-            ->where('personnel_item_quantity', '>', 0) // This hides the 0 rows from the table
+            ->where('personnel_item_quantity', '>', 0)
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
@@ -43,7 +43,9 @@ class PersonnelItemController extends Controller
                 $q->whereHas('personnel.branch', fn($q2) => $q2->where('branch_name', $branchFilter));
             })
             ->when($remarksFilter, fn($q) => $q->where('personnel_item_remarks', $remarksFilter))
-            ->latest()
+            // 🔥 ORDERING UPDATED:
+            ->orderBy('updated_at', 'desc')           // 1. Most recently touched
+            ->orderBy('personnel_item_id', 'desc')    // 2. Highest ID wins (Tie-breaker for Returns)
             ->paginate(5)
             ->withQueryString();
 
@@ -251,15 +253,21 @@ class PersonnelItemController extends Controller
             ]);
         });
 
-        return redirect()->route('outbound.index')->with('success', 'Outbound updated successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Outbound record updated successfully!'
+        ]);
     }
     /**
      * Separate return function
      */
     public function returnItem(Request $request, PersonnelItem $outbound)
     {
-        // ✅ BLOCK if not RECEIVED
+        // 1. Validation Check (for non-AJAX fallback)
         if ($outbound->personnel_item_remarks !== 'Received') {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Only RECEIVED items can be returned.'], 403);
+            }
             return redirect()->back()->with('error', 'Only RECEIVED items can be returned.');
         }
 
@@ -269,70 +277,78 @@ class PersonnelItemController extends Controller
             'return_date' => 'required|date',
         ]);
 
-        DB::transaction(function () use ($outbound, $validated) {
+        try {
+            DB::transaction(function () use ($outbound, $validated) {
+                $item = $outbound->item;
 
-            $item = $outbound->item;
+                // Reduce borrowed quantity on the original record
+                $outbound->personnel_item_quantity -= $validated['return_quantity'];
+                $outbound->save();
 
-            // Reduce borrowed quantity
-            $outbound->personnel_item_quantity -= $validated['return_quantity'];
-            $outbound->save();
+                if ($validated['return_condition'] === 'Good') {
+                    // Return to stock
+                    $item->item_quantity_remaining += $validated['return_quantity'];
+                    $item->item_quantity_status =
+                        $item->item_quantity_remaining <= 0 ? 'Out of Stock' :
+                        ($item->item_quantity_remaining < ($item->item_quantity * 0.2) ? 'Low Stock' : 'Available');
+                    $item->save();
 
-            if ($validated['return_condition'] === 'Good') {
-
-                $item->item_quantity_remaining += $validated['return_quantity'];
-
-                $item->item_quantity_status =
-                    $item->item_quantity_remaining <= 0 ? 'Out of Stock' :
-                    ($item->item_quantity_remaining < ($item->item_quantity * 0.2) ? 'Low Stock' : 'Available');
-
-                $item->save();
-
-                PersonnelItem::create([
-                    'personnel_id' => $outbound->personnel_id,
-                    'item_id' => $item->item_id,
-                    'personnel_item_quantity' => $validated['return_quantity'],
-                    'personnel_date_receive' => $validated['return_date'],
-                    'personnel_item_remarks' => 'Returned',
-                    'item_remark' => 'Good',
-                ]);
-
-            } else {
-
-                $existingDamaged = Item::where('item_name', $item->item_name)
-                    ->where('item_remark', 'Damaged')
-                    ->first();
-
-                if ($existingDamaged) {
-                    $existingDamaged->item_quantity = 0;
-                    $existingDamaged->item_quantity_remaining += $validated['return_quantity'];
-                    $existingDamaged->item_quantity_status = 'Damaged';
-                    $existingDamaged->save();
-
-                    $damagedItemId = $existingDamaged->item_id;
-
+                    $targetItemId = $item->item_id;
+                    $remark = 'Good';
                 } else {
-                    $damagedItem = $item->replicate();
-                    $damagedItem->item_quantity = 0;
-                    $damagedItem->item_quantity_remaining = $validated['return_quantity'];
-                    $damagedItem->item_quantity_status = 'Damaged';
-                    $damagedItem->item_remark = 'Damaged';
-                    $damagedItem->save();
+                    // Handle Damaged Logic
+                    $existingDamaged = Item::where('item_name', $item->item_name)
+                        ->where('item_remark', 'Damaged')
+                        ->first();
 
-                    $damagedItemId = $damagedItem->item_id;
+                    if ($existingDamaged) {
+                        $existingDamaged->item_quantity_remaining += $validated['return_quantity'];
+                        $existingDamaged->save();
+                        $targetItemId = $existingDamaged->item_id;
+                    } else {
+                        $damagedItem = $item->replicate();
+                        $damagedItem->item_quantity = 0;
+                        $damagedItem->item_quantity_remaining = $validated['return_quantity'];
+                        $damagedItem->item_quantity_status = 'Damaged';
+                        $damagedItem->item_remark = 'Damaged';
+                        $damagedItem->save();
+                        $targetItemId = $damagedItem->item_id;
+                    }
+                    $remark = 'Damaged';
                 }
 
+                // Create the "Returned" record
+                // 🔥 This new record will have the latest 'updated_at', 
+                // so it will appear at the top of your table!
                 PersonnelItem::create([
                     'personnel_id' => $outbound->personnel_id,
-                    'item_id' => $damagedItemId,
+                    'item_id' => $targetItemId,
                     'personnel_item_quantity' => $validated['return_quantity'],
                     'personnel_date_receive' => $validated['return_date'],
                     'personnel_item_remarks' => 'Returned',
-                    'item_remark' => 'Damaged',
+                    'item_remark' => $remark,
+                ]);
+            });
+
+            // 🔥 JSON Response for AJAX
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item returned successfully!'
                 ]);
             }
-        });
 
-        return redirect()->route('outbound.index')->with('success', 'Item returned successfully.');
+            return redirect()->back()->with('success', 'Item returned successfully!');
+
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Server Error: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'An error occurred during return.');
+        }
     }
     /**
      * Remove the specified borrow record.

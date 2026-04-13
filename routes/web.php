@@ -8,6 +8,12 @@ use App\Http\Controllers\PersonnelItemController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    // If the user is already logged in, send them straight to the dashboard
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
+    // Otherwise, show the normal welcome page
     return view('welcome');
 });
 
@@ -20,9 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-   
-});
- // Inventory
+    // Inventory
     Route::resource('inventory', ItemController::class);
     Route::post('/item-category/store', [ItemController::class, 'storeCategory'])->name('item-category.store');
     Route::delete('/item-category/{id}', [ItemController::class, 'destroyCategory'])
@@ -51,5 +55,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/personnel/{id}/items', [PersonnelItemController::class, 'getItems']);
 
     Route::get('/return', [ReturnController::class, 'index'])->name('return.index');
+
+    Route::get('/get-latest-item', [ItemController::class, 'getLatestItem']);
+
+});
 
 require __DIR__ . '/auth.php';

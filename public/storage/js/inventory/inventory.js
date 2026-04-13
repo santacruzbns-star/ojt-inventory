@@ -3,7 +3,8 @@
 
 //search bar for inventory page
 let fetchTable;
-let shouldHighlight = false; // Flag to trigger the "New" effect
+let shouldHighlight = false; // For New Items (Green)
+let shouldHighlightUpdated = false; // For Updated Items (Blue)
 
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("inventorySearch");
@@ -41,38 +42,50 @@ document.addEventListener("DOMContentLoaded", function () {
                     tableBody.innerHTML = data.table;
                     tableBody.style.opacity = "1";
 
-                    // 🔥 ENHANCED NEW ITEM HIGHLIGHT
-                    // 🔥 FULL ROW GREEN HIGHLIGHT
+                    const firstRow = tableBody.querySelector("tr:first-child");
+                    if (!firstRow) return;
+
+                    // --- LOGIC FOR NEW OR UPDATED HIGHLIGHT ---
+                    let highlightColor = "";
+                    let badgeClass = "";
+                    let badgeText = "";
+
                     if (shouldHighlight) {
-                        const firstRow =
-                            tableBody.querySelector("tr:first-child");
-                        if (firstRow) {
-                            // 1. Set the initial "Pop" state
-                            // Using a solid light-green background so text remains perfectly readable
-                            firstRow.style.backgroundColor = "#d1e7dd";
-                            firstRow.style.transition = "none"; // Apply instantly on load
+                        highlightColor = "#d1e7dd"; // Light Green
+                        badgeClass = "bg-success";
+                        badgeText = "New";
+                    } else if (shouldHighlightUpdated) {
+                        highlightColor = "#cfe2ff"; // Light Blue
+                        badgeClass = "bg-primary";
+                        badgeText = "Updated";
+                    }
 
-                            // 2. Optional: Add a small "New" badge to the Product Name cell (Cell index 1)
-                            const nameCell = firstRow.cells[1];
-                            if (nameCell) {
-                                const badge = document.createElement("span");
-                                badge.className =
-                                    "badge rounded-pill bg-success ms-2 animate__animated animate__fadeIn";
-                                badge.style.fontSize = "0.7rem";
-                                badge.innerText = "New";
-                                nameCell.appendChild(badge);
-                            }
+                    if (highlightColor) {
+                        // 1. Highlight the row
+                        firstRow.style.backgroundColor = highlightColor;
+                        firstRow.style.transition = "none";
 
-                            // 3. Trigger the Fade Out after a short delay
-                            setTimeout(() => {
-                                firstRow.style.transition =
-                                    "background-color 2.0s ease-out";
-                                firstRow.style.backgroundColor = "transparent";
-                            }, 1500); // Stays solid for 1.5 seconds, then starts fading
+                        // 2. Append the specific badge
+                        const nameCell = firstRow.cells[1];
+                        if (nameCell) {
+                            const badge = document.createElement("span");
+                            badge.className = `badge rounded-pill ${badgeClass} ms-2 animate__animated animate__fadeIn`;
+                            badge.style.fontSize = "0.7rem";
+                            badge.innerText = badgeText;
+                            nameCell.appendChild(badge);
                         }
 
-                        shouldHighlight = false; // Reset flag so it doesn't repeat on next search
+                        // 3. Fade out the row highlight
+                        setTimeout(() => {
+                            firstRow.style.transition =
+                                "background-color 2.0s ease-out";
+                            firstRow.style.backgroundColor = "transparent";
+                        }, 1500);
                     }
+
+                    // Reset both flags
+                    shouldHighlight = false;
+                    shouldHighlightUpdated = false;
                 })
                 .catch((err) => {
                     console.error("Fetch Error:", err);
@@ -87,6 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (categorySelect) categorySelect.addEventListener("change", fetchTable);
     if (brandSelect) brandSelect.addEventListener("change", fetchTable);
 });
+
 $(document).ready(function () {
     // add category form submission with ajax
     $(document).on("submit", ".category-form", function (e) {
@@ -297,8 +311,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const itemNameInput = document.getElementById("item_name");
     const iconPreview = document.getElementById("categoryIconPreview");
 
-    const itemsData = window.itemsData || [];
-    // Ensure itemsData is available globally
     let manuallyEdited = false;
 
     if (!categorySelect || !itemNameInput) return;
@@ -309,46 +321,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
     categorySelect.addEventListener("change", function () {
         const selectedOption = this.options[this.selectedIndex];
-        const categoryName = selectedOption.getAttribute("data-name");
         const categoryId = this.value;
         const iconClass = selectedOption.getAttribute("data-icon");
 
+        // Icon preview
         if (iconPreview) {
             iconPreview.className =
                 "bi position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary";
-
-            if (iconClass) {
-                iconPreview.classList.add(iconClass);
-            } else {
-                iconPreview.classList.add("bi-question-circle");
-            }
+            iconPreview.classList.add(
+                iconClass ? iconClass : "bi-question-circle",
+            );
         }
 
-        if (!categoryName || !categoryId) return;
+        if (!categoryId) return;
 
-        const filtered = itemsData.filter(
-            (item) => item.category_id == categoryId,
-        );
-
-        let maxNumber = 0;
-
-        filtered.forEach((item) => {
-            const match = item.name.match(/(\d+)$/);
-            if (match) {
-                const num = parseInt(match[1]);
-                if (num > maxNumber) maxNumber = num;
-            }
-        });
-
-        const nextNumber = maxNumber + 1;
-        const formatted = String(nextNumber).padStart(3, "0");
-
-        const generatedName = categoryName + " " + formatted;
-
-        if (!manuallyEdited || itemNameInput.value === "") {
-            itemNameInput.value = generatedName;
-            manuallyEdited = false;
-        }
+        // 🔥 FETCH REAL LATEST FROM BACKEND
+        fetch(`/get-latest-item?category_id=${categoryId}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (!manuallyEdited || itemNameInput.value === "") {
+                    if (data.item_name) {
+                        itemNameInput.value = data.item_name;
+                    } else {
+                        itemNameInput.value = "";
+                    }
+                    manuallyEdited = false;
+                }
+            })
+            .catch((err) => {
+                console.error("Fetch latest item error:", err);
+            });
     });
 });
 
@@ -480,13 +482,12 @@ document.addEventListener("DOMContentLoaded", function () {
             cancelButtonText: "No",
         }).then((result) => {
             if (result.isConfirmed) {
-                // Instead of form.submit(), we use AJAX
                 $.ajax({
                     url: url,
-                    type: "POST", // Laravel handles the _method: 'PUT' inside serialize()
+                    type: "POST",
                     data: $form.serialize(),
                     success: function (response) {
-                        // 1. Hide the modal manually
+                        // 1. Hide the modal
                         let modalEl = $form.closest(".modal");
                         if (modalEl.length) {
                             let modal = bootstrap.Modal.getInstance(modalEl[0]);
@@ -503,7 +504,10 @@ document.addEventListener("DOMContentLoaded", function () {
                             timer: 1500,
                         });
 
-                        // 3. REFRESH THE TABLE DATA (No reload!)
+                        // 🔥 ADD THIS LINE HERE:
+                        shouldHighlightUpdated = true;
+
+                        // 3. REFRESH THE TABLE DATA
                         if (typeof fetchTable === "function") {
                             fetchTable();
                         }

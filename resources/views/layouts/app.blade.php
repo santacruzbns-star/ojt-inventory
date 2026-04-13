@@ -413,7 +413,7 @@
 
     <header class="modern-header">
         <nav class="nav-container">
-            <a href="/" class="nav-logo">
+            <a href="/dashboard" class="nav-logo">
                 <img src="{{ asset('/storage/img/login-logo.png') }}" alt="Goldtown Logo">
             </a>
 

@@ -475,4 +475,16 @@ class ItemController extends Controller
 
         return response()->json(['exists' => $exists]);
     }
+    public function getLatestItem(Request $request)
+{
+    $categoryId = $request->category_id;
+
+    $item = Item::where('item_category_id', $categoryId)
+        ->latest() // uses created_at
+        ->first();
+
+    return response()->json([
+        'item_name' => $item ? $item->item_name : null
+    ]);
+}
 }

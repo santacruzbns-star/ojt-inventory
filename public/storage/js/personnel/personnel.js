@@ -1,6 +1,8 @@
 let selectedOutboundIds = new Set();
 let fetchOutboundTable;
-let shouldHighlightOutbound = false;
+let shouldHighlightOutbound = false; // For New Items
+let shouldHighlightOutboundUpdated = false; // For Updated Items 🔥 ADDED
+let shouldHighlightOutboundReturned = false;
 
 document.addEventListener("DOMContentLoaded", function () {
     // --- 1. ELEMENT SELECTORS ---
@@ -12,8 +14,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     const branchSelect = document.querySelector("select[name='branch']");
     const remarksSelect = document.querySelector("select[name='remarks']");
-    const bulkDeleteBtn = document.getElementById("bulk_delete_btn");
-    const selectAll = document.getElementById("select_all");
 
     if (!tableBody) return;
 
@@ -41,40 +41,90 @@ document.addEventListener("DOMContentLoaded", function () {
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    tableBody.innerHTML = data.table;
+                    // 🔥 PURE JS FIX: Extract Modals and safely move them to the body
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(`<body><table><tbody id="tmp_tbody">${data.table}</tbody></table></body>`, "text/html");
+                    
+                    doc.querySelectorAll('.modal').forEach(modal => {
+                        const existing = document.getElementById(modal.id);
+                        if (existing) existing.remove(); // Clean up old modal
+                        document.body.appendChild(modal); // Move to body safely
+                    });
 
-                    if (shouldHighlightOutbound) {
+                    // Inject the remaining clean rows into the table
+                    tableBody.innerHTML = doc.getElementById("tmp_tbody").innerHTML;
+
+                    // 🔥 UPDATED HIGHLIGHT LOGIC FOR NEW, UPDATED, AND RETURNED
+                    if (
+                        shouldHighlightOutbound ||
+                        shouldHighlightOutboundUpdated ||
+                        shouldHighlightOutboundReturned
+                    ) {
                         const firstRow =
                             tableBody.querySelector("tr:first-child");
+
                         if (
                             firstRow &&
                             !firstRow.innerText.includes("No Record Found")
                         ) {
-                            applyRowHighlight(firstRow);
+                            let config = {
+                                color: "#d1e7dd", // Default Green
+                                badgeClass: "bg-success",
+                                text: "New",
+                            };
+
+                            if (shouldHighlightOutboundUpdated) {
+                                config = {
+                                    color: "#cfe2ff", // Blue
+                                    badgeClass: "bg-primary",
+                                    text: "Updated",
+                                };
+                            } else if (shouldHighlightOutboundReturned) {
+                                // 🔥 YELLOW/ORANGE CONFIG FOR RETURNED
+                                config = {
+                                    color: "#fff3cd", // Light Yellow
+                                    badgeClass: "bg-warning text-dark",
+                                    text: "Returned",
+                                };
+                            }
+
+                            applyRowHighlight(firstRow, config);
                         }
+
+                        // Reset all flags
                         shouldHighlightOutbound = false;
+                        shouldHighlightOutboundUpdated = false;
+                        shouldHighlightOutboundReturned = false;
                     }
 
-                    // RE-SYNC: Repaint checks after table content changes
-                    syncCheckboxes();
+                    if (typeof syncCheckboxes === "function") syncCheckboxes();
                 })
                 .catch((err) => console.error("Fetch Error:", err));
         }, 300);
     };
-    // Handle Checkbox Memory (Persistence)
-    document.addEventListener("change", function (e) {
-        if (e.target.classList.contains("select_item")) {
-            const id = e.target.value;
-            if (e.target.checked) {
-                if (!selectedOutboundIds.includes(id))
-                    selectedOutboundIds.push(id);
-            } else {
-                selectedOutboundIds = selectedOutboundIds.filter(
-                    (item) => item !== id,
-                );
-            }
+
+    // --- 3. HELPER: APPLY HIGHLIGHT ---
+    function applyRowHighlight(row, config) {
+        // 1. Set background
+        row.style.backgroundColor = config.color;
+        row.style.transition = "none";
+
+        // 2. Add Badge (Assuming Item Name is in Cell index 1)
+        const nameCell = row.cells[1];
+        if (nameCell) {
+            const badge = document.createElement("span");
+            badge.className = `badge rounded-pill ${config.badgeClass} ms-2 animate__animated animate__fadeIn`;
+            badge.style.fontSize = "0.7rem";
+            badge.innerText = config.text;
+            nameCell.appendChild(badge);
         }
-    });
+
+        // 3. Fade out
+        setTimeout(() => {
+            row.style.transition = "background-color 2.0s ease-out";
+            row.style.backgroundColor = "transparent";
+        }, 1500);
+    }
 
     // Listen to all filters
     if (searchInput) searchInput.addEventListener("keyup", fetchOutboundTable);
@@ -583,123 +633,281 @@ if (bulkDeleteBtn) {
     });
 }
 
-//update personnel with validation record outbound
-document.addEventListener("DOMContentLoaded", function () {
-    // 1. Bootstrap Validation
-    const forms = document.querySelectorAll(".needs-validation");
-    Array.from(forms).forEach((f) => {
-        f.addEventListener(
-            "submit",
-            (event) => {
-                if (!f.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                f.classList.add("was-validated");
-            },
-            false,
-        );
-    });
+// 🔥 UPDATE, RETURN, ADD ACTIONS 🔥
+$(document).ready(function () {
 
-    // 2. Confirm & AJAX Submit
-    const confirmForms = document.querySelectorAll(".text-confirm-submit");
-    confirmForms.forEach(function (form) {
-        form.addEventListener("submit", function (e) {
-            e.preventDefault();
+    // --- 1. UPDATE RECORD ---
+    $(document).on("submit", ".needs-validation-update", function (e) {
+        e.preventDefault();
+        let form = this;
+        let $form = $(form);
 
-            if (form.checkValidity()) {
-                Swal.fire({
-                    title: "Confirm Submission?",
-                    text: "Are you sure you want to save this record?",
-                    icon: "question",
-                    showCancelButton: true,
-                    confirmButtonColor: "#198754",
-                    cancelButtonColor: "#6c757d",
-                    confirmButtonText: "Yes, submit it!",
-                    cancelButtonText: "Cancel",
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const formData = new FormData(form);
-                        const submitBtn = form.querySelector('[type="submit"]');
-                        const originalBtnText = submitBtn
-                            ? submitBtn.innerHTML
-                            : "";
+        if (!form.checkValidity()) {
+            form.classList.add("was-validated");
+            return;
+        }
 
-                        if (submitBtn) {
-                            submitBtn.disabled = true;
-                            submitBtn.innerHTML =
-                                '<span class="spinner-border spinner-border-sm"></span> Saving...';
+        Swal.fire({
+            title: "Update Record?",
+            text: "Are you sure you want to update this item?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, update it!",
+            cancelButtonText: "No"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: $form.attr("action"),
+                    type: "POST",
+                    data: $form.serialize(),
+                    success: function (response) {
+                        let modalEl = $form.closest(".modal");
+                        if (modalEl.length) {
+                            let modal = bootstrap.Modal.getInstance(modalEl[0]);
+                            if (modal) modal.hide();
+                            $('.modal-backdrop').remove(); 
+                            $('body').removeClass('modal-open').css('overflow', '');
                         }
 
-                        $.ajax({
-                            url: form.getAttribute("action"),
-                            method: "POST",
-                            data: formData,
-                            processData: false,
-                            contentType: false,
-                            success: function (response) {
-                                Swal.fire({
-                                    icon: "success",
-                                    title: "Saved!",
-                                    text: "Record has been updated.",
-                                    timer: 1500,
-                                    showConfirmButton: false,
-                                });
+                        $form.removeClass("was-validated");
+                        form.reset();
 
-                                form.reset();
-                                form.classList.remove("was-validated");
-
-                                const modalEl = form.closest(".modal");
-                                if (modalEl) {
-                                    $(modalEl).modal("hide");
-                                }
-
-                                // --- REFRESH LOGIC ---
-
-                                // 1. Handle Outbound Table Highlight
-                                if (typeof fetchOutboundTable === "function") {
-                                    if (
-                                        typeof shouldHighlightOutbound !==
-                                        "undefined"
-                                    ) {
-                                        shouldHighlightOutbound = true;
-                                    }
-                                    fetchOutboundTable();
-                                }
-
-                                // 2. Handle General Inventory Table Highlight
-                                if (typeof fetchTable === "function") {
-                                    if (
-                                        typeof shouldHighlight !== "undefined"
-                                    ) {
-                                        shouldHighlight = true;
-                                    }
-                                    fetchTable();
-                                }
-                            },
-                            error: function (xhr) {
-                                let errorMsg = "Failed to save record.";
-                                if (xhr.status === 422) {
-                                    errorMsg = Object.values(
-                                        xhr.responseJSON.errors,
-                                    )
-                                        .flat()
-                                        .join("<br>");
-                                }
-                                Swal.fire("Error", errorMsg, "error");
-                            },
-                            complete: function () {
-                                if (submitBtn) {
-                                    submitBtn.disabled = false;
-                                    submitBtn.innerHTML = originalBtnText;
-                                }
-                            },
+                        Swal.fire({
+                            toast: true,
+                            position: "top-end",
+                            icon: "success",
+                            title: response.message || "Updated successfully!",
+                            showConfirmButton: false,
+                            timer: 1500,
                         });
+
+                        shouldHighlightOutboundUpdated = true;
+                        if (typeof fetchOutboundTable === "function") fetchOutboundTable();
+                    },
+                    error: function (xhr) {
+                        let msg = xhr.responseJSON?.message || "Failed to update record.";
+                        Swal.fire("Error", msg, "error");
                     }
                 });
             }
         });
     });
+
+    // --- 2. RETURN RECORD ---
+    $(document).on("submit", ".needs-validation-return", function (e) {
+        e.preventDefault();
+        let form = this;
+        let $form = $(form);
+
+        if (!form.checkValidity()) {
+            form.classList.add("was-validated");
+            return;
+        }
+
+        Swal.fire({
+            title: "Confirm Return?",
+            text: "Adjust stock and record this return.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ffc107",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, return it!",
+            cancelButtonText: "No"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: $form.attr("action"),
+                    type: "POST",
+                    data: $form.serialize(),
+                    success: function (response) {
+                        let modalEl = $form.closest(".modal");
+                        if (modalEl.length) {
+                            let modal = bootstrap.Modal.getInstance(modalEl[0]);
+                            if (modal) modal.hide();
+                            $('.modal-backdrop').remove(); 
+                            $('body').removeClass('modal-open').css('overflow', '');
+                        }
+
+                        $form.removeClass("was-validated");
+                        form.reset();
+
+                        Swal.fire({
+                            toast: true,
+                            position: "top-end",
+                            icon: "success",
+                            title: response.message || "Item returned!",
+                            showConfirmButton: false,
+                            timer: 1500,
+                        });
+
+                        shouldHighlightOutboundReturned = true;
+                        if (typeof fetchOutboundTable === "function") fetchOutboundTable();
+                    },
+                    error: function (xhr) {
+                        let msg = xhr.responseJSON?.message || "Failed to return item.";
+                        Swal.fire("Error", msg, "error");
+                    }
+                });
+            }
+        });
+    });
+
+    // --- 3. ADD OUTBOUND RECORD ---
+    $(document).on("submit", ".text-confirm-submit", function (e) {
+        e.preventDefault();
+        let form = this;
+        let $form = $(form);
+
+        if (!form.checkValidity()) {
+            form.classList.add("was-validated");
+            return;
+        }
+
+        Swal.fire({
+            title: "Record Outbound?",
+            text: "Are you sure you want to save this record?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#198754",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, save it!",
+            cancelButtonText: "No"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: $form.attr("action"),
+                    type: "POST",
+                    data: $form.serialize(),
+                    success: function (response) {
+                        let modalEl = $form.closest(".modal");
+                        if (modalEl.length) {
+                            let modal = bootstrap.Modal.getInstance(modalEl[0]);
+                            if (modal) modal.hide();
+                            $('.modal-backdrop').remove(); 
+                            $('body').removeClass('modal-open').css('overflow', '');
+                        }
+
+                        $form.removeClass("was-validated");
+                        form.reset();
+
+                        Swal.fire({
+                            toast: true,
+                            position: "top-end",
+                            icon: "success",
+                            title: response.message || "Record added!",
+                            showConfirmButton: false,
+                            timer: 1500,
+                        });
+
+                        shouldHighlightOutbound = true;
+                        if (typeof fetchOutboundTable === "function") fetchOutboundTable();
+                    },
+                    error: function (xhr) {
+                        let msg = xhr.responseJSON?.message || "Failed to add record.";
+                        Swal.fire("Error", msg, "error");
+                    }
+                });
+            }
+        });
+    });
+
+});
+
+
+//paginate no reloading
+$(document).on("click", "#pagination-container a", function (e) {
+    e.preventDefault();
+    let url = $(this).attr("href");
+
+    $.ajax({
+        url: url,
+        type: "GET",
+        dataType: "json", // Crucial: forces jQuery to parse the JSON
+        success: function (response) {
+            // 🔥 PURE JS FIX: Extract Modals and safely move them to the body
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(`<body><table><tbody id="tmp_tbody">${response.table}</tbody></table></body>`, "text/html");
+            
+            doc.querySelectorAll('.modal').forEach(modal => {
+                const existing = document.getElementById(modal.id);
+                if (existing) existing.remove(); // Clean up old modal
+                document.body.appendChild(modal); // Move to body safely
+            });
+
+            // Inject the remaining clean rows into the table
+            $("#table-data").html(doc.getElementById("tmp_tbody").innerHTML);
+
+            window.history.pushState({}, "", url);
+            window.syncCheckboxes();
+        },
+    });
+});
+
+function toggleDateReceived(selectElement, id) {
+    const container = document.getElementById(`dateReceivedContainer_${id}`);
+    if (selectElement.value === "Received") {
+        container.style.display = "block";
+        container.querySelector("input").setAttribute("required", "required");
+    } else {
+        container.style.display = "none";
+        container.querySelector("input").removeAttribute("required");
+        container.querySelector("input").value = ""; // Optional: clear date if not received
+    }
+}
+
+// QUANTITY AND DATE VALIDATION (Delegated to document)
+document.addEventListener("input", function (e) {
+    // QUANTITY VALIDATION
+    if (e.target && e.target.id && e.target.id.startsWith("return_quantity_")) {
+        const input = e.target;
+        const max = parseInt(input.getAttribute("max"));
+        const value = parseInt(input.value);
+
+        if (value > max) {
+            input.classList.add("is-invalid");
+            input.setCustomValidity(`Cannot exceed ${max}`);
+            input.parentElement.querySelector(".invalid-feedback").innerText =
+                `Cannot exceed ${max}.`;
+        } else if (value < 1 || isNaN(value)) {
+            input.classList.add("is-invalid");
+            input.setCustomValidity(`Minimum is 1`);
+            input.parentElement.querySelector(".invalid-feedback").innerText =
+                `Minimum is 1.`;
+        } else {
+            input.classList.remove("is-invalid");
+            input.setCustomValidity("");
+        }
+    }
+
+    // DATE VALIDATION (NO PAST DATE)
+    if (e.target && e.target.name === "return_date") {
+        const input = e.target;
+        const today = new Date().toISOString().split("T")[0];
+
+        // set min dynamically (extra safety)
+        input.setAttribute("min", today);
+
+        if (input.value < today) {
+            input.classList.add("is-invalid");
+            input.setCustomValidity("Date cannot be in the past");
+
+            // create feedback if not exists
+            let feedback =
+                input.parentElement.querySelector(".invalid-feedback");
+            if (!feedback) {
+                feedback = document.createElement("div");
+                feedback.className = "invalid-feedback";
+                input.parentElement.appendChild(feedback);
+            }
+
+            feedback.innerText = "Date cannot be in the past";
+        } else {
+            input.classList.remove("is-invalid");
+            input.setCustomValidity("");
+        }
+    }
 });
 
 // --- Individual Delete with No Reload ---
@@ -729,7 +937,6 @@ document.addEventListener("submit", function (e) {
                     body: formData,
                     headers: {
                         "X-Requested-With": "XMLHttpRequest",
-                        // Use the global token object instead of {{ csrf_token() }}
                         "X-CSRF-TOKEN": window.outboundData.csrfToken,
                         Accept: "application/json",
                     },
@@ -836,7 +1043,7 @@ $(document).ready(function () {
     });
 
     /* =========================================
-       3. ADD PERSONNEL FORM (YOUR PREVIOUS CODE)
+       3. ADD PERSONNEL FORM
        ========================================= */
     $("#addPersonnelForm").on("submit", function (e) {
         e.preventDefault();
@@ -858,7 +1065,8 @@ $(document).ready(function () {
             data: formData,
             processData: false,
             contentType: false,
-            headers: { "X-CSRF-TOKEN": $('input[name="_token"]').val() },
+            // 🔥 FIX: Changed from $('input[name="_token"]').val() to global token to ensure safety
+            headers: { "X-CSRF-TOKEN": window.outboundData.csrfToken },
             success: function (response) {
                 const p = response.personnel;
                 const branchName = p.branch ? p.branch.branch_name : "N/A";
@@ -870,7 +1078,7 @@ $(document).ready(function () {
                 let managementItem = `
                 <div class="personnel-row position-relative border-bottom">
                     <form action="/personnel/${p.personnel_id}" method="POST" class="delete-form position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 5;">
-                        <input type="hidden" name="_token" value="${$('input[name="_token"]').val()}">
+                        <input type="hidden" name="_token" value="${window.outboundData.csrfToken}">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-link text-danger p-1 border-0 shadow-none hover-scale"><i class="bi bi-trash3-fill"></i></button>
                     </form>
@@ -915,88 +1123,5 @@ $(document).ready(function () {
                 submitBtn.prop("disabled", false).text("Add Personnel");
             },
         });
-    });
-});
-
-//paginate no reloading
-$(document).on("click", "#pagination-container a", function (e) {
-    e.preventDefault();
-    let url = $(this).attr("href");
-
-    $.ajax({
-        url: url,
-        type: "GET",
-        dataType: "json", // Crucial: forces jQuery to parse the JSON
-        success: function (response) {
-            // 'response.table' matches the key you set in your Controller
-            $("#table-data").html(response.table);
-
-            window.history.pushState({}, "", url);
-            window.syncCheckboxes();
-        },
-    });
-});
-
-function toggleDateReceived(selectElement, id) {
-    const container = document.getElementById(`dateReceivedContainer_${id}`);
-    if (selectElement.value === "Received") {
-        container.style.display = "block";
-        container.querySelector("input").setAttribute("required", "required");
-    } else {
-        container.style.display = "none";
-        container.querySelector("input").removeAttribute("required");
-        container.querySelector("input").value = ""; // Optional: clear date if not received
-    }
-}
-
-// QUANTITY VALIDATION
-document.querySelectorAll('[id^="return_quantity_"]').forEach((input) => {
-    input.addEventListener("input", function () {
-        const max = parseInt(this.getAttribute("max"));
-        const value = parseInt(this.value);
-
-        if (value > max) {
-            this.classList.add("is-invalid");
-            this.setCustomValidity(`Cannot exceed ${max}`);
-            this.parentElement.querySelector(".invalid-feedback").innerText =
-                `Cannot exceed ${max}.`;
-        } else if (value < 1 || isNaN(value)) {
-            this.classList.add("is-invalid");
-            this.setCustomValidity(`Minimum is 1`);
-            this.parentElement.querySelector(".invalid-feedback").innerText =
-                `Minimum is 1.`;
-        } else {
-            this.classList.remove("is-invalid");
-            this.setCustomValidity("");
-        }
-    });
-});
-
-// DATE VALIDATION (NO PAST DATE)
-document.querySelectorAll('input[name="return_date"]').forEach((input) => {
-    const today = new Date().toISOString().split("T")[0];
-
-    // set min dynamically (extra safety)
-    input.setAttribute("min", today);
-
-    input.addEventListener("input", function () {
-        if (this.value < today) {
-            this.classList.add("is-invalid");
-            this.setCustomValidity("Date cannot be in the past");
-
-            // create feedback if not exists
-            let feedback =
-                this.parentElement.querySelector(".invalid-feedback");
-            if (!feedback) {
-                feedback = document.createElement("div");
-                feedback.className = "invalid-feedback";
-                this.parentElement.appendChild(feedback);
-            }
-
-            feedback.innerText = "Date cannot be in the past";
-        } else {
-            this.classList.remove("is-invalid");
-            this.setCustomValidity("");
-        }
     });
 });
