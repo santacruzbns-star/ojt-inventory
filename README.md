@@ -62,3 +62,4 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 # inventory_ojt
 # ojt-inventory
 # inventory-ojt
+# ojt-inventory
