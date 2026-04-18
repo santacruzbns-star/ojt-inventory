@@ -41,18 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    // 🔥 PURE JS FIX: Extract Modals and safely move them to the body
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(`<body><table><tbody id="tmp_tbody">${data.table}</tbody></table></body>`, "text/html");
-                    
-                    doc.querySelectorAll('.modal').forEach(modal => {
-                        const existing = document.getElementById(modal.id);
-                        if (existing) existing.remove(); // Clean up old modal
-                        document.body.appendChild(modal); // Move to body safely
-                    });
-
-                    // Inject the remaining clean rows into the table
-                    tableBody.innerHTML = doc.getElementById("tmp_tbody").innerHTML;
+                    tableBody.innerHTML = data.table;
 
                     // 🔥 UPDATED HIGHLIGHT LOGIC FOR NEW, UPDATED, AND RETURNED
                     if (
@@ -157,49 +146,25 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 2. Handle Excel Export (Selected or All filtered)
-    const exportExcelBtn = document.getElementById("export_excel_btn");
+    // 2. PDF / Excel export (checked rows only when count > 0; else current filters)
+    const exportPdfBtn = document.getElementById("export_pdf_btn");
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            window.open(buildOutboundExportUrl("pdf"), "_blank");
+        });
+    }
 
+    const exportExcelBtn = document.getElementById("export_excel_btn");
     if (exportExcelBtn) {
         exportExcelBtn.addEventListener("click", function (e) {
             e.preventDefault();
-
-            // 1. Get IDs directly from our global Set memory
-            // This ensures selections across multiple pages are captured
-            const selectedIdsArray = Array.from(selectedOutboundIds);
-
-            // 2. Get LIVE filter values from the inputs
-            const search =
-                document.getElementById("OutboundSearch")?.value || "";
-            const personnel =
-                document.querySelector("select[name='personnel']")?.value || "";
-            const department =
-                document.querySelector("select[name='department']")?.value ||
-                "";
-            const branch =
-                document.querySelector("select[name='branch']")?.value || "";
-            const remarks =
-                document.querySelector("select[name='remarks']")?.value || "";
-
-            // 3. Build the URL parameters
-            const urlParams = new URLSearchParams({
-                export: "excel",
-                search: search,
-                personnel: personnel,
-                department: department,
-                branch: branch,
-                remarks: remarks,
-            });
-
-            // 4. If specific IDs are in memory, add them to the request
-            if (selectedIdsArray.length > 0) {
-                urlParams.set("ids", selectedIdsArray.join(","));
-            }
-
-            // 5. Execute Export
-            const baseUrl = window.outboundData.routes.index;
-            window.location.href = `${baseUrl}?${urlParams.toString()}`;
+            window.open(buildOutboundExportUrl("excel"), "_blank");
         });
+    }
+
+    if (typeof updateBulkButtonUI === "function") {
+        updateBulkButtonUI();
     }
 });
 
@@ -528,11 +493,50 @@ window.syncCheckboxes = function () {
 };
 
 function updateBulkButtonUI() {
+    const count = selectedOutboundIds.size;
     if (bulkDeleteBtn) {
-        const count = selectedOutboundIds.size;
         bulkDeleteBtn.disabled = count === 0;
-        bulkDeleteBtn.innerHTML = `<i class="fas fa-trash"></i> Delete Selected (${count})`;
+        bulkDeleteBtn.innerHTML = `<i class="bi bi-trash"></i> Delete Selected (${count})`;
     }
+    const pdfBtn = document.getElementById("export_pdf_btn");
+    if (pdfBtn) {
+        pdfBtn.innerHTML = `<i class="bi bi-file-earmark-pdf"></i> Print PDF (${count})`;
+    }
+    const excelBtn = document.getElementById("export_excel_btn");
+    if (excelBtn) {
+        excelBtn.innerHTML = `<i class="bi bi-file-earmark-excel"></i> Excel (${count})`;
+    }
+}
+
+function buildOutboundExportUrl(exportType) {
+    const params = new URLSearchParams({ export: exportType });
+    const search = document.getElementById("OutboundSearch")?.value?.trim() || "";
+    if (search) {
+        params.set("search", search);
+    }
+    const personnel =
+        document.querySelector("select[name='personnel']")?.value || "";
+    if (personnel) {
+        params.set("personnel", personnel);
+    }
+    const department =
+        document.querySelector("select[name='department']")?.value || "";
+    if (department) {
+        params.set("department", department);
+    }
+    const branch = document.querySelector("select[name='branch']")?.value || "";
+    if (branch) {
+        params.set("branch", branch);
+    }
+    const remarks =
+        document.querySelector("select[name='remarks']")?.value || "";
+    if (remarks) {
+        params.set("remarks", remarks);
+    }
+    if (selectedOutboundIds.size > 0) {
+        params.set("ids", Array.from(selectedOutboundIds).join(","));
+    }
+    return `${window.outboundData.routes.index}?${params.toString()}`;
 }
 
 document.addEventListener("change", function (e) {
@@ -826,18 +830,7 @@ $(document).on("click", "#pagination-container a", function (e) {
         type: "GET",
         dataType: "json", // Crucial: forces jQuery to parse the JSON
         success: function (response) {
-            // 🔥 PURE JS FIX: Extract Modals and safely move them to the body
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(`<body><table><tbody id="tmp_tbody">${response.table}</tbody></table></body>`, "text/html");
-            
-            doc.querySelectorAll('.modal').forEach(modal => {
-                const existing = document.getElementById(modal.id);
-                if (existing) existing.remove(); // Clean up old modal
-                document.body.appendChild(modal); // Move to body safely
-            });
-
-            // Inject the remaining clean rows into the table
-            $("#table-data").html(doc.getElementById("tmp_tbody").innerHTML);
+            $("#table-data").html(response.table);
 
             window.history.pushState({}, "", url);
             window.syncCheckboxes();

@@ -64,10 +64,8 @@
                     </li>
                 </ul>
             </div>
-        </td>
-    </tr>
 
-    <div class="modal fade" id="viewOutboundModal_{{ $outbound->personnel_item_id }}" tabindex="-1">
+            <div class="modal fade" id="viewOutboundModal_{{ $outbound->personnel_item_id }}" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -295,11 +293,12 @@
 
                                 {{-- Return Date with Past-Date Validation --}}
                                 <div class="form-floating mb-3">
-                                    <input type="date" class="form-control" id="return_date" name="return_date"
+                                    <input type="date" class="form-control"
+                                        id="return_date_{{ $outbound->personnel_item_id }}" name="return_date"
                                         value="{{ date('Y-m-d') }}" min="{{ date('Y-m-d') }}"
                                         {{ $isReturned ? 'disabled' : '' }} required>
 
-                                    <label for="return_date">Return Date</label>
+                                    <label for="return_date_{{ $outbound->personnel_item_id }}">Return Date</label>
 
                                     <div class="invalid-feedback">
                                         Return date cannot be in the past.
@@ -323,6 +322,8 @@
             </div>
         </div>
     </div>
+        </td>
+    </tr>
 @empty
     <tr>
         <td colspan="12" class="text-center" style="font-size:15px;font-weight:bold; color:gray">

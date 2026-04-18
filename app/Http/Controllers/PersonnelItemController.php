@@ -70,6 +70,39 @@ class PersonnelItemController extends Controller
 
         $items = Item::all();
 
+        // EXPORT PDF (current filters, or only selected personnel_item ids)
+        if ($request->get('export') == 'pdf') {
+            $ids = $request->get('ids');
+            $dbQuery = PersonnelItem::with(['personnel', 'personnel.branch', 'item'])
+                ->where('personnel_item_quantity', '>', 0);
+
+            if ($ids) {
+                $idArray = array_filter(explode(',', $ids));
+                $dbQuery->whereIn('personnel_item_id', $idArray);
+            } else {
+                $dbQuery
+                    ->when($search, function ($q) use ($search) {
+                        $q->where(function ($sub) use ($search) {
+                            $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
+                                ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
+                        });
+                    })
+                    ->when($personnelFilter, fn($q) => $q->where('personnel_id', $personnelFilter))
+                    ->when($departmentFilter, function ($q) use ($departmentFilter) {
+                        $q->whereHas('personnel.branch', fn($q2) => $q2->where('branch_department', $departmentFilter));
+                    })
+                    ->when($branchFilter, function ($q) use ($branchFilter) {
+                        $q->whereHas('personnel.branch', fn($q2) => $q2->where('branch_name', $branchFilter));
+                    })
+                    ->when($remarksFilter, fn($q) => $q->where('personnel_item_remarks', $remarksFilter));
+            }
+
+            $outbounds = $dbQuery->orderBy('updated_at', 'desc')->get();
+            $pdf = Pdf::loadView('personnel.pdf-outbound', compact('outbounds'));
+
+            return $pdf->stream('outbound.pdf');
+        }
+
         // ⚡ AJAX TABLE REFRESH
         if ($request->ajax()) {
             return response()->json([
@@ -88,14 +121,21 @@ class PersonnelItemController extends Controller
                 $idArray = explode(',', $ids);
                 $dbQuery->whereIn('personnel_item_id', $idArray);
             } else {
-                // ... (rest of search logic same as above)
-                $dbQuery->when($search, function ($q) use ($search) {
-                    $q->where(function ($sub) use ($search) {
-                        $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
-                            ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
-                    });
-                })
-                    ->when($personnelFilter, fn($q) => $q->where('personnel_id', $personnelFilter));
+                $dbQuery
+                    ->when($search, function ($q) use ($search) {
+                        $q->where(function ($sub) use ($search) {
+                            $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
+                                ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
+                        });
+                    })
+                    ->when($personnelFilter, fn($q) => $q->where('personnel_id', $personnelFilter))
+                    ->when($departmentFilter, function ($q) use ($departmentFilter) {
+                        $q->whereHas('personnel.branch', fn($q2) => $q2->where('branch_department', $departmentFilter));
+                    })
+                    ->when($branchFilter, function ($q) use ($branchFilter) {
+                        $q->whereHas('personnel.branch', fn($q2) => $q2->where('branch_name', $branchFilter));
+                    })
+                    ->when($remarksFilter, fn($q) => $q->where('personnel_item_remarks', $remarksFilter));
             }
 
             $filteredOutbounds = $dbQuery->latest()->get();

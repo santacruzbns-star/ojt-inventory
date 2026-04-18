@@ -29,7 +29,7 @@
 
                     <button id="bulk_delete_btn" class="btn btn-danger" disabled>
                         <i class="bi bi-trash"></i>
-                        Delete Selected
+                        Delete Selected (0)
                     </button>
                 </div>
 
@@ -87,14 +87,14 @@
                         </select>
                     </div>
                     <div class="d-flex gap-2 flex-wrap">
-                        <a href="{{ route('outbound.index', array_merge(request()->query(), ['pdf' => 1, 'action' => 'view'])) }}"
-                            class="btn btn-danger d-flex align-items-center gap-1" target="_blank">
-                            <i class="bi bi-file-earmark-pdf"></i> PRINT PDF
+                        <a href="#" id="export_pdf_btn" class="btn btn-danger d-flex align-items-center gap-1"
+                            title="Checked rows: PDF only those. No checks: PDF uses current filters (all matching rows).">
+                            <i class="bi bi-file-earmark-pdf"></i> Print PDF (0)
                         </a>
 
                         <a href="#" id="export_excel_btn" class="btn btn-success d-flex align-items-center gap-1"
-                            data-bs-toggle="tooltip" title="Click if you want to export selected items">
-                            <i class="bi bi-file-earmark-excel"></i> SELECTED EXCEL
+                            title="Checked rows: Excel only those. No checks: Excel uses current filters (all matching rows).">
+                            <i class="bi bi-file-earmark-excel"></i> Excel (0)
                         </a>
                     </div>
                 </div>

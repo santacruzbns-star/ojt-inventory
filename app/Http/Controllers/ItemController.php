@@ -53,8 +53,8 @@ class ItemController extends Controller
             $itemsQuery->where('item_brand_id', $brandId);
         }
 
-        // Get regular items
-        $items = $itemsQuery->orderBy('updated_at', 'desc')->get();
+        // Get regular items (eager-load for PDF / table display)
+        $items = $itemsQuery->with(['category', 'uom'])->orderBy('updated_at', 'desc')->get();
 
         // Paginate manually (using the collection of regular items)
         $perPage = 5;
@@ -89,9 +89,19 @@ class ItemController extends Controller
             return $pdf->stream("item_{$item->item_id}.pdf");
         }
 
-        // EXPORT ALL ITEMS PDF
+        // EXPORT LIST PDF (all rows matching filters, or only selected ids)
         if ($request->get('export') == 'pdf' && !$request->has('item_id')) {
-            $pdf = Pdf::loadView('inventory.pdf-forall', ['allItems' => $items]);
+            $ids = $request->get('ids');
+            if ($ids) {
+                $idArray = array_filter(explode(',', $ids));
+                $pdfItems = Item::with(['category', 'uom'])
+                    ->whereIn('item_id', $idArray)
+                    ->orderBy('updated_at', 'desc')
+                    ->get();
+            } else {
+                $pdfItems = $items;
+            }
+            $pdf = Pdf::loadView('inventory.pdf-forall', ['allItems' => $pdfItems]);
             return $pdf->stream('inventory.pdf');
         }
 

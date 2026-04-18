@@ -263,30 +263,56 @@ $(document).ready(function () {
     });
 });
 
-// Export to excel button in inventory page
-document
-    .getElementById("export_excel_btn")
-    .addEventListener("click", function (e) {
-        e.preventDefault();
+function buildInventoryListExportUrl(exportType) {
+    const params = new URLSearchParams();
+    params.set("export", exportType);
 
-        // 1. USE THE PERSISTENT MEMORY (The Set)
-        // This ensures items selected across different pages are included
-        const idsArray = Array.from(selectedIds);
+    const searchInput = document.getElementById("inventorySearch");
+    if (searchInput?.value?.trim()) {
+        params.set("search", searchInput.value.trim());
+    }
 
-        let url = window.routes.inventoryIndex + "?export=excel";
+    const remark = document.querySelector("select[name='remark']")?.value || "";
+    if (remark !== "") {
+        params.set("remark", remark);
+    }
+    const category = document.querySelector("select[name='category']")?.value || "";
+    if (category !== "") {
+        params.set("category", category);
+    }
+    const brand = document.querySelector("select[name='brand']")?.value || "";
+    if (brand !== "") {
+        params.set("brand", brand);
+    }
 
-        const searchInput = document.getElementById("inventorySearch");
-        if (searchInput && searchInput.value) {
-            url += "&search=" + encodeURIComponent(searchInput.value);
-        }
+    if (selectedIds.size > 0) {
+        params.set("ids", Array.from(selectedIds).join(","));
+    }
 
-        // 2. ADD THE PERSISTENT IDS TO THE URL
-        if (idsArray.length > 0) {
-            url += "&ids=" + idsArray.join(",");
-        }
+    return `${window.routes.inventoryIndex}?${params.toString()}`;
+}
 
-        window.open(url, "_blank");
-    });
+document.addEventListener("DOMContentLoaded", function () {
+    const pdfBtn = document.getElementById("export_pdf_btn");
+    if (pdfBtn) {
+        pdfBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            window.open(buildInventoryListExportUrl("pdf"), "_blank");
+        });
+    }
+
+    const excelBtn = document.getElementById("export_excel_btn");
+    if (excelBtn) {
+        excelBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            window.open(buildInventoryListExportUrl("excel"), "_blank");
+        });
+    }
+
+    if (typeof updateSelectionActionLabels === "function") {
+        updateSelectionActionLabels();
+    }
+});
 
 //ambot para asa ni siya pero basin useful ni siya sa future, this is for the form validation in the inventory page, it will prevent the form from submitting if there are invalid fields and will show the validation messages.
 const forms = document.querySelectorAll(".needs-validation");
@@ -705,12 +731,23 @@ window.syncCheckboxes = function () {
         selectAll.checked = false;
     }
 
-    updateBulkButton();
+    updateSelectionActionLabels();
 };
 
-function updateBulkButton() {
-    bulkDeleteBtn.disabled = selectedIds.size === 0;
-    bulkDeleteBtn.innerText = `Delete Selected (${selectedIds.size})`;
+function updateSelectionActionLabels() {
+    const n = selectedIds.size;
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.disabled = n === 0;
+        bulkDeleteBtn.innerHTML = `<i class="bi bi-trash"></i> Delete Selected (${n})`;
+    }
+    const pdfBtn = document.getElementById("export_pdf_btn");
+    if (pdfBtn) {
+        pdfBtn.innerHTML = `<i class="bi bi-file-earmark-pdf"></i> Print PDF (${n})`;
+    }
+    const excelBtn = document.getElementById("export_excel_btn");
+    if (excelBtn) {
+        excelBtn.innerHTML = `<i class="bi bi-file-earmark-excel"></i> Excel (${n})`;
+    }
 }
 
 // 3. LISTEN FOR CHANGES (Individual Checkboxes)
@@ -722,7 +759,7 @@ document.addEventListener("change", function (e) {
         } else {
             selectedIds.delete(id);
         }
-        updateBulkButton();
+        updateSelectionActionLabels();
 
         const checkboxes = document.querySelectorAll(".select_item");
         selectAll.checked = [...checkboxes].every((cb) =>
@@ -742,7 +779,7 @@ selectAll.addEventListener("change", function () {
             selectedIds.delete(cb.value);
         }
     });
-    updateBulkButton();
+    updateSelectionActionLabels();
 });
 
 // 5. BULK DELETE ACTION
@@ -789,7 +826,7 @@ bulkDeleteBtn.addEventListener("click", function () {
 
                         // 2. Clear the memory immediately
                         selectedIds.clear();
-                        updateBulkButton();
+                        updateSelectionActionLabels();
                         if (selectAll) selectAll.checked = false;
 
                         // 3. Success Notification
