@@ -103,6 +103,24 @@
                                     class="badge {{ $remarkColor[$outbound->personnel_item_remarks] ?? 'bg-secondary' }}">
                                     {{ $outbound->personnel_item_remarks ?? '-' }}
                                 </span></p>
+                            @if ($outbound->personnel_item_remarks === 'Returned' &&
+                                    ($outbound->return_reason_preset || $outbound->return_reason_detail || $outbound->item_remark))
+                                <hr class="my-3">
+                                <h6 class="text-muted mb-2"><i class="bi bi-chat-left-text me-1"></i> Return notes
+                                </h6>
+                                @if ($outbound->item_remark)
+                                    <p class="mb-1"><strong>Stock condition:</strong> {{ $outbound->item_remark }}
+                                    </p>
+                                @endif
+                                @if ($outbound->return_reason_preset)
+                                    <p class="mb-1"><strong>Reason:</strong>
+                                        {{ ucfirst(str_replace('_', ' ', $outbound->return_reason_preset)) }}</p>
+                                @endif
+                                @if ($outbound->return_reason_detail)
+                                    <p class="mb-0"><strong>Details:</strong>
+                                        {{ $outbound->return_reason_detail }}</p>
+                                @endif
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -222,7 +240,7 @@
 
     {{-- RETURN MODAL --}}
     <div class="modal fade" id="returnOutboundModal_{{ $outbound->personnel_item_id }}" tabindex="-1">
-        <div class="modal-dialog modal-md">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
 
                 @php
@@ -305,6 +323,32 @@
                                     </div>
 
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label small mb-1"
+                                    for="return_reason_preset_{{ $outbound->personnel_item_id }}">Reason
+                                    (depends on Good / Damaged)</label>
+                                <select name="return_reason_preset"
+                                    id="return_reason_preset_{{ $outbound->personnel_item_id }}"
+                                    class="form-select return-reason-preset-select" {{ $isReturned ? 'disabled' : '' }}
+                                    required>
+                                </select>
+                                <div class="invalid-feedback">Select a reason.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small mb-1"
+                                    for="return_reason_detail_{{ $outbound->personnel_item_id }}">Details /
+                                    explanation</label>
+                                <textarea name="return_reason_detail"
+                                    id="return_reason_detail_{{ $outbound->personnel_item_id }}" rows="3"
+                                    class="form-control return-reason-detail-input" maxlength="2000"
+                                    placeholder="Optional notes. Required if you choose Other."
+                                    {{ $isReturned ? 'readonly' : '' }}></textarea>
+                                <div class="form-text text-muted">Good and Damaged each have their own reason list.
+                                    Choose Other to type a custom reason (details required).</div>
                             </div>
                         </div>
                     </div>

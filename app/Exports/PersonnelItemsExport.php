@@ -32,6 +32,8 @@ class PersonnelItemsExport implements FromCollection, WithHeadings, WithMapping
             'Date Receive',
             'Date Issued',
             'Remarks',
+            'Return reason (code)',
+            'Return details',
         ];
     }
 
@@ -47,6 +49,8 @@ class PersonnelItemsExport implements FromCollection, WithHeadings, WithMapping
             $outbound->personnel_date_receive,
             $outbound->personnel_date_issued,
             $outbound->personnel_item_remarks,
+            $outbound->return_reason_preset ?? '',
+            $outbound->return_reason_detail ?? '',
         ];
     }
 }

@@ -169,11 +169,20 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
+        $itemQuantityRules = ['required', 'integer'];
+        if ($request->filled('item_serialno')) {
+            $itemQuantityRules[] = 'min:1';
+            $itemQuantityRules[] = 'max:1';
+        } else {
+            $itemQuantityRules[] = 'min:0';
+            $itemQuantityRules[] = 'max:999999';
+        }
+
         // 1. Validation
         $request->validate([
             'item_name' => 'nullable|string|max:255',
             'item_serialno' => 'nullable|string|max:255',
-            'item_quantity' => 'required|integer|min:0|max:999999',
+            'item_quantity' => $itemQuantityRules,
             'item_remark' => 'nullable|string|max:255',
             'item_uom_name' => 'required|string|max:255',
             'item_brand_name' => 'nullable|string|max:255',
@@ -315,18 +324,26 @@ class ItemController extends Controller
     {
         $item = Item::findOrFail($item_id);
 
+        $itemQuantityRules = ['required', 'integer', 'min:0'];
+        if ($request->filled('item_serialno')) {
+            $itemQuantityRules[] = 'max:1';
+        }
+
         // Validate input
         $request->validate([
             'item_name' => 'required|string|max:255',
             'item_serialno' => 'nullable|string|max:255',
-            'item_quantity' => 'required|integer|min:0',
+            'item_quantity' => $itemQuantityRules,
             'item_remark' => 'nullable|string|max:500',
             'item_brand_name' => 'nullable|string|max:255',
             'item_uom_name' => 'nullable|string|max:255',
         ]);
 
-        // Prevent lowering total quantity below current total
-        if ($request->item_quantity < $item->item_quantity) {
+        // Serialized items are always qty 1; otherwise total quantity cannot decrease
+        if (
+            !$request->filled('item_serialno')
+            && $request->item_quantity < $item->item_quantity
+        ) {
             return redirect()->back()->with('error', "Cannot decrease total quantity below current total ({$item->item_quantity}).");
         }
 

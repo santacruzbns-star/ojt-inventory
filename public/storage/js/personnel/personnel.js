@@ -87,6 +87,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
                     if (typeof syncCheckboxes === "function") syncCheckboxes();
+                    if (typeof initAllReturnReasonSelects === "function") {
+                        initAllReturnReasonSelects();
+                    }
                 })
                 .catch((err) => console.error("Fetch Error:", err));
         }, 300);
@@ -750,9 +753,17 @@ $(document).ready(function () {
                         if (typeof fetchOutboundTable === "function") fetchOutboundTable();
                     },
                     error: function (xhr) {
-                        let msg = xhr.responseJSON?.message || "Failed to return item.";
+                        let msg = "Failed to return item.";
+                        if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                            const first = Object.values(
+                                xhr.responseJSON.errors,
+                            )[0];
+                            msg = Array.isArray(first) ? first[0] : first;
+                        } else if (xhr.responseJSON?.message) {
+                            msg = xhr.responseJSON.message;
+                        }
                         Swal.fire("Error", msg, "error");
-                    }
+                    },
                 });
             }
         });
@@ -834,9 +845,88 @@ $(document).on("click", "#pagination-container a", function (e) {
 
             window.history.pushState({}, "", url);
             window.syncCheckboxes();
+            if (typeof initAllReturnReasonSelects === "function") {
+                initAllReturnReasonSelects();
+            }
         },
     });
 });
+
+const RETURN_REASONS_GOOD = [
+    ["no_longer_needed", "No longer needed"],
+    ["end_of_assignment", "End of assignment / project"],
+    ["replaced_upgraded", "Replaced or upgraded equipment"],
+    ["transfer_reassign", "Transfer / reassignment"],
+    ["other", "Other (describe below)"],
+];
+
+const RETURN_REASONS_DAMAGED = [
+    ["physical_damage", "Physical damage (drops, cracks, etc.)"],
+    ["malfunction", "Malfunction / not working"],
+    ["wear_unusable", "Wear and tear — unusable"],
+    ["missing_accessories", "Missing parts or accessories"],
+    ["other", "Other (describe below)"],
+];
+
+function fillReturnReasonPresetSelect(selectEl, isGood) {
+    if (!selectEl || selectEl.disabled) return;
+    const list = isGood ? RETURN_REASONS_GOOD : RETURN_REASONS_DAMAGED;
+    const prev = selectEl.value;
+    selectEl.innerHTML = list
+        .map(([v, l]) => `<option value="${v}">${l}</option>`)
+        .join("");
+    const hasPrev = list.some(([v]) => v === prev);
+    selectEl.value = hasPrev ? prev : list[0][0];
+    const form = selectEl.closest("form");
+    if (form) syncReturnReasonDetailRequired(form);
+}
+
+function syncReturnReasonDetailRequired(form) {
+    const preset = form.querySelector(".return-reason-preset-select");
+    const detail = form.querySelector(".return-reason-detail-input");
+    if (!preset || !detail || preset.disabled) return;
+    detail.required = preset.value === "other";
+}
+
+function initAllReturnReasonSelects() {
+    document.querySelectorAll('[id^="return_condition_"]').forEach((cond) => {
+        const suffix = cond.id.replace("return_condition_", "");
+        const preset = document.getElementById("return_reason_preset_" + suffix);
+        if (preset && !preset.disabled) {
+            fillReturnReasonPresetSelect(preset, cond.value === "Good");
+        }
+    });
+}
+
+window.initAllReturnReasonSelects = initAllReturnReasonSelects;
+
+document.addEventListener("change", function (e) {
+    const t = e.target;
+    if (t.id && t.id.startsWith("return_condition_")) {
+        const suffix = t.id.replace("return_condition_", "");
+        const preset = document.getElementById("return_reason_preset_" + suffix);
+        if (preset) {
+            fillReturnReasonPresetSelect(preset, t.value === "Good");
+        }
+    }
+    if (t.classList && t.classList.contains("return-reason-preset-select")) {
+        const form = t.closest("form");
+        if (form) syncReturnReasonDetailRequired(form);
+    }
+});
+
+document.addEventListener("show.bs.modal", function (e) {
+    if (!e.target.id || !e.target.id.startsWith("returnOutboundModal_")) return;
+    const modal = e.target;
+    const suffix = modal.id.replace("returnOutboundModal_", "");
+    const cond = document.getElementById("return_condition_" + suffix);
+    const preset = document.getElementById("return_reason_preset_" + suffix);
+    if (cond && preset && !preset.disabled) {
+        fillReturnReasonPresetSelect(preset, cond.value === "Good");
+    }
+});
+
+document.addEventListener("DOMContentLoaded", initAllReturnReasonSelects);
 
 function toggleDateReceived(selectElement, id) {
     const container = document.getElementById(`dateReceivedContainer_${id}`);

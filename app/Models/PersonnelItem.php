@@ -15,6 +15,9 @@ class PersonnelItem extends Model
         'personnel_date_receive',
         'personnel_date_issued',
         'personnel_item_remarks',
+        'item_remark',
+        'return_reason_preset',
+        'return_reason_detail',
     ];
 
     public function item()

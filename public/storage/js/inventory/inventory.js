@@ -853,3 +853,41 @@ bulkDeleteBtn.addEventListener("click", function () {
         }
     });
 });
+
+/** Serial numbers imply a single unit: force quantity to 1 and lock the field. */
+function applySerialQuantityLock(serialInput) {
+    const form = serialInput.closest("form");
+    if (!form) return;
+    const qtyInput = form.querySelector('input[name="item_quantity"]');
+    if (!qtyInput) return;
+    const hasSerial = serialInput.value.trim() !== "";
+    if (hasSerial) {
+        qtyInput.value = "1";
+        qtyInput.setAttribute("min", "1");
+        qtyInput.setAttribute("max", "1");
+        qtyInput.readOnly = true;
+    } else {
+        qtyInput.readOnly = false;
+        qtyInput.removeAttribute("max");
+        qtyInput.setAttribute("min", "1");
+        if (form.querySelector('input[name="_method"][value="PUT"]')) {
+            qtyInput.setAttribute("max", "9999");
+        }
+    }
+}
+
+document.addEventListener("input", function (e) {
+    if (e.target.matches('input[name="item_serialno"]')) {
+        applySerialQuantityLock(e.target);
+    }
+});
+document.addEventListener("change", function (e) {
+    if (e.target.matches('input[name="item_serialno"]')) {
+        applySerialQuantityLock(e.target);
+    }
+});
+document.addEventListener("shown.bs.modal", function (e) {
+    e.target
+        .querySelectorAll('input[name="item_serialno"]')
+        .forEach(applySerialQuantityLock);
+});

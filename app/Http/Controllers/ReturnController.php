@@ -1,88 +1,76 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\PersonnelItem;
-use App\Models\Personnel;
-use App\Models\Branch;
-use App\Models\Item;
 
 use Illuminate\Http\Request;
+use App\Models\PersonnelItem;
+use App\Models\Personnel;
+use Illuminate\Support\Facades\DB;
+use App\Models\Item;
 
 class ReturnController extends Controller
 {
-    // app\Http\Controllers\ReturnController.php
-
     public function index(Request $request)
     {
-        // 1. Define the filters (Search, etc.)
+        $itemCount = Item::sum('item_quantity');
 
-        $returnItem = PersonnelItem::count('personnel_item_quantity');
+        // Total outbound quantity (Received/Not Receive)
+        $outboundCount = PersonnelItem::whereIn('personnel_item_remarks', ['Received', 'Not Receive'])
+            ->sum('personnel_item_quantity');
 
-        $search = $request->get('search');
+        // Total damaged items
+        $damagedItem = Item::where('item_remark', 'Damaged')
+            ->sum('item_quantity_remaining');
 
-        // 2. Define $outbounds (History of items that have been 'Returned')
-        $outbounds = PersonnelItem::with(['personnel', 'item'])
-            ->where('personnel_item_remarks', 'Returned')
-            ->when($search, function ($q) use ($search) {
-                $q->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
-                    ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
-            })
+        // Remaining items 
+        $itemRemaining = Item::where('item_remark', '!=', 'Damaged')
+            ->sum('item_quantity_remaining');
+
+        // Available items 
+        $goodItemTotal = Item::where('item_remark', 'Good')
+            ->where('item_remark', '!=', 'Damaged')
+            ->sum('item_quantity');
+
+        $availableItem = $goodItemTotal - $outboundCount;
+
+        // Fetch ONLY returned items for recent activities by excluding outbound remarks
+        $recentActivities = PersonnelItem::where('personnel_item_quantity', '>', 0)
+            ->whereNotIn('personnel_item_remarks', ['Received', 'Not Receive'])
             ->latest()
-            ->paginate();
+            ->take(5)
+            ->paginate(5);
+        $categoriesWithStats = [];
+        $categories = DB::table('item_categories')->get();
 
-        // 3. Metadata for filters/dropdowns
-        $personnels = Personnel::orderBy('personnel_name')->get();
-        $items = Item::all();
-        $departments = Branch::distinct()->pluck('branch_department');
-        $branches = Branch::distinct()->pluck('branch_name');
-        $item_remarks = PersonnelItem::distinct()->pluck('personnel_item_remarks');
+        foreach ($categories as $category) {
+            $itemsInCategory = Item::where('item_category_id', $category->item_category_id)->get();
+            $categoryTotal = $itemsInCategory->sum('item_quantity');
 
-        // 4. Calculate Chart Stats based on "Received" AND "Not Receive" statuses
-        $itemsWithStats = Item::all()->map(function ($item) {
-            $total = $item->item_quantity_total;
-            $available = $item->item_quantity_remaining;
-
-            /**
-             * UPDATED LOGIC:
-             * Your database shows Row 90 has quantity 1 but status "Not Receive".
-             * Rows 87 & 89 have status "Received" but quantity 0.
-             * To get an accurate 'Taken' count, we sum both active statuses.
-             */
-            $takenQty = PersonnelItem::where('item_id', $item->id)
+            $categoryOutbound = PersonnelItem::whereIn('item_id', $itemsInCategory->pluck('id'))
                 ->whereIn('personnel_item_remarks', ['Received', 'Not Receive'])
-                ->where('personnel_item_quantity', '>', 0)
                 ->sum('personnel_item_quantity');
 
-            // Fallback: If your status records are inconsistent, 
-            // standard inventory math is: Total - Available
-            if ($takenQty <= 0 && $total > $available) {
-                $takenQty = $total - $available;
-            }
+            $categoryAvailable = max(0, $itemsInCategory->where('item_remark', 'Good')->sum('item_quantity') - $categoryOutbound);
 
-            $percentageTaken = ($total > 0) ? round(($takenQty / $total) * 100) : 0;
-
-            return [
-                'name' => $item->item_name,
-                'available' => $available,
-                'broken' => Item::where('item_name', $item->item_name)
-                    ->where('item_remark', 'Damaged')
-                    ->sum('item_quantity_remaining'),
-                'deprecated' => Item::where('item_name', $item->item_name)
-                    ->where('item_remark', 'Deprecated')
-                    ->sum('item_quantity_remaining'),
-                'percentage_taken' => $percentageTaken,
+            $categoriesWithStats[] = [
+                'name' => $category->item_category_name,
+                'icon' => $category->item_category_icon,
+                'total' => $categoryTotal,
+                'available' => $categoryAvailable,
+                'outboundCount' => $categoryOutbound,
+                'broken' => $itemsInCategory->where('item_remark', 'Damaged')->sum('item_quantity'),
+                'deprecated' => $itemsInCategory->where('item_remark', 'Deprecated')->sum('item_quantity'),
             ];
-        });
+        }
 
-        // 5. Return View
-        return view('return.index', compact(
-            'outbounds',
-            'personnels',
-            'items',
-            'departments',
-            'branches',
-            'item_remarks',
-            'itemsWithStats','returnItem'
+        return view("return.index", compact(
+            'itemCount',
+            'outboundCount',
+            'damagedItem',
+            'availableItem',
+            'recentActivities',
+            'itemRemaining',
+            'goodItemTotal','categoriesWithStats'
         ));
     }
 }

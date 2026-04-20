@@ -8,6 +8,7 @@ use App\Models\Item;
 use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
@@ -311,11 +312,37 @@ class PersonnelItemController extends Controller
             return redirect()->back()->with('error', 'Only RECEIVED items can be returned.');
         }
 
+        $goodReasonPresets = ['no_longer_needed', 'end_of_assignment', 'replaced_upgraded', 'transfer_reassign', 'other'];
+        $damagedReasonPresets = [
+            'physical_damage',
+            'malfunction',
+            'wear_unusable',
+            'missing_accessories',
+            'other',
+        ];
+        $allReasonPresets = array_merge($goodReasonPresets, $damagedReasonPresets);
+
         $validated = $request->validate([
             'return_quantity' => 'required|integer|min:1|max:' . $outbound->personnel_item_quantity,
             'return_condition' => 'required|string|in:Good,Damaged',
             'return_date' => 'required|date',
+            'return_reason_preset' => ['required', 'string', Rule::in($allReasonPresets)],
+            'return_reason_detail' => 'nullable|string|max:2000',
         ]);
+
+        $allowedForCondition = $validated['return_condition'] === 'Damaged' ? $damagedReasonPresets : $goodReasonPresets;
+        if (!in_array($validated['return_reason_preset'], $allowedForCondition, true)) {
+            throw ValidationException::withMessages([
+                'return_reason_preset' => 'Pick a reason that matches Good or Damaged.',
+            ]);
+        }
+
+        if ($validated['return_reason_preset'] === 'other'
+            && trim((string) ($validated['return_reason_detail'] ?? '')) === '') {
+            throw ValidationException::withMessages([
+                'return_reason_detail' => 'Please describe the reason when you choose Other.',
+            ]);
+        }
 
         try {
             DB::transaction(function () use ($outbound, $validated) {
@@ -367,6 +394,8 @@ class PersonnelItemController extends Controller
                     'personnel_date_receive' => $validated['return_date'],
                     'personnel_item_remarks' => 'Returned',
                     'item_remark' => $remark,
+                    'return_reason_preset' => $validated['return_reason_preset'],
+                    'return_reason_detail' => $validated['return_reason_detail'] ?? null,
                 ]);
             });
 
