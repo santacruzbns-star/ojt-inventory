@@ -5,15 +5,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ config('app.name', 'GoldTown') }}</title>
+    <title>Goldtown | Inventory Tracking</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800" rel="stylesheet" />
-
+    <link rel="icon" type="image/x-icon" href="/storage/img/goldtown2.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
     <style>
         :root {
@@ -249,6 +251,22 @@
             margin-bottom: 1.5rem;
         }
 
+        /* MAP SECTION */
+        .map-section {
+            background-color: var(--bg-base);
+            border-top: 1px solid var(--border-light);
+        }
+
+        #map {
+            height: 450px;
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            /* Keeps map below sticky nav */
+        }
+
         /* DOCUMENTATION ACCORDION */
         .docs-section {
             background-color: var(--bg-darker);
@@ -329,6 +347,7 @@
                 <ul class="navbar-nav align-items-center gap-2">
                     <li class="nav-item"><a class="nav-link px-3" href="#home">Home</a></li>
                     <li class="nav-item"><a class="nav-link px-3" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#locations">Locations</a></li>
                     <li class="nav-item"><a class="nav-link px-3" href="#docs">Documentation</a></li>
 
                     @if (Route::has('login'))
@@ -341,9 +360,9 @@
                             <li class="nav-item">
                                 <a href="{{ route('login') }}" class="nav-link px-3">Log in</a>
                             </li>
-                            @if (Route::has('register'))
+                            @if (Route::has('login'))
                                 <li class="nav-item">
-                                    <a href="{{ route('register') }}"
+                                    <a href="{{ route('login') }}"
                                         class="btn btn-custom btn-secondary-custom ms-lg-3">Get Started</a>
                                 </li>
                             @endif
@@ -387,9 +406,36 @@
                 </div>
             </div>
         </div>
+    </section>
+    <section id="locations" class="section-padding map-section">
+        <div class="container">
+
+            <!-- Header -->
+            <div class="text-center mb-5" data-aos="fade-up">
+                <span class="section-tag">
+                    <i class="bi bi-geo-alt-fill me-1"></i> Find Us Here
+                </span>
+
+                <h2 class="section-title mt-2">Our Location</h2>
+
+                <p class="text-light">
+                    Visit our main warehouse and fulfillment center anytime.
+                </p>
+            </div>
+
+            <!-- Map -->
+            <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="100">
+                <div class="col-lg-10">
+
+                    <div class="map-card shadow-lg rounded overflow-hidden">
+                        <div id="map"></div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </section>
-
     <section id="about" class="section-padding about-section">
         <div class="container">
             <div class="row align-items-center mb-5">
@@ -432,6 +478,8 @@
             </div>
         </div>
     </section>
+
+
 
     <section id="docs" class="section-padding docs-section">
         <div class="container">
@@ -543,6 +591,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <script>
         // Initialize AOS Animations
         AOS.init({
@@ -561,6 +613,25 @@
                 nav.classList.remove('scrolled');
             }
         });
+
+        // Correct coordinates from Google Maps
+        const lat = 8.4821661;
+        const lng = 124.6657376;
+
+        var map = L.map('map').setView([lat, lng], 18);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([lat, lng]).addTo(map)
+            .bindPopup(`
+            <strong>Goldtown Industrial Sales Corporation</strong><br>
+            FMJ8+V79, National Highway, Lapasan<br>
+            Cagayan de Oro City, Misamis Oriental<br>
+            <small>Industrial Equipment Supplier</small>
+        `)
+            .openPopup();
     </script>
 
 </body>

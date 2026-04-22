@@ -16,7 +16,7 @@
                         <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
                             data-bs-target="#category_modal">
                             <i class="bi bi-plus-circle"></i>
-                            Create Category
+                            Create Item Type
                         </button>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#item_modal">
@@ -56,8 +56,8 @@
 
                         <select name="category" class="form-select form-select-sm" id="categoryFilter"
                             style="min-width: 120px;">
-                            <option value="" disabled>Select Category </option>
-                            <option value="">Categories </option>
+                            <option value="" disabled>Select Item Type </option>
+                            <option value="">Item Type </option>
                             @foreach ($item_categories as $category)
                                 <option value="{{ $category->item_category_id }}"
                                     {{ request('category') == $category->item_category_id ? 'selected' : '' }}>
@@ -100,7 +100,7 @@
                     <div class="modal-content">
 
                         <div class="modal-header">
-                            <h4 class="modal-title">Manage Categories</h4>
+                            <h4 class="modal-title">Manage Item Type</h4>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
 
@@ -116,15 +116,15 @@
 
                                         <div class="form-floating mb-3">
                                             <input type="text" class="form-control" id="category_name"
-                                                name="item_category_name" placeholder="Enter Category" required>
-                                            <label for="category_name">Category Name</label>
+                                                name="item_category_name" placeholder="Enter Item Type" required>
+                                            <label for="category_name">Item Type Name</label>
                                             <div class="invalid-feedback">
                                                 Please enter a category name.
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
-                                            <label class="form-label">Category Icon</label>
+                                            <label class="form-label">Item Type Icon</label>
 
                                             <div class="dropdown w-100">
                                                 <button class="btn btn-outline-secondary w-100 text-start"
@@ -317,7 +317,7 @@
 
 
 
-                                        <button type="submit" class="btn btn-success w-100">Create Category</button>
+                                        <button type="submit" class="btn btn-success w-100">Create Item Type</button>
 
                                     </form>
                                 </div>
@@ -328,7 +328,7 @@
                                     <!-- CATEGORY LIST LABEL -->
                                     <div class="mb-2">
                                         <label class="form-label fw-bold">
-                                            <i class="bi bi-list-ul me-1"></i> Category List
+                                            <i class="bi bi-list-ul me-1"></i> Item Type List
                                         </label>
                                     </div>
 
@@ -337,7 +337,7 @@
                                         <input type="text" id="categorySearch" class="form-control"
                                             placeholder="Search category...">
                                         <label for="categorySearch">
-                                            <i class="bi bi-search me-1"></i> Search Category
+                                            <i class="bi bi-search me-1"></i> Search Item Type
                                         </label>
                                     </div>
 
@@ -414,7 +414,7 @@
                                             <select name="item_category_id" class="form-select ps-5"
                                                 id="item_category_id" required>
 
-                                                <option value="" disabled selected>Select Category</option>
+                                                <option value="" disabled selected>Select Item Type</option>
 
                                                 @foreach ($item_categories as $category)
                                                     <option value="{{ $category->item_category_id }}"
@@ -426,7 +426,7 @@
 
                                             </select>
 
-                                            <label for="item_category_id" class="ms-4">Category</label>
+                                            <label for="item_category_id" class="ms-4">Item Type</label>
                                         </div>
 
                                         <!-- ITEM NAME -->
@@ -562,7 +562,7 @@
                                 <input type="checkbox" id="select_all">
                             </th>
                             <th>Product Name</th>
-                            <th>Category</th>
+                            <th>Item Type</th>
                             {{-- <th>Brand Name</th> --}}
                             <th>Serial Number</th>
                             <th>Unit of Measure</th>

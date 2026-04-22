@@ -4,73 +4,149 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PersonnelItem;
-use App\Models\Personnel;
-use Illuminate\Support\Facades\DB;
 use App\Models\Item;
+use Illuminate\Support\Facades\DB;
+
 
 class ReturnController extends Controller
 {
     public function index(Request $request)
     {
-        $itemCount = Item::sum('item_quantity');
+        /*
+        |--------------------------------------------------------------------------
+        | OVERALL INVENTORY COUNTS
+        |--------------------------------------------------------------------------
+        */
 
-        // Total outbound quantity (Received/Not Receive)
-        $outboundCount = PersonnelItem::whereIn('personnel_item_remarks', ['Received', 'Not Receive'])
-            ->sum('personnel_item_quantity');
+        // Total physical stock of all items
+        $itemCount = Item::sum('item_quantity');
 
         // Total damaged items
         $damagedItem = Item::where('item_remark', 'Damaged')
             ->sum('item_quantity_remaining');
 
-        // Remaining items 
-        $itemRemaining = Item::where('item_remark', '!=', 'Damaged')
+        // Total deprecated items
+        $deprecatedItem = Item::where('item_remark', 'Deprecated')
             ->sum('item_quantity_remaining');
 
-        // Available items 
+        // Total usable / good stock
         $goodItemTotal = Item::where('item_remark', 'Good')
-            ->where('item_remark', '!=', 'Damaged')
-            ->sum('item_quantity');
+            ->sum('item_quantity_remaining');
 
-        $availableItem = $goodItemTotal - $outboundCount;
+        // Total outbound items currently issued
+        $outboundCount = PersonnelItem::whereIn(
+            'personnel_item_remarks',
+            ['Received', 'Not Receive']
+        )->sum('personnel_item_quantity');
 
-        // Fetch ONLY returned items for recent activities by excluding outbound remarks
-        $recentActivities = PersonnelItem::where('personnel_item_quantity', '>', 0)
-            ->whereNotIn('personnel_item_remarks', ['Received', 'Not Receive'])
+        // Remaining stock excluding damaged / deprecated
+        $itemRemaining = Item::whereNotIn(
+            'item_remark',
+            ['Damaged', 'Deprecated']
+        )->sum('item_quantity_remaining');
+
+        // Available stock
+        $availableItem = max(0, $itemRemaining);
+
+        /*
+        |--------------------------------------------------------------------------
+        | RECENT ACTIVITIES (RETURNS ONLY)
+        |--------------------------------------------------------------------------
+        | Added item relation so serial number can display
+        |--------------------------------------------------------------------------
+        */
+
+        $recentActivities = PersonnelItem::with([
+            'personnel',
+            'item' => function ($query) {
+                $query->select(
+                    'item_id',
+                    'item_name',
+                    'item_serialno',
+                    'item_remark'
+                );
+            }
+        ])
+            ->where('personnel_item_quantity', '>', 0)
+            ->whereNotIn(
+                'personnel_item_remarks',
+                ['Received', 'Not Receive']
+            )
             ->latest()
-            ->take(5)
             ->paginate(5);
+
+        /*
+        |--------------------------------------------------------------------------
+        | CATEGORY STATISTICS
+        |--------------------------------------------------------------------------
+        */
+
         $categoriesWithStats = [];
+
         $categories = DB::table('item_categories')->get();
 
         foreach ($categories as $category) {
-            $itemsInCategory = Item::where('item_category_id', $category->item_category_id)->get();
+
+            $itemsInCategory = Item::where(
+                'item_category_id',
+                $category->item_category_id
+            )->get();
+
+            $itemIds = $itemsInCategory->pluck('item_id');
+
+            // Total stock in category
             $categoryTotal = $itemsInCategory->sum('item_quantity');
 
-            $categoryOutbound = PersonnelItem::whereIn('item_id', $itemsInCategory->pluck('id'))
-                ->whereIn('personnel_item_remarks', ['Received', 'Not Receive'])
+            // Total available good stock
+            $categoryAvailable = $itemsInCategory
+                ->where('item_remark', 'Good')
+                ->sum('item_quantity_remaining');
+
+            // Total outbound issued
+            $categoryOutbound = PersonnelItem::whereIn('item_id', $itemIds)
+                ->whereIn(
+                    'personnel_item_remarks',
+                    ['Received', 'Not Receive']
+                )
                 ->sum('personnel_item_quantity');
 
-            $categoryAvailable = max(0, $itemsInCategory->where('item_remark', 'Good')->sum('item_quantity') - $categoryOutbound);
+            // Damaged stock
+            $categoryBroken = $itemsInCategory
+                ->where('item_remark', 'Damaged')
+                ->sum('item_quantity_remaining');
+
+            // Deprecated stock
+            $categoryDeprecated = $itemsInCategory
+                ->where('item_remark', 'Deprecated')
+                ->sum('item_quantity_remaining');
 
             $categoriesWithStats[] = [
                 'name' => $category->item_category_name,
                 'icon' => $category->item_category_icon,
                 'total' => $categoryTotal,
                 'available' => $categoryAvailable,
-                'outboundCount' => $categoryOutbound,
-                'broken' => $itemsInCategory->where('item_remark', 'Damaged')->sum('item_quantity'),
-                'deprecated' => $itemsInCategory->where('item_remark', 'Deprecated')->sum('item_quantity'),
+                'taken' => $categoryOutbound,
+                'broken' => $categoryBroken,
+                'deprecated' => $categoryDeprecated,
             ];
         }
 
-        return view("return.index", compact(
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN VIEW
+        |--------------------------------------------------------------------------
+        */
+
+        return view('return.index', compact(
             'itemCount',
             'outboundCount',
             'damagedItem',
+            'deprecatedItem',
             'availableItem',
-            'recentActivities',
             'itemRemaining',
-            'goodItemTotal','categoriesWithStats'
+            'goodItemTotal',
+            'recentActivities',
+            'categoriesWithStats'
         ));
     }
 }

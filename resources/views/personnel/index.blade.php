@@ -371,7 +371,7 @@
                                                             class="bi bi-upc-scan me-1"></i>{{ $item->item_serialno ?? 'N/A' }}</span>
                                                 </div>
                                                 <div class="text-muted" style="font-size: 0.7rem;">
-                                                    Category: {{ $item->category->item_category_name ?? 'N/A' }} &bull; UOM:
+                                                    Item Type: {{ $item->category->item_category_name ?? 'N/A' }} &bull; UOM:
                                                     {{ $item->uom->item_uom_name ?? '-' }}
                                                 </div>
                                             </button>
