@@ -114,7 +114,7 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
                 $sheet->getStyle('D1')->getAlignment()->setHorizontal('right');
 
                 $sheet->mergeCells('D2:G2');
-                $sheet->setCellValue('D2', 'Master Inventory Report');
+                $sheet->setCellValue('D2', 'Item Inventory Report');
                 $sheet->getStyle('D2')->getFont()->setBold(true);
                 $sheet->getStyle('D2')->getAlignment()->setHorizontal('right');
 

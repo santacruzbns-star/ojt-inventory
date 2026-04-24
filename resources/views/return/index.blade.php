@@ -47,7 +47,7 @@
                                             <small class="fw-bold text-primary">{{ $stat['taken'] }}</small>
                                         </div>
                                         <div class="col-4" title="Damaged">
-                                            <p class="text-muted mb-0" style="font-size: 0.65rem;">Broken</p>
+                                            <p class="text-muted mb-0" style="font-size: 0.65rem;">Damaged</p>
                                             <small class="fw-bold text-danger">{{ $stat['broken'] }}</small>
                                         </div>
                                     </div>

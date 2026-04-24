@@ -7,10 +7,12 @@
     <style>
         /* Define page margins to accommodate header and footer */
         @page {
+            /* Forces Landscape Mode */
+            size: A4 portrait;
+            
             /* Increased top margin to 130px to fit the larger logo and header */
             margin: 130px 25px 80px 25px;
         }
-
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 11px;
@@ -27,14 +29,12 @@
             height: 90px;
             /* Taller header for the larger logo */
             background-color: #ffffff;
-            border-bottom: 6px solid #fffdfd;
-            /* Thicker, fixed gold accent line */
+            border-bottom: 6px solid #ffffff;
             padding: 15px 25px 5px 25px;
         }
 
         .logo {
             height: 75px;
-            /* Larger icon as requested */
             float: left;
             object-fit: contain;
         }
@@ -99,7 +99,7 @@
             margin-top: 0;
             color: #1a252f;
             text-transform: uppercase;
-            border-bottom: 1px solid #27030327;
+            border-bottom: 1px solid #eee;
             padding-bottom: 5px;
         }
 
@@ -112,7 +112,7 @@
         th,
         td {
             border: 1px solid #94a3b8;
-            padding: 7px 6px;
+            padding: 9px 8px; /* Breathing room */
             text-align: left;
         }
 
@@ -212,20 +212,5 @@
         </table>
     </main>
 </body>
-<script>
-    window.outboundData = {
-        csrfToken: "{{ csrf_token() }}",
-        routes: {
-            index: "{{ route('outbound.index') }}",
-            bulkDelete: "{{ route('outbound.bulkDelete') }}",
-        },
-        rows: @json(
-            $outbounds->map(function ($item) {
-                return [
-                    'name' => $item->item?->item_name,
-                    'category_id' => $item->item_category_id,
-                ];
-            }))
-    };
-</script>
+
 </html>

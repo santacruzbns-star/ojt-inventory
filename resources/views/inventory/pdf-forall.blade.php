@@ -138,14 +138,14 @@
         <div class="header-content">
             <div class="header-title">Goldtown</div>
             <div class="header-address">
-                <strong>Master Inventory Report</strong><br>
+                <strong>Items Inventory Report</strong><br>
                 National Highway, Lapasan, Cagayan De Oro City<br>
                 9000 Misamis Oriental | (088) 856 7111
             </div>
         </div>
     </header>
     <main>
-        <h1>Master Inventory</h1>
+        <h1>Items Inventory Report</h1>
         <table>
             <thead>
                 <tr>
@@ -155,7 +155,7 @@
                     <th>UOM</th>
                     <th>Total Qty</th>
                     <th>Remaining Qty</th>
-                    <th>Remark / Status</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
