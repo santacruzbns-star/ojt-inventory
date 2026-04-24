@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
+       :root {
             --bg-base: #0d324d;
             --accent-blue: #1e6091;
             --text-main: #ffffff;
@@ -300,14 +300,17 @@
             }
         }
 
-        /* --- Global Loader --- */
+        /* ============================================
+               Global Loader (Fast Spinning Blue Arrow)
+           ============================================ */
         #global-loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: var(--bg-base);
+            /* Matches your login screen background */
+            background-color: var(--bg-base); 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -326,30 +329,39 @@
             gap: 20px;
         }
 
-        .loader-wrapper {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loader-image {
-            width: 250px;
-            height: 250px;
-            object-fit: contain;
-            animation: imagePulse 2s infinite ease-in-out;
+        /* The Spinning Blue Arrow */
+        .loader-spinner {
+            width: 80px;
+            height: 80px;
+            /* Inline SVG using a bright blue color */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 50 10 A 40 40 0 1 1 10 50' fill='none' stroke='%230d6efd' stroke-width='12' stroke-linecap='square'/%3E%3Cpolygon points='46,0 46,20 74,10' fill='%230d6efd'/%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            /* Fast 0.6s spin */
+            animation: spin 0.6s linear infinite; 
         }
 
         .loading-text {
             font-family: 'Instrument Sans', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            color: #ffffff;
-            letter-spacing: 2px;
-            animation: textPulse 2s infinite ease-in-out;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0d6efd; /* Bright blue to match the arrow */
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            /* Fast 0.8s pulse */
+            animation: textPulse 0.8s infinite ease-in-out; 
             margin: 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes textPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
         }
 
         /* --- Toast Notification --- */
@@ -377,18 +389,6 @@
             transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
-
-        @keyframes imagePulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-
-        @keyframes textPulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
-        }
     </style>
 </head>
 
@@ -398,11 +398,9 @@
         <span>Link copied to clipboard!</span>
     </div>
 
-    <div id="global-loader">
+     <div id="global-loader">
         <div class="loader-content">
-            <div class="loader-wrapper">
-                <img src="/storage/img/dawg.gif" alt="Loading" class="loader-image">
-            </div>
+            <div class="loader-spinner"></div>
             <p class="loading-text">LOADING...</p>
         </div>
     </div>

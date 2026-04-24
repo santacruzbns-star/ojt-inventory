@@ -857,7 +857,7 @@ const RETURN_REASONS_GOOD = [
     ["end_of_assignment", "End of assignment / project"],
     ["replaced_upgraded", "Replaced or upgraded equipment"],
     ["transfer_reassign", "Transfer / reassignment"],
-    ["other", "Other (describe below)"],
+    ["other", "Other (describe on right side field)"],
 ];
 
 const RETURN_REASONS_DAMAGED = [

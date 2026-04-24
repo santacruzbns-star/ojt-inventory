@@ -150,8 +150,9 @@
                                             </span>
                                             <small class="text-muted">
                                                 Item Type:
-                                                {{ $activity->name ?? 'N/A' }}
+                                                {{ $activity->item->category->item_category_name ?? '-' }}
                                             </small>
+                                            <br>
                                             <small class="text-muted">
                                                 Serial No:
                                                 {{ $activity->item->item_serialno ?? '-' }}

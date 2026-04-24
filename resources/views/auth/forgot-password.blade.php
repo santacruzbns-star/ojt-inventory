@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <x-auth-session-status class="mb-4 text-success" :status="session('status')" />
 
     <div class="form-header">
         <h3>{{ __('Reset Password') }}</h3>

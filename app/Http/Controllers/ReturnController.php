@@ -63,9 +63,11 @@ class ReturnController extends Controller
                     'item_id',
                     'item_name',
                     'item_serialno',
-                    'item_remark'
+                    'item_remark',
+                    'item_category_id' // REQUIRED
                 );
-            }
+            },
+            'item.category'
         ])
             ->where('personnel_item_quantity', '>', 0)
             ->whereNotIn(
