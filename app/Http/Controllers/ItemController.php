@@ -57,7 +57,7 @@ class ItemController extends Controller
         $items = $itemsQuery->with(['category', 'uom'])->orderBy('updated_at', 'desc')->get();
 
         // Paginate manually (using the collection of regular items)
-        $perPage = 5;
+        $perPage = 20;
         $page = $request->get('page', 1);
         $itemsPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
             $items->forPage($page, $perPage),
@@ -179,7 +179,7 @@ EOT;
             // 🔥 SORT FOR EXCEL: Group by Category
             $filteredItems = $dbQuery->get()->sortBy('category.item_category_name', SORT_NATURAL | SORT_FLAG_CASE)->values();
 
-            return Excel::download(new ItemsExport($filteredItems), 'inventory.xlsx');
+            return Excel::download(new ItemsExport($filteredItems), 'Item Inventory Report.xlsx');
         }
 
         return view('inventory.index', [

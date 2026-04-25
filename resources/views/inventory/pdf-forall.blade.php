@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>INVENTORY REPORT</title>
+    <title>ITEM INVENTORY REPORT</title>
     <style>
-        /* Define page margins to accommodate header and footer */
+       /* Define page margins to accommodate header and footer */
         @page {
             /* Forces Landscape Mode */
             size: A4 portrait;
@@ -16,8 +16,9 @@
 
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 11px;
+            font-size: 8px; /* Reduced to 8px for a highly compact layout */
             color: #232323;
+            text-transform: uppercase;
         }
 
         /* Clean White Header */
@@ -47,7 +48,7 @@
         }
 
         .header-title {
-            font-size: 24px;
+            font-size: 22px; /* Slightly smaller header title */
             font-weight: bold;
             color: #1a252f;
             text-transform: uppercase;
@@ -56,9 +57,10 @@
         }
 
         .header-address {
-            font-size: 11px;
+            font-size: 9px; /* Shrunk the address down */
             color: #555;
-            line-height: 1.5;
+            line-height: 1.4;
+            text-transform: uppercase;
         }
 
         /* Fixed Footer */
@@ -70,8 +72,9 @@
             height: 30px;
             border-top: 1px solid #ccc;
             padding-top: 5px;
-            font-size: 10px;
+            font-size: 8px; /* Shrunk footer */
             color: #777;
+            text-transform: uppercase;
         }
 
         .footer-date {
@@ -95,8 +98,8 @@
         }
 
         h1 {
-            font-size: 16px;
-            margin-bottom: 12px;
+            font-size: 14px; /* Slightly smaller H1 */
+            margin-bottom: 8px;
             margin-top: 0;
             color: #1a252f;
             text-transform: uppercase;
@@ -107,14 +110,15 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         th,
         td {
             border: 1px solid #94a3b8;
-            padding: 9px 8px; /* Breathing room */
+            padding: 4px 4px; /* Very tight padding for maximum rows */
             text-align: left;
+            text-transform: uppercase; 
         }
 
         th {
@@ -122,12 +126,12 @@
             font-weight: bold;
             color: #ffffff;
             text-transform: uppercase;
-            font-size: 10px;
+            font-size: 8px; /* Match body size */
         }
 
         /* Optional status colors for the remark text */
         .text-danger { color: #dc3545; font-weight: bold; }
-        .text-warning { color: #856404; font-weight: bold; }
+        .text-warning { color: #313131; font-weight: bold; }
         .text-success { color: #155724; font-weight: bold; }
     </style>
 </head>

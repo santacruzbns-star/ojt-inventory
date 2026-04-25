@@ -32,13 +32,13 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
     public function headings(): array
     {
         return [
-            'Product',
-            'Category',
-            'Serial No.',
+            'PRODUCT',
+            'CATEGORY',
+            'SERIAL NO.',
             'UOM',
-            'Total Qty',
-            'Remaining Qty',
-            'Remark / Status',
+            'TOTAL QTY',
+            'REMAINING QTY',
+            'REMARK / STATUS',
         ];
     }
 
@@ -46,13 +46,13 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
     public function map($item): array
     {
         return [
-            $item->item_name,
-            $item->category->item_category_name ?? 'Uncategorized',
-            $item->item_serialno ?? '-',
-            $item->uom->item_uom_name ?? '-',
-            $item->item_quantity ?? '0',
+            strtoupper($item->item_name),
+            strtoupper($item->category->item_category_name ?? 'UNCATEGORIZED'),
+            strtoupper($item->item_serialno ?? '-'),
+            strtoupper($item->uom->item_uom_name ?? '-'),
+            $item->item_quantity ?? '0', // Keep numbers as is
             $item->item_quantity_remaining ?? '0',
-            $item->item_remark ?? '-',
+            strtoupper($item->item_remark ?? '-'),
         ];
     }
 
@@ -109,26 +109,26 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
                 // (Using D through G to push it to the right side of the 7-column sheet)
                 
                 $sheet->mergeCells('D1:G1');
-                $sheet->setCellValue('D1', 'Goldtown');
+                $sheet->setCellValue('D1', 'GOLDTOWN');
                 $sheet->getStyle('D1')->getFont()->setBold(true)->setSize(24);
                 $sheet->getStyle('D1')->getAlignment()->setHorizontal('right');
 
                 $sheet->mergeCells('D2:G2');
-                $sheet->setCellValue('D2', 'Item Inventory Report');
+                $sheet->setCellValue('D2', 'ITEM INVENTORY REPORT');
                 $sheet->getStyle('D2')->getFont()->setBold(true);
                 $sheet->getStyle('D2')->getAlignment()->setHorizontal('right');
 
                 $sheet->mergeCells('D3:G3');
-                $sheet->setCellValue('D3', 'National Highway, Lapasan, Cagayan De Oro City');
+                $sheet->setCellValue('D3', 'NATIONAL HIGHWAY, LAPASAN, CAGAYAN DE ORO CITY');
                 $sheet->getStyle('D3')->getAlignment()->setHorizontal('right');
 
                 $sheet->mergeCells('D4:G4');
-                $sheet->setCellValue('D4', '9000 Misamis Oriental | (088) 856 7111');
+                $sheet->setCellValue('D4', '9000 MISAMIS ORIENTAL | (088) 856 7111');
                 $sheet->getStyle('D4')->getAlignment()->setHorizontal('right');
 
                 // 3. Insert Generated Date
                 $sheet->mergeCells('A5:C5');
-                $sheet->setCellValue('A5', 'Generated Date: ' . now()->format('F d, Y'));
+                $sheet->setCellValue('A5', 'GENERATED DATE: ' . strtoupper(now()->format('F d, Y')));
                 $sheet->getStyle('A5')->getFont()->setItalic(true);
 
                 // 4. Table Header Styling (Row 6)
@@ -162,7 +162,7 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
                 // 5. Loop through rows to apply grouping colors (Data starts at row 7)
                 for ($row = 7; $row <= $highestRow; $row++) {
                     
-                    // Column B is Category
+                    // Column B is Category (which is now completely uppercase from the map function)
                     $category = $sheet->getCell("B$row")->getValue();
 
                     if (!isset($categoryColors[$category])) {
@@ -190,18 +190,19 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
                     // 6. Remarks/Status Colors (Column G)
                     $status = $sheet->getCell("G$row")->getValue();
                     
+                    // Updated to check against uppercase strings
                     switch ($status) {
-                        case 'Good':
+                        case 'GOOD':
                             $sheet->getStyle("G$row")->applyFromArray([
                                 'font' => ['color' => ['rgb' => '155724'], 'bold' => true], // Dark green
                             ]);
                             break;
-                        case 'Damaged':
+                        case 'DAMAGED':
                             $sheet->getStyle("G$row")->applyFromArray([
                                 'font' => ['color' => ['rgb' => '721c24'], 'bold' => true], // Dark red
                             ]);
                             break;
-                        case 'Missing':
+                        case 'MISSING':
                             $sheet->getStyle("G$row")->applyFromArray([
                                 'font' => ['color' => ['rgb' => '856404'], 'bold' => true], // Dark yellow/brown
                             ]);

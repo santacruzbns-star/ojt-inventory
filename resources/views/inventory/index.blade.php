@@ -80,8 +80,7 @@
                     </div>
 
                     <div class="d-flex gap-2 flex-wrap">
-                        <a href="#" id="export_pdf_btn"
-                            class="btn btn-danger d-flex align-items-center gap-1"
+                        <a href="#" id="export_pdf_btn" class="btn btn-danger d-flex align-items-center gap-1"
                             title="Checked rows: PDF only those. No checks: PDF uses current filters (all matching rows).">
                             <i class="bi bi-file-earmark-pdf"></i> Print PDF (0)
                         </a>
@@ -111,202 +110,221 @@
                                 <div class="col-md-6 border-end">
 
                                     <form action="{{ route('item-category.store') }}" method="POST"
-                                        class="needs-validation category-form" novalidate>
+                                        class="needs-validation category-form text-uppercase" novalidate>
                                         @csrf
 
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="category_name"
-                                                name="item_category_name" placeholder="Enter Item Type" required>
-                                            <label for="category_name">Item Type Name</label>
+                                        <div class="form-floating mb-3 text-uppercase">
+                                            <input type="text" class="form-control text-uppercase" id="category_name"
+                                                name="item_category_name" placeholder="ENTER ITEM TYPE" required>
+                                            <label for="category_name">ITEM TYPE NAME</label>
                                             <div class="invalid-feedback">
-                                                Please enter a category name.
+                                                PLEASE ENTER A CATEGORY NAME.
                                             </div>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label class="form-label">Item Type Icon</label>
+                                        <div class="mb-3 text-uppercase">
+                                            <label class="form-label">ITEM TYPE ICON</label>
 
-                                            <div class="dropdown w-100">
-                                                <button class="btn btn-outline-secondary w-100 text-start"
+                                            <div class="dropdown w-100 text-uppercase">
+                                                <button
+                                                    class="btn btn-outline-secondary w-100 text-start text-uppercase"
                                                     type="button" id="iconDropdown" data-bs-toggle="dropdown">
                                                     <i id="selectedIcon" class="bi"></i>
-                                                    <span id="selectedIconText">None</span>
+                                                    <span id="selectedIconText">NONE</span>
                                                 </button>
 
-                                                <ul class="dropdown-menu w-100"
+                                                <ul class="dropdown-menu w-100 text-uppercase"
                                                     style="max-height: 250px; overflow-y: auto;">
-                                                    <!-- NONE -->
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="">
-                                                            None
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="">
+                                                            NONE
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-printer">
-                                                            <i class="bi bi-printer me-2"></i> Printer / Scanner
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-printer">
+                                                            <i class="bi bi-printer me-2"></i> PRINTER / SCANNER
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-battery-charging">
-                                                            <i class="bi bi-battery-charging me-2"></i> UPS / Battery
-                                                            Backup
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-battery-charging">
+                                                            <i class="bi bi-battery-charging me-2"></i> UPS / BATTERY
+                                                            BACKUP
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-hdd-stack">
-                                                            <i class="bi bi-hdd-stack me-2"></i> Network Switch / Hub
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-hdd-stack">
+                                                            <i class="bi bi-hdd-stack me-2"></i> NETWORK SWITCH / HUB
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-plug">
-                                                            <i class="bi bi-plug me-2"></i> Power Supply / PSU
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-plug">
+                                                            <i class="bi bi-plug me-2"></i> POWER SUPPLY / PSU
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-fingerprint">
-                                                            <i class="bi bi-fingerprint me-2"></i> Biometric Device
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-fingerprint">
+                                                            <i class="bi bi-fingerprint me-2"></i> BIOMETRIC DEVICE
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-person-bounding-box">
-                                                            <i class="bi bi-person-bounding-box me-2"></i> Face
-                                                            Recognition
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-person-bounding-box">
+                                                            <i class="bi bi-person-bounding-box me-2"></i> FACE
+                                                            RECOGNITION
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-cpu-fill">
-                                                            <i class="bi bi-cpu-fill me-2"></i> Motherboard / Mainboard
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-cpu-fill">
+                                                            <i class="bi bi-cpu-fill me-2"></i> MOTHERBOARD / MAINBOARD
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-ethernet">
-                                                            <i class="bi bi-ethernet me-2"></i> Ethernet Adapter / NIC
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-ethernet">
+                                                            <i class="bi bi-ethernet me-2"></i> ETHERNET ADAPTER / NIC
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-droplet-half">
-                                                            <i class="bi bi-droplet-half me-2"></i> Printer Ink / Toner
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-droplet-half">
+                                                            <i class="bi bi-droplet-half me-2"></i> PRINTER INK / TONER
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-lightning-charge">
-                                                            <i class="bi bi-lightning-charge me-2"></i> Charger / Power
-                                                            Adapter
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-lightning-charge">
+                                                            <i class="bi bi-lightning-charge me-2"></i> CHARGER / POWER
+                                                            ADAPTER
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-telephone">
-                                                            <i class="bi bi-telephone me-2"></i> Telephone / Landline
+                                                        <a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-telephone">
+                                                            <i class="bi bi-telephone me-2"></i> TELEPHONE / LANDLINE
                                                         </a>
                                                     </li>
 
-                                                    <!-- COMPUTERS -->
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-pc-display">
-                                                            <i class="bi bi-pc-display me-2"></i> Desktop PC
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-pc-display">
+                                                            <i class="bi bi-pc-display me-2"></i> DESKTOP PC
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-laptop">
-                                                            <i class="bi bi-laptop me-2"></i> Laptop
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-laptop">
+                                                            <i class="bi bi-laptop me-2"></i> LAPTOP
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-display">
-                                                            <i class="bi bi-display me-2"></i> Monitor
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-display">
+                                                            <i class="bi bi-display me-2"></i> MONITOR
                                                         </a></li>
 
-                                                    <!-- HARDWARE -->
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-cpu">
-                                                            <i class="bi bi-cpu me-2"></i> CPU / Processor
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-cpu">
+                                                            <i class="bi bi-cpu me-2"></i> CPU / PROCESSOR
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-hdd">
-                                                            <i class="bi bi-hdd me-2"></i> Hard Drive
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-hdd">
+                                                            <i class="bi bi-hdd me-2"></i> HARD DRIVE
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-memory">
-                                                            <i class="bi bi-memory me-2"></i> RAM / Memory
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-memory">
+                                                            <i class="bi bi-memory me-2"></i> RAM / MEMORY
                                                         </a></li>
 
-                                                    <!-- PERIPHERALS -->
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-keyboard">
-                                                            <i class="bi bi-keyboard me-2"></i> Keyboard
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-gpu-card">
+                                                            <i class="bi bi-gpu-card me-2"></i> GRAPHICS CARD / GPU
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-mouse">
-                                                            <i class="bi bi-mouse me-2"></i> Mouse
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-keyboard">
+                                                            <i class="bi bi-keyboard me-2"></i> KEYBOARD
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-printer">
-                                                            <i class="bi bi-printer me-2"></i> Printer
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-mouse">
+                                                            <i class="bi bi-mouse me-2"></i> MOUSE
                                                         </a></li>
 
-                                                    <!-- NETWORK -->
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-router">
-                                                            <i class="bi bi-router me-2"></i> Router
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-headset">
+                                                            <i class="bi bi-headset me-2"></i> HEADSET / AUDIO
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-wifi">
-                                                            <i class="bi bi-wifi me-2"></i> WiFi / Network
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-webcam">
+                                                            <i class="bi bi-webcam me-2"></i> WEBCAM
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-hdd-network">
-                                                            <i class="bi bi-hdd-network me-2"></i> Server / NAS
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-router">
+                                                            <i class="bi bi-router me-2"></i> ROUTER
                                                         </a></li>
 
-                                                    <!-- MOBILE -->
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-phone">
-                                                            <i class="bi bi-phone me-2"></i> Mobile Phone
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-wifi">
+                                                            <i class="bi bi-wifi me-2"></i> WIFI / NETWORK
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-tablet">
-                                                            <i class="bi bi-tablet me-2"></i> Tablet
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-hdd-network">
+                                                            <i class="bi bi-hdd-network me-2"></i> SERVER / NAS
                                                         </a></li>
 
-                                                    <!-- GENERAL -->
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-box-seam">
-                                                            <i class="bi bi-box-seam me-2"></i> General Item
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-shield-lock">
+                                                            <i class="bi bi-shield-lock me-2"></i> FIREWALL / SECURITY
                                                         </a></li>
 
-                                                    <li><a class="dropdown-item icon-option" href="#"
-                                                            data-value="bi-tools">
-                                                            <i class="bi bi-tools me-2"></i> Tools / Repair
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-phone">
+                                                            <i class="bi bi-phone me-2"></i> MOBILE PHONE
+                                                        </a></li>
+
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-tablet">
+                                                            <i class="bi bi-tablet me-2"></i> TABLET
+                                                        </a></li>
+
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-usb-drive">
+                                                            <i class="bi bi-usb-drive me-2"></i> USB FLASH DRIVE
+                                                        </a></li>
+
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-box-seam">
+                                                            <i class="bi bi-box-seam me-2"></i> GENERAL ITEM
+                                                        </a></li>
+
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-tools">
+                                                            <i class="bi bi-tools me-2"></i> TOOLS / REPAIR
+                                                        </a></li>
+
+                                                    <li><a class="dropdown-item icon-option text-uppercase"
+                                                            href="#" data-value="bi-diagram-3">
+                                                            <i class="bi bi-diagram-3 me-2"></i> INFRASTRUCTURE
                                                         </a></li>
 
                                                 </ul>
@@ -317,38 +335,35 @@
 
 
 
-                                        <button type="submit" class="btn btn-success w-100">Create Item Type</button>
+                                        <button type="submit" class="btn btn-success w-100 text-uppercase">CREATE
+                                            ITEM TYPE</button>
 
                                     </form>
                                 </div>
 
-                                <!-- ================= RIGHT: LIST ================= -->
                                 <div class="col-md-6">
 
-                                    <!-- CATEGORY LIST LABEL -->
-                                    <div class="mb-2">
+                                    <div class="mb-2 text-uppercase">
                                         <label class="form-label fw-bold">
-                                            <i class="bi bi-list-ul me-1"></i> Item Type List
+                                            <i class="bi bi-list-ul me-1"></i> ITEM TYPE LIST
                                         </label>
                                     </div>
 
-                                    <!-- SEARCH (FLOATING STYLE) -->
-                                    <div class="form-floating mb-3">
-                                        <input type="text" id="categorySearch" class="form-control"
-                                            placeholder="Search category...">
+                                    <div class="form-floating mb-3 text-uppercase">
+                                        <input type="text" id="categorySearch" class="form-control text-uppercase"
+                                            placeholder="SEARCH CATEGORY...">
                                         <label for="categorySearch">
-                                            <i class="bi bi-search me-1"></i> Search Item Type
+                                            <i class="bi bi-search me-1"></i> SEARCH ITEM TYPE
                                         </label>
                                     </div>
 
-                                    <!-- CATEGORY LIST -->
-                                    <ul class="list-group shadow-sm rounded" id="categoryList"
+                                    <ul class="list-group shadow-sm rounded text-uppercase" id="categoryList"
                                         style="max-height: 260px; overflow-y: auto;">
                                         @foreach ($item_categories as $category)
                                             <li
-                                                class="list-group-item d-flex justify-content-between align-items-center category-item">
+                                                class="list-group-item d-flex justify-content-between align-items-center category-item text-uppercase">
 
-                                                <span class="d-flex align-items-center">
+                                                <span class="d-flex align-items-center text-uppercase">
                                                     @if ($category->item_category_icon)
                                                         <i
                                                             class="bi {{ $category->item_category_icon }} me-2 fs-5"></i>
@@ -356,13 +371,13 @@
                                                     {{ $category->item_category_name }}
                                                 </span>
 
-                                                <!-- DELETE -->
                                                 <form
                                                     action="{{ route('item-category.destroy', $category->item_category_id) }}"
                                                     method="POST" class="delete-form">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                    <button type="submit"
+                                                        class="btn btn-sm btn-danger text-uppercase">
                                                         ✕
                                                     </button>
                                                 </form>
@@ -392,150 +407,100 @@
                         </div>
 
                         <form action="{{ route('inventory.store') }}" method="POST"
-                            class="needs-validation item-form" novalidate>
+                            class="needs-validation item-form text-uppercase" novalidate>
                             @csrf
 
                             <div class="modal-body">
                                 <div class="row">
 
-                                    <!-- LEFT SIDE -->
                                     <div class="col-md-6 border-end">
-                                        <h6 class="text-muted mb-3">
-                                            <i class="bi bi-info-circle me-1"></i> Item Identification
+                                        <h6 class="text-muted mb-3 text-uppercase">
+                                            <i class="bi bi-info-circle me-1"></i> ITEM IDENTIFICATION
                                         </h6>
 
-                                        <!-- CATEGORY -->
                                         <div class="form-floating mb-3 position-relative">
 
-                                            <!-- ICON -->
                                             <i id="categoryIconPreview"
                                                 class="bi position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
 
-                                            <select name="item_category_id" class="form-select ps-5"
+                                            <select name="item_category_id" class="form-select ps-5 text-uppercase"
                                                 id="item_category_id" required>
 
-                                                <option value="" disabled selected>Select Item Type</option>
+                                                <option value="" disabled selected>SELECT ITEM TYPE</option>
 
                                                 @foreach ($item_categories as $category)
                                                     <option value="{{ $category->item_category_id }}"
                                                         data-name="{{ $category->item_category_name }}"
-                                                        data-icon="{{ $category->item_category_icon }}">
+                                                        data-icon="{{ $category->item_category_icon }}"
+                                                        class="text-uppercase">
                                                         {{ $category->item_category_name }}
                                                     </option>
                                                 @endforeach
 
                                             </select>
 
-                                            <label for="item_category_id" class="ms-4">Item Type</label>
+                                            <label for="item_category_id" class="ms-4 text-uppercase">ITEM
+                                                TYPE</label>
                                         </div>
 
-                                        <!-- ITEM NAME -->
                                         <div class="form-floating mb-3">
-                                            <input type="text" name="item_name" class="form-control"
-                                                id="item_name" placeholder="Item Name" required>
-                                            <label for="item_name">Item Name</label>
+                                            <input type="text" name="item_name"
+                                                class="form-control text-uppercase" id="item_name"
+                                                placeholder="ITEM NAME" required>
+                                            <label for="item_name" class="text-uppercase">ITEM NAME</label>
                                         </div>
 
-                                        <!-- BRAND -->
-                                        {{-- <div class="form-floating mb-3">
-                                            <select name="item_brand_name" class="form-select" id="item_brand_name"
-                                                >
-                                                <option value="" disabled selected>Select Brand</option>
-                                                <option value="Logitech">Logitech</option>
-                                                <option value="Microsoft">Microsoft</option>
-                                                <option value="HP">HP</option>
-                                                <option value="Dell">Dell</option>
-                                                <option value="Corsair">Corsair</option>
 
-                                                <option value="belkin" disabled>Networking Equipment</option>
-                                                <option value="TP-Link">TP-Link</option>
-                                                <option value="Cisco">Cisco</option>
-                                                <option value="Netgear">Netgear</option>
-                                                <option value="Ubiquiti">Ubiquiti</option>
-
-                                                <option value="belkin" disabled>Storage Devices</option>
-                                                <option value="Seagate">Seagate</option>
-                                                <option value="Western Digital (WD)">Western Digital (WD)</option>
-                                                <option value="Samsung">Samsung</option>
-                                                <option value="Kingston">Kingston</option>
-
-                                                <option value="belkin" disabled>Computer Components </option>
-                                                <option value="Intel">Intel</option>
-                                                <option value="AMD">AMD</option>
-                                                <option value="Nvidia">Nvidia</option>
-                                                <option value="ASUS">ASUS</option>
-                                                <option value="MSI">MSI</option>
-                                                <option value="Gigabyte">Gigabyte</option>
-
-                                                <option value="belkin" disabled>Printers & Scanners</option>
-                                                <option value="Canon">Canon</option>
-                                                <option value="Epson">Epson</option>
-                                                <option value="Brother">Brother</option>
-
-                                                <option value="belkin" disabled>Mobile Devices</option>
-                                                <option value="Apple">Apple</option>
-                                                <option value="Samsung">Samsung</option>
-                                                <option value="Xiaomi">Xiaomi</option>
-                                                <option value="Lenovo">Lenovo</option>
-                                                <option value="Huawei">Huawei</option>
-
-                                                <option value="belkin" disabled>Cables & Accessories</option>
-                                                <option value="Belkin">Belkin</option>
-                                                <option value="UGREEN">UGREEN</option>
-                                                <option value="Anker">Anker</option>
-                                                <option value="AmazonBasics">AmazonBasics</option>
-                                            </select>
-                                            <label for="item_brand_name">Brand</label>
-                                        </div> --}}
-
-                                        <!-- SERIAL -->
                                         <div class="form-floating mb-3">
-                                            <input type="text" name="item_serialno" class="form-control"
-                                                id="item_serialno" placeholder="Serial Number">
-                                            <label for="item_serialno">Serial Number (Optional)</label>
+                                            <input type="text" name="item_serialno"
+                                                class="form-control text-uppercase" id="item_serialno"
+                                                placeholder="SERIAL NUMBER">
+                                            <label for="item_serialno" class="text-uppercase">SERIAL NUMBER
+                                                (OPTIONAL)</label>
                                         </div>
                                     </div>
 
-                                    <!-- RIGHT SIDE -->
                                     <div class="col-md-6">
-                                        <h6 class="text-muted mb-3">
-                                            <i class="bi bi-box-seam me-1"></i> Stock Information
+                                        <h6 class="text-muted mb-3 text-uppercase">
+                                            <i class="bi bi-box-seam me-1"></i> STOCK INFORMATION
                                         </h6>
 
                                         <div class="row">
                                             <div class="col-6">
                                                 <div class="form-floating mb-3">
-                                                    <input type="number" name="item_quantity" class="form-control"
-                                                        id="item_quantity" min="1" required>
-                                                    <label>Quantity</label>
+                                                    <input type="number" name="item_quantity"
+                                                        class="form-control text-uppercase" id="item_quantity"
+                                                        min="1" required>
+                                                    <label class="text-uppercase">QUANTITY</label>
                                                 </div>
                                             </div>
 
                                             <div class="col-6">
                                                 <div class="form-floating mb-3">
-                                                    <select name="item_uom_name" class="form-select"
+                                                    <select name="item_uom_name" class="form-select text-uppercase"
                                                         id="item_uom_name" required>
-                                                        <option value="" disabled selected>Select UOM</option>
-                                                        <option value="Pcs">Pcs</option>
-                                                        <option value="Set">Set</option>
-                                                        <option value="Box">Box</option>
-                                                        <option value="Roll">Roll</option>
-                                                        <option value="Pack">Pack</option>
-                                                        <option value="Pair">Pair</option>
+                                                        <option value="" disabled selected>SELECT UOM</option>
+                                                        <option value="Pcs">PCS</option>
+                                                        <option value="Set">SET</option>
+                                                        <option value="Box">BOX</option>
+                                                        <option value="Roll">ROLL</option>
+                                                        <option value="Pack">PACK</option>
+                                                        <option value="Pair">PAIR</option>
                                                     </select>
-                                                    <label>Unit of Measure</label>
+                                                    <label class="text-uppercase">UNIT OF MEASURE</label>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="form-floating mb-3">
-                                            <select name="item_remark" class="form-select" id="item_remark" required>
-                                                <option value="" disabled selected>Select Remark</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Damaged">Damaged</option>
-                                                <option value="Missing">Missing</option>
+                                            <select name="item_remark" class="form-select text-uppercase"
+                                                id="item_remark" required>
+                                                <option value="" disabled selected>SELECT REMARK</option>
+                                                <option value="Good">GOOD</option>
+                                                <option value="Damaged">DAMAGED</option>
+                                                <option value="Missing">MISSING</option>
                                             </select>
-                                            <label>Condition / Remark</label>
+                                            <label class="text-uppercase">CONDITION / REMARK</label>
                                         </div>
 
                                     </div>
@@ -543,9 +508,9 @@
                             </div>
 
                             <div class="modal-footer bg-light">
-                                <button type="button" class="btn btn-outline-secondary"
-                                    data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-success px-4">Save Item</button>
+                                <button type="button" class="btn btn-outline-secondary text-uppercase"
+                                    data-bs-dismiss="modal">CANCEL</button>
+                                <button type="submit" class="btn btn-success px-4 text-uppercase">SAVE ITEM</button>
                             </div>
 
                         </form>

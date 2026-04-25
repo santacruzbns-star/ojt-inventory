@@ -48,7 +48,7 @@ class PersonnelItemController extends Controller
             // 🔥 ORDERING FOR WEB VIEW:
             ->orderBy('updated_at', 'desc')           // 1. Most recently touched
             ->orderBy('personnel_item_id', 'desc')    // 2. Highest ID wins (Tie-breaker for Returns)
-            ->paginate(5)
+            ->paginate(20)
             ->withQueryString();
 
         // 2. Dropdown Data: Shows ALL personnel regardless of quantity
@@ -184,7 +184,7 @@ EOT;
                 ['updated_at', 'desc']
             ])->values();
 
-            return Excel::download(new PersonnelItemsExport($filteredOutbounds), 'outbound.xlsx');
+            return Excel::download(new PersonnelItemsExport($filteredOutbounds), 'Inventory Report.xlsx');
         }
 
         return view('personnel.index', compact(

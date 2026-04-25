@@ -3,20 +3,23 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>OUTBOUND REPORT</title>
+    <title>INVENTORY REPORT</title>
     <style>
         /* Define page margins to accommodate header and footer */
         @page {
             /* Forces Landscape Mode */
             size: A4 portrait;
-            
+
             /* Increased top margin to 130px to fit the larger logo and header */
             margin: 130px 25px 80px 25px;
         }
+
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 11px;
+            font-size: 9px;
+            /* Reduced from 11px for smaller table text */
             color: #232323;
+            text-transform: uppercase;
         }
 
         /* Clean White Header */
@@ -56,8 +59,10 @@
 
         .header-address {
             font-size: 11px;
+            /* Kept address readable */
             color: #555;
             line-height: 1.5;
+            text-transform: uppercase;
         }
 
         /* Fixed Footer */
@@ -71,6 +76,7 @@
             padding-top: 5px;
             font-size: 10px;
             color: #777;
+            text-transform: uppercase;
         }
 
         .footer-date {
@@ -112,8 +118,10 @@
         th,
         td {
             border: 1px solid #94a3b8;
-            padding: 9px 8px; /* Breathing room */
+            padding: 5px 4px;
+            /* Reduced padding slightly to match smaller text */
             text-align: left;
+            text-transform: uppercase;
         }
 
         th {
@@ -121,7 +129,8 @@
             font-weight: bold;
             color: #ffffff;
             text-transform: uppercase;
-            font-size: 10px;
+            font-size: 9px;
+            /* Matched the body size */
         }
     </style>
 </head>
@@ -213,5 +222,4 @@
         </table>
     </main>
 </body>
-
 </html>

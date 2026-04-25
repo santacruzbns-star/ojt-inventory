@@ -32,34 +32,35 @@ class PersonnelItemsExport implements FromCollection, WithHeadings, WithMapping,
     public function headings(): array
     {
         return [
-            'Asset Name',
-            'Product Name',
-            'Serial No.',
-            'Issued Date',
-            'Received Date',
-            'Custodian',
-            'Branch',
-            'Department',
-            'Status',
+            'ASSET NAME',
+            'PRODUCT NAME',
+            'SERIAL NO.',
+            'ISSUED DATE',
+            'RECEIVED DATE',
+            'CUSTODIAN',
+            'BRANCH',
+            'DEPARTMENT',
+            'STATUS',
         ];
     }
 
     // Map the data to match the PDF layout
     public function map($row): array
     {
-        $branchName = $row->personnel->branch->branch_name ?? 'Unassigned';
-        $deptName = $row->personnel->branch->branch_department ?? 'Unassigned';
+        $branchName = strtoupper($row->personnel->branch->branch_name ?? 'UNASSIGNED');
+        $deptName = strtoupper($row->personnel->branch->branch_department ?? 'UNASSIGNED');
+        $catName = strtoupper($row->item->category->item_category_name ?? '-');
 
         return [
-            $row->item->category->item_category_name ?? '-',
-            ($row->item->item_name ?? '-') . ' (x' . $row->personnel_item_quantity . ')',
-            $row->item->item_serialno ?? '-',
-            $row->personnel_date_issued ? \Carbon\Carbon::parse($row->personnel_date_issued)->format('M d, Y') : '-',
-            $row->personnel_date_receive ? \Carbon\Carbon::parse($row->personnel_date_receive)->format('M d, Y') : '-',
-            $row->personnel->personnel_name ?? '-',
+            $catName,
+            strtoupper(($row->item->item_name ?? '-') . ' (X' . $row->personnel_item_quantity . ')'),
+            strtoupper($row->item->item_serialno ?? '-'),
+            $row->personnel_date_issued ? strtoupper(\Carbon\Carbon::parse($row->personnel_date_issued)->format('M d, Y')) : '-',
+            $row->personnel_date_receive ? strtoupper(\Carbon\Carbon::parse($row->personnel_date_receive)->format('M d, Y')) : '-',
+            strtoupper($row->personnel->personnel_name ?? '-'),
             $branchName,
             $deptName,
-            $row->personnel_item_remarks ?? '-',
+            strtoupper($row->personnel_item_remarks ?? '-'),
         ];
     }
 
@@ -116,26 +117,26 @@ class PersonnelItemsExport implements FromCollection, WithHeadings, WithMapping,
                 // (Using F through I to push it to the right side of the sheet)
                 
                 $sheet->mergeCells('F1:I1');
-                $sheet->setCellValue('F1', 'Goldtown');
+                $sheet->setCellValue('F1', 'GOLDTOWN');
                 $sheet->getStyle('F1')->getFont()->setBold(true)->setSize(24);
                 $sheet->getStyle('F1')->getAlignment()->setHorizontal('right');
 
                 $sheet->mergeCells('F2:I2');
-                $sheet->setCellValue('F2', 'Inventory Report');
+                $sheet->setCellValue('F2', 'INVENTORY REPORT');
                 $sheet->getStyle('F2')->getFont()->setBold(true);
                 $sheet->getStyle('F2')->getAlignment()->setHorizontal('right');
 
                 $sheet->mergeCells('F3:I3');
-                $sheet->setCellValue('F3', 'National Highway, Lapasan, Cagayan De Oro City');
+                $sheet->setCellValue('F3', 'NATIONAL HIGHWAY, LAPASAN, CAGAYAN DE ORO CITY');
                 $sheet->getStyle('F3')->getAlignment()->setHorizontal('right');
 
                 $sheet->mergeCells('F4:I4');
-                $sheet->setCellValue('F4', '9000 Misamis Oriental | (088) 856 7111');
+                $sheet->setCellValue('F4', '9000 MISAMIS ORIENTAL | (088) 856 7111');
                 $sheet->getStyle('F4')->getAlignment()->setHorizontal('right');
 
                 // 3. Insert Generated Date
                 $sheet->mergeCells('A5:D5');
-                $sheet->setCellValue('A5', 'Generated Date: ' . now()->format('F d, Y'));
+                $sheet->setCellValue('A5', 'GENERATED DATE: ' . strtoupper(now()->format('F d, Y')));
                 $sheet->getStyle('A5')->getFont()->setItalic(true);
 
                 // 4. Table Header Styling (Row 6)
@@ -153,7 +154,7 @@ class PersonnelItemsExport implements FromCollection, WithHeadings, WithMapping,
 
                 $highestRow = $sheet->getHighestRow();
                 
-                // Colors for grouping Branch+Dept combinations
+                // Colors for grouping Branch+Dept+Category combinations
                 $rowPalette = [
                     'fef08a', // Light Yellow
                     'dcfce7', // Light Green
@@ -162,19 +163,22 @@ class PersonnelItemsExport implements FromCollection, WithHeadings, WithMapping,
                     'f3e8ff', // Light Purple
                     'ccfbf1', // Light Teal
                 ];
-                $branchDeptColors = [];
+                $groupColors = [];
                 $colorIndex = 0;
 
                 // 5. Loop through rows to apply grouping colors (Data starts at row 7)
                 for ($row = 7; $row <= $highestRow; $row++) {
                     
-                    // Column G is Branch, Column H is Department
+                    // Column A is Category, Column G is Branch, Column H is Department
+                    $category = $sheet->getCell("A$row")->getValue();
                     $branch = $sheet->getCell("G$row")->getValue();
                     $dept = $sheet->getCell("H$row")->getValue();
-                    $comboKey = $branch . '-' . $dept;
+                    
+                    // Included Category in the unique key
+                    $comboKey = $branch . '-' . $dept . '-' . $category;
 
-                    if (!isset($branchDeptColors[$comboKey])) {
-                        $branchDeptColors[$comboKey] = $rowPalette[$colorIndex % count($rowPalette)];
+                    if (!isset($groupColors[$comboKey])) {
+                        $groupColors[$comboKey] = $rowPalette[$colorIndex % count($rowPalette)];
                         $colorIndex++;
                     }
 
@@ -182,7 +186,7 @@ class PersonnelItemsExport implements FromCollection, WithHeadings, WithMapping,
                     $sheet->getStyle("A$row:I$row")->applyFromArray([
                         'fill' => [
                             'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                            'startColor' => ['rgb' => $branchDeptColors[$comboKey]],
+                            'startColor' => ['rgb' => $groupColors[$comboKey]],
                         ],
                         'borders' => [
                             'allBorders' => [
@@ -196,25 +200,26 @@ class PersonnelItemsExport implements FromCollection, WithHeadings, WithMapping,
                     $status = $sheet->getCell("I$row")->getValue();
                     $sheet->getStyle("I$row")->getAlignment()->setHorizontal('center');
 
+                    // Updated switch cases to strictly match the uppercase values mapped above
                     switch ($status) {
-                        case 'Good':
-                        case 'Received':
+                        case 'GOOD':
+                        case 'RECEIVED':
                             $sheet->getStyle("I$row")->applyFromArray([
                                 'font' => ['color' => ['rgb' => '155724'], 'bold' => true], // Dark green
                             ]);
                             break;
-                        case 'Damaged':
+                        case 'DAMAGED':
                             $sheet->getStyle("I$row")->applyFromArray([
                                 'font' => ['color' => ['rgb' => '721c24'], 'bold' => true], // Dark red
                             ]);
                             break;
-                        case 'Missing':
-                        case 'Not Receive':
+                        case 'MISSING':
+                        case 'NOT RECEIVE':
                             $sheet->getStyle("I$row")->applyFromArray([
                                 'font' => ['color' => ['rgb' => '856404'], 'bold' => true], // Dark yellow/brown
                             ]);
                             break;
-                        case 'Returned':
+                        case 'RETURNED':
                             $sheet->getStyle("I$row")->applyFromArray([
                                 'font' => ['color' => ['rgb' => '004085'], 'bold' => true], // Dark blue
                             ]);

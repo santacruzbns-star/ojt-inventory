@@ -12,20 +12,20 @@
         <td>
             <input type="checkbox" class="select_item" value="{{ $outbound->personnel_item_id }}">
         </td>
-        <td>{{ $outbound->personnel?->personnel_name ?? '-' }}</td>
-        <td>{{ $outbound->item?->item_name ?? '-' }}</td>
-        <td>{{ $outbound->item?->item_serialno ?? '-' }}</td>
-        <td>
+        <td class="text-uppercase">{{ $outbound->personnel?->personnel_name ?? '-' }}</td>
+        <td class="text-uppercase">{{ $outbound->item?->item_name ?? '-' }}</td>
+        <td class="text-uppercase">{{ $outbound->item?->item_serialno ?? '-' }}</td>
+        <td class="text-uppercase">
             {{ \Carbon\Carbon::parse($outbound->personnel_date_issued)->setTimezone('Asia/Manila')->format('M d, Y ') }}
         </td>
         <td>{{ $outbound->personnel_item_quantity }}</td>
-        <td>{{ $outbound->item?->uom?->item_uom_name ?? '-' }}</td>
-        <td>
+        <td class="text-uppercase">{{ $outbound->item?->uom?->item_uom_name ?? '-' }}</td>
+        <td class="text-uppercase">
             {{ \Carbon\Carbon::parse($outbound->personnel_date_receive)->setTimezone('Asia/Manila')->format('M d, Y ') }}
         </td>
-        <td>{{ $outbound->personnel?->branch?->branch_name ?? '-' }}</td>
-        <td>{{ $outbound->personnel?->branch?->branch_department ?? '-' }}</td>
-        <td>
+        <td class="text-uppercase">{{ $outbound->personnel?->branch?->branch_name ?? '-' }}</td>
+        <td class="text-uppercase">{{ $outbound->personnel?->branch?->branch_department ?? '-' }}</td>
+        <td class="text-uppercase">
             <span class="badge {{ $remarkColor[$outbound->personnel_item_remarks] ?? 'bg-secondary' }}">
                 {{ $outbound->personnel_item_remarks ?? '-' }}
             </span>

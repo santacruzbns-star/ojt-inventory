@@ -11,8 +11,8 @@
           <td>
               <input type="checkbox" class="select_item" value="{{ $item->item_id }}">
           </td>
-          <td>{{ $item->item_name }}</td>
-          <td>
+          <td class="text-uppercase">{{ $item->item_name }}</td>
+          <td class="text-uppercase">
               @if ($item->category)
                   <i class="bi {{ $item->category->item_category_icon }} me-1"></i>
                   {{ $item->category->item_category_name }}
@@ -21,9 +21,9 @@
               @endif
           </td>
           {{-- <td>{{ $item->brand ? $item->brand->item_brand_name : '-' }}</td> --}}
-          <td>{{ $item->item_serialno ?? '-' }}</td>
-          <td>{{ $item->uom ? $item->uom->item_uom_name : '-' }}</td>
-          <td>{{ $item->item_quantity ?? '-' }}</td>
+          <td class="text-uppercase">{{ $item->item_serialno ?? '-' }}</td>
+          <td class="text-uppercase">{{ $item->uom ? $item->uom->item_uom_name : '-' }}</td>
+          <td class="text-uppercase">{{ $item->item_quantity ?? '-' }}</td>
           <td class="item-qty-value">{{ $item->item_quantity_remaining ?? '-' }}</td>
           {{-- <td>
               @if ($item->item_quantity_status == 'Out of Stock')
@@ -34,7 +34,7 @@
                   <span class="badge bg-success">Available</span>
               @endif
           </td> --}}
-          <td>
+          <td class="text-uppercase">
               <span class="badge {{ $remarkColor[$item->item_remark] ?? 'bg-secondary' }}">
                   {{ $item->item_remark ?? '-' }}
               </span>

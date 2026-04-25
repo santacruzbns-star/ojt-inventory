@@ -127,26 +127,26 @@
                                     @csrf
 
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" name="personnel_name"
-                                            placeholder="Enter Name" required>
-                                        <label>Input Personnel Name</label>
+                                        <input type="text" class="form-control text-uppercase" name="personnel_name"
+                                            placeholder="ENTER NAME" required>
+                                        <label class="text-uppercase">INPUT PERSONNEL NAME</label>
                                     </div>
 
                                     <div class="form-floating mb-3">
-                                        <select name="branch_name" class="form-select" id="branch_name" required>
-                                            <option value="" disabled selected>Select Branch</option>
-                                            <option value="Gold Town">Gold Town</option>
-                                            <option value="Edison Branch">Edison Branch</option>
-                                            <option value="Osmeña Branch">Osmeña Branch</option>
-                                            <option value="Grainsco Branch">Grainsco Branch</option>
+                                        <select name="branch_name" class="form-select text-uppercase" id="branch_name" required>
+                                            <option value="" disabled selected>SELECT BRANCH</option>
+                                            <option value="Gold Town">GOLD TOWN</option>
+                                            <option value="Edison Branch">EDISON BRANCH</option>
+                                            <option value="Osmeña Branch">OSMEÑA BRANCH</option>
+                                            <option value="Grainsco Branch">GRAINSCO BRANCH</option>
                                         </select>
-                                        <label>Branch Name</label>
+                                        <label class="text-uppercase">BRANCH NAME</label>
                                     </div>
 
                                     <div class="form-floating mb-3">
-                                        <select name="branch_department" class="form-select" id="branch_department"
+                                        <select name="branch_department" class="form-select text-uppercase" id="branch_department"
                                             required>
-                                            <option value="" disabled selected>Select Department</option>
+                                            <option value="" disabled selected>SELECT DEPARTMENT</option>
                                             <option value="IT DEPARTMENT">IT DEPARTMENT</option>
                                             <option value="HR DEPARTMENT">HR DEPARTMENT</option>
                                             <option value="ADMIN DEPARTMENT">ADMIN DEPARTMENT</option>
@@ -160,20 +160,19 @@
                                             <option value="GUARD DEPARTMENT">GUARD DEPARTMENT</option>
                                             <option value="AMBOT SA EMO DEPARTMENT">AMBOT SA EMO DEPARTMENT</option>
                                         </select>
-                                        <label>Department</label>
+                                        <label class="text-uppercase">DEPARTMENT</label>
                                     </div>
 
-                                    <button type="submit" class="btn btn-success w-100">
-                                        Add Personnel
+                                    <button type="submit" class="btn btn-success w-100 text-uppercase">
+                                        ADD PERSONNEL
                                     </button>
                                 </form>
 
                             </div>
 
-                            <!-- MIDDLE: PERSONNEL LIST -->
                             <div class="col-md-4 border-end">
-                                <h6 class="text-muted mb-3 d-flex justify-content-between align-items-center">
-                                    <span><i class="bi bi-people me-1"></i> Personnel List</span>
+                                <h6 class="text-muted mb-3 d-flex justify-content-between align-items-center text-uppercase">
+                                    <span><i class="bi bi-people me-1"></i> PERSONNEL LIST</span>
                                     <span class="badge bg-secondary rounded-pill"
                                         id="personnelCount">{{ $personnels->count() }}</span>
                                 </h6>
@@ -183,7 +182,7 @@
                                         <i class="bi bi-search text-muted"></i>
                                     </span>
                                     <input type="text" id="personnelSearchView"
-                                        class="form-control border-start-0 ps-0" placeholder="Quick search...">
+                                        class="form-control border-start-0 ps-0 text-uppercase" placeholder="QUICK SEARCH...">
                                 </div>
 
                                 <div class="list-group list-group-flush border rounded-3 overflow-hidden"
@@ -198,8 +197,8 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
-                                                    class="btn btn-link text-danger p-1 border-0 shadow-none hover-scale"
-                                                    title="Remove">
+                                                    class="btn btn-link text-danger p-1 border-0 shadow-none hover-scale text-uppercase"
+                                                    title="REMOVE">
                                                     <i class="bi bi-trash3-fill"></i>
                                                 </button>
                                             </form>
@@ -212,7 +211,7 @@
                                                 data-dept="{{ $personnel->branch->branch_department ?? 'N/A' }}">
 
                                                 <div class="d-flex flex-column">
-                                                    <strong class="text-dark mb-0 text-truncate"
+                                                    <strong class="text-dark mb-0 text-truncate text-uppercase"
                                                         style="max-width: 90%;">
                                                         {{ $personnel->personnel_name }}
                                                     </strong>
@@ -230,9 +229,9 @@
                                 <div class="mt-3 p-3 bg-white rounded border shadow-sm d-none"
                                     id="selectedPersonnelView">
                                     <div class="text-uppercase text-muted fw-bold"
-                                        style="font-size: 0.65rem; letter-spacing: 0.05rem;">Active Selection</div>
-                                    <h6 class="mb-0 text-primary fw-bold" id="view_person_name"></h6>
-                                    <div class="text-secondary small">
+                                        style="font-size: 0.65rem; letter-spacing: 0.05rem;">ACTIVE SELECTION</div>
+                                    <h6 class="mb-0 text-primary fw-bold text-uppercase" id="view_person_name"></h6>
+                                    <div class="text-secondary small text-uppercase">
                                         <i class="bi bi-geo-alt-fill me-1"></i><span id="view_branch"></span>
                                         <span class="mx-1">•</span>
                                         <i class="bi bi-building me-1"></i><span id="view_dept"></span>
@@ -240,15 +239,14 @@
                                 </div>
                             </div>
 
-                            <!-- RIGHT: ASSIGNED ITEMS -->
                             <div class="col-md-4">
 
-                                <h6 class="text-muted mb-3">
-                                    <i class="bi bi-box-seam me-1"></i> Assigned Items
+                                <h6 class="text-muted mb-3 text-uppercase">
+                                    <i class="bi bi-box-seam me-1"></i> ASSIGNED ITEMS
                                 </h6>
 
-                                <div id="assignedItemsContainer">
-                                    <div class="text-muted">Select personnel to view items.</div>
+                                <div id="assignedItemsContainer" class="border rounded-3" style="max-height: 400px; overflow-y: auto;">
+                                    <div class="text-muted text-uppercase p-3 small text-center">SELECT PERSONNEL TO VIEW ITEMS.</div>
                                 </div>
 
                             </div>
@@ -280,28 +278,30 @@
                             <div class="row g-4">
 
                                 <div class="col-md-4 border-end pe-md-3">
-                                    <h6 class="text-muted mb-3"><i class="bi bi-person-badge me-1"></i> 1. Select
-                                        Personnel</h6>
+                                    <h6 class="text-muted mb-3 text-uppercase"><i class="bi bi-person-badge me-1"></i>
+                                        1. SELECT
+                                        PERSONNEL</h6>
                                     <div class="input-group mb-2">
                                         <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
-                                        <input type="text" id="personnelSearch" class="form-control"
-                                            placeholder="Search name or ID...">
+                                        <input type="text" id="personnelSearch"
+                                            class="form-control text-uppercase" placeholder="SEARCH NAME OR ID...">
                                     </div>
                                     <div class="list-group list-group-flush border rounded-3"
                                         style="max-height: 250px; overflow-y: auto;" id="personnelList">
                                         @foreach ($personnels as $personnel)
                                             <button type="button"
-                                                class="list-group-item list-group-item-action personnel-item"
+                                                class="list-group-item list-group-item-action personnel-item text-uppercase"
                                                 data-id="{{ $personnel->personnel_id }}"
                                                 data-name="{{ $personnel->personnel_name }}"
                                                 data-branch="{{ $personnel->branch->branch_name ?? 'N/A' }}"
                                                 data-dept="{{ $personnel->branch->branch_department ?? 'N/A' }}">
                                                 <div class="d-flex w-100 justify-content-between align-items-center">
-                                                    <h6 class="mb-1 text-truncate" style="max-width: 150px;">
+                                                    <h6 class="mb-1 text-truncate text-uppercase"
+                                                        style="max-width: 150px;">
                                                         {{ $personnel->personnel_name }}</h6>
 
                                                 </div>
-                                                <p class="mb-0 small text-muted">
+                                                <p class="mb-0 small text-muted text-uppercase">
                                                     <i
                                                         class="bi bi-building me-1"></i>{{ $personnel->branch->branch_name ?? 'N/A' }}
                                                     |
@@ -312,40 +312,49 @@
                                         @endforeach
                                     </div>
 
-                                    <div class="invalid-feedback mt-2" id="personnelError">
-                                        <i class="bi bi-exclamation-circle"></i> Please select a personnel.
+                                    <div class="invalid-feedback mt-2 text-uppercase" id="personnelError">
+                                        <i class="bi bi-exclamation-circle"></i> PLEASE SELECT A PERSONNEL.
                                     </div>
 
                                     <div class="mt-3 p-3 bg-light rounded-3 border d-none" id="selectedPersonnelCard">
                                         <p class="small text-muted mb-1 text-uppercase fw-bold"
-                                            style="font-size: 0.7rem;">Assigned To:</p>
-                                        <h6 class="mb-0 text-primary" id="display_personnel_name"></h6>
-                                        <div class="small text-muted mt-1" style="font-size: 0.8rem;">
+                                            style="font-size: 0.7rem;">ASSIGNED TO:</p>
+                                        <h6 class="mb-0 text-primary text-uppercase" id="display_personnel_name"></h6>
+                                        <div class="small text-muted mt-1 text-uppercase" style="font-size: 0.8rem;">
                                             <span id="display_branch"></span> &bull; <span id="display_dept"></span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-md-4 border-end pe-md-3">
-                                    <h6 class="text-muted mb-3"><i class="bi bi-box-seam me-1"></i> 2. Select Item
+                                    <h6 class="text-muted mb-3 text-uppercase"><i class="bi bi-box-seam me-1"></i> 2.
+                                        SELECT ITEM
                                     </h6>
 
                                     <div class="input-group mb-2">
                                         <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
-                                        <input type="text" id="itemSearch" class="form-control"
-                                            placeholder="Search item, brand, or SN...">
+                                        <input type="text" id="itemSearch" class="form-control text-uppercase"
+                                            placeholder="SEARCH ITEM, BRAND, OR SN...">
                                     </div>
 
                                     <div class="list-group list-group-flush border rounded-3"
                                         style="max-height: 250px; overflow-y: auto;" id="itemList">
-                                        @foreach ($items as $item)
+
+                                        @php
+                                            // 🔥 Push items with 0 quantity to the bottom of the list
+                                            $sortedItems = $items->sortBy(
+                                                fn($item) => ($item->item_quantity_remaining ?? 0) <= 0 ? 1 : 0,
+                                            );
+                                        @endphp
+
+                                        @foreach ($sortedItems as $item)
                                             @continue($item->item_remark === 'Damaged' || $item->item_remark === 'Missing')
                                             @php
                                                 $qty = $item->item_quantity_remaining ?? 0;
                                                 $isOutOfStock = $qty <= 0;
                                             @endphp
                                             <button type="button"
-                                                class="list-group-item list-group-item-action item-btn {{ $isOutOfStock ? 'disabled bg-light opacity-75' : '' }}"
+                                                class="list-group-item list-group-item-action item-btn text-uppercase {{ $isOutOfStock ? 'disabled bg-light opacity-75' : '' }}"
                                                 data-id="{{ $item->item_id }}" data-name="{{ $item->item_name }}"
                                                 data-brand="{{ $item->brand->item_brand_name ?? 'N/A' }}"
                                                 data-category="{{ $item->category->item_category_name ?? 'N/A' }}"
@@ -355,82 +364,88 @@
 
                                                 <div
                                                     class="d-flex w-100 justify-content-between align-items-center mb-1">
-                                                    <h6 class="mb-0 text-truncate"
+                                                    <h6 class="mb-0 text-truncate text-uppercase"
                                                         style="max-width: 140px; font-size: 0.95rem;">
                                                         {{ $item->item_name }}</h6>
                                                     <span
-                                                        class="badge {{ $isOutOfStock ? 'bg-danger' : 'bg-success' }}">
-                                                        {{ $qty }} Left
+                                                        class="badge text-uppercase {{ $isOutOfStock ? 'bg-danger' : 'bg-success' }}">
+                                                        {{ $qty }} LEFT
                                                     </span>
                                                 </div>
 
-                                                <div class="d-flex flex-wrap gap-2 mb-1" style="font-size: 0.75rem;">
+                                                <div class="d-flex flex-wrap gap-2 mb-1 text-uppercase"
+                                                    style="font-size: 0.75rem;">
                                                     <span class="text-muted"><i
                                                             class="bi bi-tag-fill me-1"></i>{{ $item->brand->item_brand_name ?? '-' }}</span>
                                                     <span class="text-muted"><i
                                                             class="bi bi-upc-scan me-1"></i>{{ $item->item_serialno ?? 'N/A' }}</span>
                                                 </div>
-                                                <div class="text-muted" style="font-size: 0.7rem;">
-                                                    Item Type: {{ $item->category->item_category_name ?? 'N/A' }} &bull; UOM:
+                                                <div class="text-muted text-uppercase" style="font-size: 0.7rem;">
+                                                    ITEM TYPE: {{ $item->category->item_category_name ?? 'N/A' }}
+                                                    &bull; UOM:
                                                     {{ $item->uom->item_uom_name ?? '-' }}
                                                 </div>
                                             </button>
                                         @endforeach
                                     </div>
 
-                                    <div class="invalid-feedback mt-2" id="itemError">
-                                        <i class="bi bi-exclamation-circle"></i> Please select an item.
+                                    <div class="invalid-feedback mt-2 text-uppercase" id="itemError">
+                                        <i class="bi bi-exclamation-circle"></i> PLEASE SELECT AN ITEM.
                                     </div>
 
                                     <div class="mt-3 p-3 bg-light rounded-3 border d-none" id="selectedItemCard">
                                         <p class="small text-muted mb-1 text-uppercase fw-bold"
-                                            style="font-size: 0.7rem;">Item to Issue:</p>
-                                        <h6 class="mb-0 text-success" id="display_item_name"></h6>
-                                        <div class="small text-muted mt-1" style="font-size: 0.8rem;">
-                                             <span id="display_item_brand"></span> &bull; SN: <span
+                                            style="font-size: 0.7rem;">ITEM TO ISSUE:</p>
+                                        <h6 class="mb-0 text-success text-uppercase" id="display_item_name"></h6>
+                                        <div class="small text-muted mt-1 text-uppercase" style="font-size: 0.8rem;">
+                                            <span id="display_item_brand"></span> &bull; SN: <span
                                                 id="display_item_sn"></span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <h6 class="text-muted mb-3"><i class="bi bi-card-text me-1"></i> 3. Issuance
-                                        Details</h6>
+                                    <h6 class="text-muted mb-3 text-uppercase"><i class="bi bi-card-text me-1"></i> 3.
+                                        ISSUANCE
+                                        DETAILS</h6>
 
                                     <div class="form-floating mb-3">
-                                        <input type="number" name="personnel_item_quantity" class="form-control"
-                                            id="personnel_item_quantity" placeholder="Quantity" min="1"
-                                            disabled required>
-                                        <label for="personnel_item_quantity">Quantity to Issue</label>
-                                        <div class="invalid-feedback" id="qtyErrorText">
-                                            Please select an item first.
+                                        <input type="number" name="personnel_item_quantity"
+                                            class="form-control text-uppercase" id="personnel_item_quantity"
+                                            placeholder="QUANTITY" min="1" disabled required>
+                                        <label for="personnel_item_quantity" class="text-uppercase">QUANTITY TO
+                                            ISSUE</label>
+                                        <div class="invalid-feedback text-uppercase" id="qtyErrorText">
+                                            PLEASE SELECT AN ITEM FIRST.
                                         </div>
-                                        <div class="form-text text-success d-none mt-1" id="qtyAvailableText"></div>
+                                        <div class="form-text text-success d-none mt-1 text-uppercase"
+                                            id="qtyAvailableText"></div>
                                     </div>
 
                                     <div class="form-floating mb-3">
-                                        <input type="date" name="personnel_date_issued" class="form-control"
-                                            id="personnel_date_issued" required>
-                                        <label for="personnel_date_issued">Date Issued</label>
+                                        <input type="date" name="personnel_date_issued"
+                                            class="form-control text-uppercase" id="personnel_date_issued" required>
+                                        <label for="personnel_date_issued" class="text-uppercase">DATE ISSUED</label>
                                     </div>
 
                                     <div class="form-floating mb-3">
-                                        <select name="personnel_item_remarks" class="form-select"
+                                        <select name="personnel_item_remarks" class="form-select text-uppercase"
                                             id="personnel_item_remarks" required>
-                                            <option value="" disabled selected>Select Remark</option>
-                                            <option value="Received">Received</option>
-                                            <option value="Not Receive">Not Receive</option>
-                                            {{-- <option value="To be delivered">To be delivered</option> --}}
+                                            <option value="" disabled selected>SELECT REMARK</option>
+                                            <option value="Received">RECEIVED</option>
+                                            <option value="Not Receive">NOT RECEIVE</option>
+                                            {{-- <option value="To be delivered">TO BE DELIVERED</option> --}}
                                         </select>
-                                        <label for="personnel_item_remarks">Remarks</label>
-                                        <div class="invalid-feedback">Remark is required.</div>
+                                        <label for="personnel_item_remarks" class="text-uppercase">REMARKS</label>
+                                        <div class="invalid-feedback text-uppercase">REMARK IS REQUIRED.</div>
                                     </div>
 
                                     <div class="form-floating mb-3" id="receive_date_container"
                                         style="display:none;">
-                                        <input type="date" name="personnel_date_receive" class="form-control"
-                                            id="personnel_date_receive">
-                                        <label for="personnel_date_receive">Receive Date</label>
+                                        <input type="date" name="personnel_date_receive"
+                                            class="form-control text-uppercase" id="personnel_date_receive">
+                                        <label for="personnel_date_receive" class="text-uppercase">RECEIVE
+                                            DATE</label>
                                     </div>
                                 </div>
 
@@ -438,10 +453,10 @@
                         </div>
 
                         <div class="modal-footer bg-light">
-                            <button type="button" class="btn btn-outline-secondary"
-                                data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-success px-4" id="submitBtn">Record
-                                Outbound</button>
+                            <button type="button" class="btn btn-outline-secondary text-uppercase"
+                                data-bs-dismiss="modal">CANCEL</button>
+                            <button type="submit" class="btn btn-success px-4 text-uppercase" id="submitBtn">RECORD
+                                OUTBOUND</button>
                         </div>
                     </form>
 
@@ -495,7 +510,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     <script src="/storage/js/personnel/personnel.js"></script>
+    <script src="/storage/js/personnel/personnel.js"></script>
 
 
 </x-app-layout>
