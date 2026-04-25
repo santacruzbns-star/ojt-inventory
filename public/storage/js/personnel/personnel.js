@@ -886,23 +886,32 @@ $(document).ready(function () {
 });
 
 //paginate no reloading
-$(document).on("click", "#pagination-container a", function (e) {
+$(document).on("click", ".pagination a", function (e) {
     e.preventDefault();
+
     let url = $(this).attr("href");
 
     $.ajax({
         url: url,
         type: "GET",
-        dataType: "json", // Crucial: forces jQuery to parse the JSON
+        dataType: "json",
         success: function (response) {
             $("#table-data").html(response.table);
-
             window.history.pushState({}, "", url);
-            window.syncCheckboxes();
+
+            if (typeof window.syncCheckboxes === "function") {
+                window.syncCheckboxes();
+            }
+
             if (typeof initAllReturnReasonSelects === "function") {
                 initAllReturnReasonSelects();
             }
         },
+        error: function (xhr) {
+            console.log("Pagination AJAX failed:");
+            console.log(xhr.status);
+            console.log(xhr.responseText);
+        }
     });
 });
 
