@@ -885,35 +885,6 @@ $(document).ready(function () {
     });
 });
 
-//paginate no reloading
-$(document).on("click", ".pagination a", function (e) {
-    e.preventDefault();
-
-    let url = $(this).attr("href");
-
-    $.ajax({
-        url: url,
-        type: "GET",
-        dataType: "json",
-        success: function (response) {
-            $("#table-data").html(response.table);
-            window.history.pushState({}, "", url);
-
-            if (typeof window.syncCheckboxes === "function") {
-                window.syncCheckboxes();
-            }
-
-            if (typeof initAllReturnReasonSelects === "function") {
-                initAllReturnReasonSelects();
-            }
-        },
-        error: function (xhr) {
-            console.log("Pagination AJAX failed:");
-            console.log(xhr.status);
-            console.log(xhr.responseText);
-        }
-    });
-});
 
 const RETURN_REASONS_GOOD = [
     ["no_longer_needed", "No longer needed"],
