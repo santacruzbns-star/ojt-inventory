@@ -157,8 +157,8 @@
             </thead>
             <tbody>
                 @php
-                    // Tracking colors for the combination of Branch AND Department
-                    $branchDeptColors = [];
+                    // Tracking colors for the combination of Branch, Department, AND Category
+                    $groupColors = [];
 
                     // A varied palette of light colors: Yellows, Greens, Blues, Peaches, Purples
                     $rowPalette = [
@@ -177,22 +177,23 @@
 
                 @foreach ($outbounds as $row)
                     @php
-                        // Get branch and department names
+                        // Get category, branch, and department names
+                        $categoryName = $row->item?->category?->item_category_name ?? '-';
                         $branchName = $row->personnel?->branch?->branch_name ?? 'Unassigned';
                         $deptName = $row->personnel?->branch?->branch_department ?? 'Unassigned';
 
                         // Create a unique key for this specific combination
-                        $comboKey = $branchName . '-' . $deptName;
+                        $comboKey = $branchName . '-' . $deptName . '-' . $categoryName;
 
-                        // Assign a background color for the row based on the branch+dept combination
-                        if (!isset($branchDeptColors[$comboKey])) {
-                            $branchDeptColors[$comboKey] = $rowPalette[$colorIndex % count($rowPalette)];
+                        // Assign a background color for the row based on the combination
+                        if (!isset($groupColors[$comboKey])) {
+                            $groupColors[$comboKey] = $rowPalette[$colorIndex % count($rowPalette)];
                             $colorIndex++;
                         }
                     @endphp
 
-                    <tr style="background-color: {{ $branchDeptColors[$comboKey] }};">
-                        <td>{{ $row->item?->category?->item_category_name ?? '-' }}</td>
+                    <tr style="background-color: {{ $groupColors[$comboKey] }};">
+                        <td>{{ $categoryName }}</td>
                         
                         <td>
                             {{ $row->item?->item_name ?? '-' }} 

@@ -19,7 +19,7 @@ class PersonnelItemController extends Controller
     /**
      * Display a listing of  items.
      */
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $search = $request->get('search');
         $personnelFilter = $request->get('personnel');
@@ -28,6 +28,7 @@ class PersonnelItemController extends Controller
         $remarksFilter = $request->get('remarks');
 
         // 1. Main Table Query: Only show rows where quantity > 0
+        // (If category is a separate relationship on the Item model, add 'item.category' to the array below)
         $outbounds = PersonnelItem::with(['personnel', 'personnel.branch', 'item'])
             ->where('personnel_item_quantity', '>', 0)
             ->when($search, function ($q) use ($search) {
@@ -98,10 +99,11 @@ class PersonnelItemController extends Controller
                     ->when($remarksFilter, fn($q) => $q->where('personnel_item_remarks', $remarksFilter));
             }
 
-            // 🔥 SORT FOR PDF: Group by Branch -> Dept -> Updated At
+            // 🔥 SORT FOR PDF: Group by Branch -> Dept -> Category -> Updated At
             $outbounds = $dbQuery->get()->sortBy([
                 ['personnel.branch.branch_name', 'asc'],
                 ['personnel.branch.branch_department', 'asc'],
+                ['item.category', 'asc'], // <-- Adjust 'item.category' to your actual DB column/relation (e.g., 'item.category_name' or 'item.category.name')
                 ['updated_at', 'desc']
             ])->values();
 
@@ -174,10 +176,11 @@ EOT;
                     ->when($remarksFilter, fn($q) => $q->where('personnel_item_remarks', $remarksFilter));
             }
 
-            // 🔥 SORT FOR EXCEL: Group by Branch -> Dept -> Updated At
+            // 🔥 SORT FOR EXCEL: Group by Branch -> Dept -> Category -> Updated At
             $filteredOutbounds = $dbQuery->get()->sortBy([
                 ['personnel.branch.branch_name', 'asc'],
                 ['personnel.branch.branch_department', 'asc'],
+                ['item.category', 'asc'], // <-- Adjust 'item.category' to your actual DB column/relation
                 ['updated_at', 'desc']
             ])->values();
 
