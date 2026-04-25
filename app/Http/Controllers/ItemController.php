@@ -254,19 +254,19 @@ EOT;
             $finalName = $request->item_name;
         }
 
-        // 4. DUPLICATE & MERGE LOGIC (Updated to include Item Status/Remark)
-        // Now we check for Name + Brand + Serial + Remark
         $existingItem = Item::where('item_name', $finalName)
+            ->where('item_category_id', $request->item_category_id) // Match the specific category
             ->where('item_brand_id', $brandId)
             ->where('item_serialno', $request->item_serialno)
-            ->where('item_remark', $request->item_remark) // 🔥 This separates them by status
+            ->where('item_remark', $request->item_remark)
             ->first();
 
         if ($existingItem) {
+            // If all match, we merge quantities
             $existingItem->item_quantity += $request->item_quantity;
             $existingItem->item_quantity_remaining += $request->item_quantity;
 
-            // Recalculate Stock Status (Available, Low, Out)
+            // Recalculate Stock Status
             if ($existingItem->item_quantity_remaining <= 0) {
                 $existingItem->item_quantity_status = 'Out of Stock';
             } elseif ($existingItem->item_quantity_remaining < ($existingItem->item_quantity * 0.2)) {
@@ -275,28 +275,29 @@ EOT;
                 $existingItem->item_quantity_status = 'Available';
             }
 
-            $existingItem->touch(); // Move to top of list
+            $existingItem->touch();
             $existingItem->save();
 
             return response()->json([
                 'success' => true,
-                'message' => "Item quantities merged for status: {$request->item_remark}",
+                'message' => "Quantities merged for '{$finalName}' in category '{$category->item_category_name}'",
                 'data' => $existingItem
             ]);
         }
 
-        // 5. SERIAL UNIQUE CHECK (Only for NEW items)
+        // 5. SERIAL UNIQUE CHECK (No changes here)
         if ($request->filled('item_serialno')) {
             $serialExists = Item::where('item_serialno', $request->item_serialno)->exists();
             if ($serialExists) {
                 return response()->json([
                     'success' => false,
-                    'message' => "The serial number '{$request->item_serialno}' is already registered."
+                    'message' => "The serial number '{$request->item_serialno}' already exists in the system."
                 ], 422);
             }
         }
 
-        // 6. Create New Item
+        // 6. CREATE NEW ITEM 
+// If the category was different, the code naturally lands here to create a fresh row.
         $quantityStatus = $request->item_quantity > 0 ? 'Available' : 'Out of Stock';
 
         $item = Item::create([
@@ -313,7 +314,7 @@ EOT;
 
         return response()->json([
             'success' => true,
-            'message' => 'New item added successfully',
+            'message' => 'New category-specific item added successfully',
             'data' => $item
         ]);
     }
@@ -527,13 +528,16 @@ EOT;
 
     public function checkDuplicate(Request $request)
     {
+        // 1. Resolve Brand ID
         $brand = ItemBrand::where('item_brand_name', $request->item_brand_name)->first();
-        // We only find the ID if the brand actually exists
         $brandId = $brand ? $brand->item_brand_id : null;
 
+        // 2. Comprehensive check including Category and Remark
         $exists = Item::where('item_name', $request->item_name)
+            ->where('item_category_id', $request->item_category_id) // 🔥 Critical: Category must match
             ->where('item_brand_id', $brandId)
-            ->where('item_serialno', $request->item_serialno) // Match serial (null matches null)
+            ->where('item_serialno', $request->item_serialno)
+            ->where('item_remark', $request->item_remark)       // 🔥 Status must match to merge
             ->exists();
 
         return response()->json(['exists' => $exists]);

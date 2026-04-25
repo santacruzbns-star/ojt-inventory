@@ -28,7 +28,6 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
         return $this->items;
     }
 
-    // Match the 7 columns exactly from the Inventory PDF
     public function headings(): array
     {
         return [
@@ -42,7 +41,6 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
         ];
     }
 
-    // Map the data to match the PDF layout
     public function map($item): array
     {
         return [
@@ -50,31 +48,27 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
             strtoupper($item->category->item_category_name ?? 'UNCATEGORIZED'),
             strtoupper($item->item_serialno ?? '-'),
             strtoupper($item->uom->item_uom_name ?? '-'),
-            $item->item_quantity ?? '0', // Keep numbers as is
+            $item->item_quantity ?? '0',
             $item->item_quantity_remaining ?? '0',
             strtoupper($item->item_remark ?? '-'),
         ];
     }
 
-    // Push the table down to Row 6 to make room for the Header & Logo
     public function startCell(): string
     {
         return 'A6';
     }
 
-    // Add the Logo Icon
     public function drawings()
     {
         $drawings = [];
         $logoPath = public_path('storage/img/login-logo.png');
 
-        // Check if file exists so it doesn't crash if the logo is missing
         if (file_exists($logoPath)) {
             $drawing = new Drawing();
             $drawing->setName('Goldtown Logo');
-            $drawing->setDescription('Logo');
             $drawing->setPath($logoPath);
-            $drawing->setHeight(75); // Same height as your PDF
+            $drawing->setHeight(75);
             $drawing->setCoordinates('A1');
             $drawing->setOffsetX(10);
             $drawing->setOffsetY(10);
@@ -86,7 +80,6 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
 
     public function styles(Worksheet $sheet)
     {
-        // Auto size columns A through G
         foreach (range('A', 'G') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
@@ -98,16 +91,11 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // 1. Set Page to Landscape & Add Margins
+                // 1. Page Setup
                 $sheet->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
-                $sheet->getPageMargins()->setTop(0.75);
-                $sheet->getPageMargins()->setRight(0.5);
-                $sheet->getPageMargins()->setLeft(0.5);
-                $sheet->getPageMargins()->setBottom(0.75);
+                $sheet->getPageMargins()->setTop(0.75)->setRight(0.5)->setLeft(0.5)->setBottom(0.75);
 
-                // 2. Build the Right-Aligned Header Text
-                // (Using D through G to push it to the right side of the 7-column sheet)
-                
+                // 2. Header Text (Right Aligned)
                 $sheet->mergeCells('D1:G1');
                 $sheet->setCellValue('D1', 'GOLDTOWN');
                 $sheet->getStyle('D1')->getFont()->setBold(true)->setSize(24);
@@ -126,56 +114,28 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
                 $sheet->setCellValue('D4', '9000 MISAMIS ORIENTAL | (088) 856 7111');
                 $sheet->getStyle('D4')->getAlignment()->setHorizontal('right');
 
-                // 3. Insert Generated Date
+                // 3. Generated Date
                 $sheet->mergeCells('A5:C5');
                 $sheet->setCellValue('A5', 'GENERATED DATE: ' . strtoupper(now()->format('F d, Y')));
                 $sheet->getStyle('A5')->getFont()->setItalic(true);
 
-                // 4. Table Header Styling (Row 6)
+                // 4. Table Header Styling (Navy Blue Background)
                 $sheet->getStyle('A6:G6')->applyFromArray([
                     'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => '1a252f'], // Dark navy/gray
+                        'startColor' => ['rgb' => '1a252f'],
                     ],
-                    'alignment' => [
-                        'horizontal' => 'center',
-                        'vertical' => 'center'
-                    ],
+                    'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
                 ]);
 
                 $highestRow = $sheet->getHighestRow();
-                
-                // Colors for grouping Categories
-                $rowPalette = [
-                    'e0f2fe', // Light Blue
-                    'fef08a', // Light Yellow
-                    'dcfce7', // Light Green
-                    'f3e8ff', // Light Purple
-                    'ffedd5', // Light Orange/Peach
-                    'ccfbf1', // Light Teal
-                    'fce7f3', // Light Pink
-                ];
-                $categoryColors = [];
-                $colorIndex = 0;
 
-                // 5. Loop through rows to apply grouping colors (Data starts at row 7)
+                // 5. Data Row Styling (Clean - No Background Color)
                 for ($row = 7; $row <= $highestRow; $row++) {
                     
-                    // Column B is Category (which is now completely uppercase from the map function)
-                    $category = $sheet->getCell("B$row")->getValue();
-
-                    if (!isset($categoryColors[$category])) {
-                        $categoryColors[$category] = $rowPalette[$colorIndex % count($rowPalette)];
-                        $colorIndex++;
-                    }
-
-                    // Apply the background color to the whole row (A to G)
+                    // Apply Borders only
                     $sheet->getStyle("A$row:G$row")->applyFromArray([
-                        'fill' => [
-                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                            'startColor' => ['rgb' => $categoryColors[$category]],
-                        ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -184,30 +144,10 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, WithStyl
                         ],
                     ]);
 
-                    // Make Total Qty and Remaining Qty Bold (Columns E and F)
+                    // Bold Quantities
                     $sheet->getStyle("E$row:F$row")->getFont()->setBold(true);
 
-                    // 6. Remarks/Status Colors (Column G)
-                    $status = $sheet->getCell("G$row")->getValue();
-                    
-                    // Updated to check against uppercase strings
-                    switch ($status) {
-                        case 'GOOD':
-                            $sheet->getStyle("G$row")->applyFromArray([
-                                'font' => ['color' => ['rgb' => '155724'], 'bold' => true], // Dark green
-                            ]);
-                            break;
-                        case 'DAMAGED':
-                            $sheet->getStyle("G$row")->applyFromArray([
-                                'font' => ['color' => ['rgb' => '721c24'], 'bold' => true], // Dark red
-                            ]);
-                            break;
-                        case 'MISSING':
-                            $sheet->getStyle("G$row")->applyFromArray([
-                                'font' => ['color' => ['rgb' => '856404'], 'bold' => true], // Dark yellow/brown
-                            ]);
-                            break;
-                    }
+                   
                 }
             },
         ];

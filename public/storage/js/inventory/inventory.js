@@ -377,17 +377,18 @@ $(document).ready(function () {
             return;
         }
 
-        // 1. Perform the Duplicate Check (Checks Name, Brand, Serial, AND Status/Remark)
+        // 1. Perform the Duplicate Check (Now checks Name, Category, Brand, Serial, AND Status)
         $.ajax({
             url: window.routes.checkDuplicate,
             type: "POST",
             data: $form.serialize(),
             success: function (response) {
-                // If a match is found with the same status
+                // response.exists is only true if ALL fields (including Category) match
                 if (response.exists) {
                     Swal.fire({
                         title: "Exact Match Found!",
-                        text: "An item with the same Name, Serial, and Status already exists. Would you like to merge the quantities into that record?",
+                        // Updated text to reflect the Category requirement
+                        text: "This item already exists in this Category with the same Brand, Serial, and Status. Merge the quantities?",
                         icon: "info",
                         showCancelButton: true,
                         confirmButtonColor: "#3085d6",
@@ -400,7 +401,10 @@ $(document).ready(function () {
                         }
                     });
                 } else {
-                    // No exact match found (or different status), proceed with normal save
+                    /** * If the Name exists but Category is different, 
+                     * response.exists will be false. 
+                     * It proceeds here to create a new record.
+                     */
                     saveItem(form, url);
                 }
             },
@@ -413,6 +417,7 @@ $(document).ready(function () {
             },
         });
     });
+
 
     // Helper function to handle the actual AJAX saving
     function saveItem(form, url) {

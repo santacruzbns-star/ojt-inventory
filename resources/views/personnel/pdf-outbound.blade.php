@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>INVENTORY REPORT</title>
     <style>
-       /* 1. Reduced the top margin since the header is no longer fixed */
+        /* 1. Page Margins */
         @page {
             size: A4 portrait;
             margin: 30px 25px 80px 25px; 
@@ -18,14 +18,12 @@
             text-transform: uppercase;
         }
 
-        /* 2. Removed fixed positioning and negative offsets */
         header {
             height: 90px;
             background-color: #ffffff;
             border-bottom: 6px solid #ffffff;
-            /* Adjusted padding to sit nicely inside the new page margins */
             padding: 0 0 15px 0; 
-            margin-bottom: 20px; /* Adds breathing room before the h1 and table */
+            margin-bottom: 20px;
         }
 
         .logo {
@@ -56,7 +54,6 @@
             text-transform: uppercase;
         }
 
-        /* Clear floats */
         .clearfix::after {
             content: "";
             clear: both;
@@ -79,7 +76,6 @@
             margin-top: 10px;
         }
 
-        /* Target both th and td inside tbody */
         tbody th,
         tbody td {
             border: 1px solid #94a3b8;
@@ -114,9 +110,7 @@
     <main>
         <h1>Inventory Report</h1>
         <table>
-            {{-- Removed <thead> to prevent repeating on new pages --}}
             <tbody>
-                {{-- Placed the header row inside the body --}}
                 <tr class="table-header-row">
                     <th>Asset Name</th>
                     <th>Product Name</th>
@@ -129,30 +123,15 @@
                     <th>Status</th>
                 </tr>
 
-                @php
-                    $groupColors = [];
-                    $rowPalette = [
-                        '#fef08a', '#dcfce7', '#e0f2fe', '#ffedd5', '#f3e8ff',
-                        '#ccfbf1', '#fce7f3', '#fef9c3', '#dbeafe',
-                    ];
-                    $colorIndex = 0;
-                @endphp
-
                 @foreach ($outbounds as $row)
                     @php
                         $categoryName = $row->item?->category?->item_category_name ?? '-';
                         $branchName = $row->personnel?->branch?->branch_name ?? 'Unassigned';
                         $deptName = $row->personnel?->branch?->branch_department ?? 'Unassigned';
-
-                        $comboKey = $branchName . '-' . $deptName . '-' . $categoryName;
-
-                        if (!isset($groupColors[$comboKey])) {
-                            $groupColors[$comboKey] = $rowPalette[$colorIndex % count($rowPalette)];
-                            $colorIndex++;
-                        }
                     @endphp
 
-                    <tr style="background-color: {{ $groupColors[$comboKey] }};">
+                    {{-- Background-color style removed from <tr> --}}
+                    <tr>
                         <td>{{ $categoryName }}</td>
                         <td>
                             {{ $row->item?->item_name ?? '-' }} 
