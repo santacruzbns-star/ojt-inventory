@@ -5,8 +5,6 @@
 
         </h2>
     </x-slot>
-    <style>
-    </style>
 
     <body>
         <div class="inventory_form container-fluid px-4 mt-4">
@@ -425,10 +423,10 @@
 
                                             <select name="item_category_id" class="form-select ps-5 text-uppercase"
                                                 id="item_category_id" required>
-
                                                 <option value="" disabled selected>SELECT ITEM TYPE</option>
 
-                                                @foreach ($item_categories as $category)
+                                                {{-- Added sortByDesc() to the collection --}}
+                                                @foreach ($item_categories->sortByDesc('item_category_id') as $category)
                                                     <option value="{{ $category->item_category_id }}"
                                                         data-name="{{ $category->item_category_name }}"
                                                         data-icon="{{ $category->item_category_icon }}"
@@ -436,7 +434,6 @@
                                                         {{ $category->item_category_name }}
                                                     </option>
                                                 @endforeach
-
                                             </select>
 
                                             <label for="item_category_id" class="ms-4 text-uppercase">ITEM
@@ -564,7 +561,10 @@
 
         window.csrfToken = "{{ csrf_token() }}";
     </script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/storage/js/inventory/inventory.js"></script>

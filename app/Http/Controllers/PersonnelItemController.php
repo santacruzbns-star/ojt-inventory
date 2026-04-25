@@ -19,7 +19,7 @@ class PersonnelItemController extends Controller
     /**
      * Display a listing of  items.
      */
-   public function index(Request $request)
+    public function index(Request $request)
     {
         $search = $request->get('search');
         $personnelFilter = $request->get('personnel');
@@ -500,21 +500,41 @@ EOT;
     public function destroy($personnel_item_id)
     {
         try {
-            $item = PersonnelItem::findOrFail($personnel_item_id);
-            $item->delete();
+            // Start a database transaction to ensure data integrity
+            DB::beginTransaction();
+
+            $personnelItem = PersonnelItem::findOrFail($personnel_item_id);
+
+            // 1. Return the stock back to the main inventory
+            if ($personnelItem->item) {
+                $mainItem = $personnelItem->item;
+
+                // Add the issued quantity back to the remaining quantity
+                $mainItem->item_quantity_remaining += $personnelItem->personnel_item_quantity;
+                $mainItem->save();
+            }
+
+            // 2. Delete the issued item record
+            $personnelItem->delete();
+
+            // 3. Commit the transaction (saves all changes to the database)
+            DB::commit();
 
             // Check if the request is an AJAX/Fetch request
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Item deleted successfully.'
+                    'message' => 'Item deleted and stock returned successfully.'
                 ]);
             }
 
             // Fallback for standard form submissions
-            return redirect()->back()->with('success', 'Item deleted successfully');
+            return redirect()->back()->with('success', 'Item deleted and stock returned successfully.');
 
         } catch (\Exception $e) {
+            // If anything fails, rollback the transaction so no stock is incorrectly updated
+            DB::rollBack();
+
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -522,19 +542,57 @@ EOT;
                 ], 500);
             }
 
-            return redirect()->back()->with('error', 'Failed to delete item.');
+            return redirect()->back()->with('error', 'Failed to delete item: ' . $e->getMessage());
         }
     }
 
     public function bulkPersonnelDestroy(Request $request)
     {
         $ids = $request->input('ids', []);
-        if (!empty($ids)) {
-            PersonnelItem::whereIn('personnel_item_id', $ids)->delete();
-            return response()->json(['success' => true, 'message' => 'Selected items deleted successfully.']);
+
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No items selected.'], 400);
         }
 
-        return response()->json(['success' => false, 'message' => 'No items selected.'], 400);
+        try {
+            // Start the transaction
+            DB::beginTransaction();
+
+            // 1. Fetch all selected personnel items AND their related main items
+            // The "with('item')" prevents the "N+1 query problem" (makes the database calls much faster)
+            $personnelItems = PersonnelItem::with('item')->whereIn('personnel_item_id', $ids)->get();
+
+            // 2. Loop through each one and return the stock
+            foreach ($personnelItems as $personnelItem) {
+                if ($personnelItem->item) {
+                    $mainItem = $personnelItem->item;
+
+                    // Add the issued quantity back to the remaining quantity
+                    $mainItem->item_quantity_remaining += $personnelItem->personnel_item_quantity;
+                    $mainItem->save();
+                }
+            }
+
+            // 3. Perform the bulk delete on the issued items
+            PersonnelItem::whereIn('personnel_item_id', $ids)->delete();
+
+            // 4. Commit all changes to the database
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Selected items deleted and stock returned successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            // Undo everything if an error occurs
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete bulk items: ' . $e->getMessage()
+            ], 500);
+        }
     }
     public function destroyPersonnel($id)
     {

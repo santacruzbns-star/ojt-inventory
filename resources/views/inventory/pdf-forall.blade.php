@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <title>ITEM INVENTORY REPORT</title>
     <style>
-       /* Define page margins to accommodate header and footer */
+        /* 1. Reduced the top margin since the header is no longer fixed */
         @page {
             /* Forces Landscape Mode */
             size: A4 portrait;
             
-            /* Increased top margin to 130px to fit the larger logo and header */
-            margin: 130px 25px 80px 25px;
+            /* Reduced top margin to 30px so content flows naturally */
+            margin: 30px 25px 80px 25px;
         }
 
         body {
@@ -21,18 +21,14 @@
             text-transform: uppercase;
         }
 
-        /* Clean White Header */
+        /* 2. Removed fixed positioning and negative offsets */
         header {
-            position: fixed;
-            top: -130px;
-            /* Match the top page margin */
-            left: -25px;
-            right: -25px;
             height: 90px;
             /* Taller header for the larger logo */
             background-color: #ffffff;
             border-bottom: 6px solid #ffffff;
-            padding: 15px 25px 5px 25px;
+            padding: 0 0 15px 0;
+            margin-bottom: 20px; /* Adds breathing room before the h1 and table */
         }
 
         .logo {
@@ -113,15 +109,17 @@
             margin-top: 8px;
         }
 
-        th,
-        td {
+        /* Target both th and td inside tbody */
+        tbody th,
+        tbody td {
             border: 1px solid #94a3b8;
             padding: 4px 4px; /* Very tight padding for maximum rows */
             text-align: left;
             text-transform: uppercase; 
         }
 
-        th {
+        /* CRITICAL CHANGE: Style the specific row instead of a generic thead */
+        tr.table-header-row th {
             background: #1a252f;
             font-weight: bold;
             color: #ffffff;
@@ -151,8 +149,10 @@
     <main>
         <h1>Items Inventory Report</h1>
         <table>
-            <thead>
-                <tr>
+            {{-- Removed <thead> to prevent repeating on new pages --}}
+            <tbody>
+                {{-- Placed the header row inside the body --}}
+                <tr class="table-header-row">
                     <th>Product</th>
                     <th>Category</th>
                     <th>Serial No.</th>
@@ -161,8 +161,7 @@
                     <th>Remaining Qty</th>
                     <th>Status</th>
                 </tr>
-            </thead>
-            <tbody>
+
                 @php
                     // Tracking colors to group items by their Category
                     $categoryColors = [];

@@ -873,3 +873,4 @@ document.addEventListener("shown.bs.modal", function (e) {
         .querySelectorAll('input[name="item_serialno"]')
         .forEach(applySerialQuantityLock);
 });
+

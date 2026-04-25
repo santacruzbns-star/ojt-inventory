@@ -5,35 +5,27 @@
     <meta charset="UTF-8">
     <title>INVENTORY REPORT</title>
     <style>
-        /* Define page margins to accommodate header and footer */
+       /* 1. Reduced the top margin since the header is no longer fixed */
         @page {
-            /* Forces Landscape Mode */
             size: A4 portrait;
-
-            /* Increased top margin to 130px to fit the larger logo and header */
-            margin: 130px 25px 80px 25px;
+            margin: 30px 25px 80px 25px; 
         }
 
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 9px;
-            /* Reduced from 11px for smaller table text */
             color: #232323;
             text-transform: uppercase;
         }
 
-        /* Clean White Header */
+        /* 2. Removed fixed positioning and negative offsets */
         header {
-            position: fixed;
-            top: -130px;
-            /* Match the top page margin */
-            left: -25px;
-            right: -25px;
             height: 90px;
-            /* Taller header for the larger logo */
             background-color: #ffffff;
             border-bottom: 6px solid #ffffff;
-            padding: 15px 25px 5px 25px;
+            /* Adjusted padding to sit nicely inside the new page margins */
+            padding: 0 0 15px 0; 
+            margin-bottom: 20px; /* Adds breathing room before the h1 and table */
         }
 
         .logo {
@@ -59,37 +51,9 @@
 
         .header-address {
             font-size: 11px;
-            /* Kept address readable */
             color: #555;
             line-height: 1.5;
             text-transform: uppercase;
-        }
-
-        /* Fixed Footer */
-        footer {
-            position: fixed;
-            bottom: -50px;
-            left: 0px;
-            right: 0px;
-            height: 30px;
-            border-top: 1px solid #ccc;
-            padding-top: 5px;
-            font-size: 10px;
-            color: #777;
-            text-transform: uppercase;
-        }
-
-        .footer-date {
-            float: left;
-        }
-
-        .footer-page {
-            float: right;
-        }
-
-        /* Automatically increments page number */
-        .page-number:before {
-            content: counter(page);
         }
 
         /* Clear floats */
@@ -115,22 +79,21 @@
             margin-top: 10px;
         }
 
-        th,
-        td {
+        /* Target both th and td inside tbody */
+        tbody th,
+        tbody td {
             border: 1px solid #94a3b8;
             padding: 5px 4px;
-            /* Reduced padding slightly to match smaller text */
             text-align: left;
             text-transform: uppercase;
         }
 
-        th {
+        tr.table-header-row th {
             background: #1a252f;
             font-weight: bold;
             color: #ffffff;
             text-transform: uppercase;
             font-size: 9px;
-            /* Matched the body size */
         }
     </style>
 </head>
@@ -151,8 +114,10 @@
     <main>
         <h1>Inventory Report</h1>
         <table>
-            <thead>
-                <tr>
+            {{-- Removed <thead> to prevent repeating on new pages --}}
+            <tbody>
+                {{-- Placed the header row inside the body --}}
+                <tr class="table-header-row">
                     <th>Asset Name</th>
                     <th>Product Name</th>
                     <th>Serial No.</th>
@@ -163,38 +128,24 @@
                     <th>Department</th>
                     <th>Status</th>
                 </tr>
-            </thead>
-            <tbody>
-                @php
-                    // Tracking colors for the combination of Branch, Department, AND Category
-                    $groupColors = [];
 
-                    // A varied palette of light colors: Yellows, Greens, Blues, Peaches, Purples
+                @php
+                    $groupColors = [];
                     $rowPalette = [
-                        '#fef08a', // Light Yellow
-                        '#dcfce7', // Light Green
-                        '#e0f2fe', // Light Blue
-                        '#ffedd5', // Light Orange/Peach
-                        '#f3e8ff', // Light Purple
-                        '#ccfbf1', // Light Teal
-                        '#fce7f3', // Light Pink
-                        '#fef9c3', // Pale Yellow
-                        '#dbeafe', // Pale Blue
+                        '#fef08a', '#dcfce7', '#e0f2fe', '#ffedd5', '#f3e8ff',
+                        '#ccfbf1', '#fce7f3', '#fef9c3', '#dbeafe',
                     ];
                     $colorIndex = 0;
                 @endphp
 
                 @foreach ($outbounds as $row)
                     @php
-                        // Get category, branch, and department names
                         $categoryName = $row->item?->category?->item_category_name ?? '-';
                         $branchName = $row->personnel?->branch?->branch_name ?? 'Unassigned';
                         $deptName = $row->personnel?->branch?->branch_department ?? 'Unassigned';
 
-                        // Create a unique key for this specific combination
                         $comboKey = $branchName . '-' . $deptName . '-' . $categoryName;
 
-                        // Assign a background color for the row based on the combination
                         if (!isset($groupColors[$comboKey])) {
                             $groupColors[$comboKey] = $rowPalette[$colorIndex % count($rowPalette)];
                             $colorIndex++;
@@ -203,12 +154,10 @@
 
                     <tr style="background-color: {{ $groupColors[$comboKey] }};">
                         <td>{{ $categoryName }}</td>
-                        
                         <td>
                             {{ $row->item?->item_name ?? '-' }} 
                             <strong>(x{{ $row->personnel_item_quantity }})</strong>
                         </td>
-                        
                         <td>{{ $row->item?->item_serialno ?? '-' }}</td>
                         <td>{{ $row->personnel_date_issued ? \Carbon\Carbon::parse($row->personnel_date_issued)->setTimezone('Asia/Manila')->format('M d, Y ') : '-' }}</td>
                         <td>{{ $row->personnel_date_receive ? \Carbon\Carbon::parse($row->personnel_date_receive)->setTimezone('Asia/Manila')->format('M d, Y ') : '-' }}</td>
