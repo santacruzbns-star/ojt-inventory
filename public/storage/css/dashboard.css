@@ -1,18 +1,27 @@
 /* =======================
+   Base & Resets (Helps with responsive scaling)
+   ======================= */
+* {
+    box-sizing: border-box;
+}
+
+/* =======================
    Overview cards - Slightly smaller with hover
    ======================= */
 .summary-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.7rem; /* slightly smaller gap */
-    
+    gap: 0.7rem; 
 }
 
+/* Tablet breakpoint */
 @media (max-width: 1024px) {
     .summary-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* Mobile breakpoint */
 @media (max-width: 640px) {
     .summary-grid {
         grid-template-columns: 1fr;
@@ -22,12 +31,13 @@
 /* Overview cards */
 .summary-card {
     background-color: #ffffff;
-    padding: 1rem; /* slightly smaller */
+    padding: 1rem;
     border-radius: 0.7rem;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     border: 1px solid #e5e7eb;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .summary-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
@@ -36,11 +46,11 @@
 .summary-card-inner {
     display: flex;
     align-items: center;
-    gap: 0.9rem; /* slightly smaller */
+    gap: 0.9rem;
 }
 
 .icon-box {
-    width: 80px;  /* slightly smaller */
+    width: 80px; 
     height: 80px;
     background-color: #ffffff;
     border: 1px solid #898989;
@@ -50,31 +60,30 @@
     justify-content: center;
     flex-shrink: 0;
 }
+
 .icon-box i {
-    font-size: 32px; /* slightly smaller icon */
+    font-size: 32px;
     color: #374151;
 }
 
 .summary-meta {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: flex-start; /* Better alignment for text */
 }
 
 .summary-value {
-    font-size: 1.5rem; /* slightly smaller number */
+    font-size: 1.5rem;
     font-weight: 800;
     color: #111827;
 }
 
 .summary-title {
     margin-top: 5px;
-    font-size: 1rem; /* slightly smaller label */
+    font-size: 1rem;
     line-height: 1.3rem;
     color: #374151;
     font-weight: bold;
-    
 }
 
 /* =======================
@@ -101,6 +110,14 @@
     display: flex;
     align-items: center;
     gap: 0.35rem;
+    flex-wrap: wrap; /* Allows inputs to stack on very small screens */
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .search-container {
+        width: auto;
+    }
 }
 
 .search-input,
@@ -110,10 +127,12 @@
     border-radius: 0.3rem;
     background-color: white;
     font-size: 0.95rem;
+    flex: 1; /* Inputs fill available space on mobile */
 }
 
 .charts-grid {
     display: grid;
+    /* This makes the grid inherently responsive */
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 0.95rem;
 }
@@ -123,7 +142,8 @@
     padding: 0.95rem;
     border-radius: 0.7rem;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-    height: 260px;
+    height: auto; /* Changed from fixed height to auto */
+    min-height: 260px;
     display: flex;
     flex-direction: column;
 }
@@ -131,6 +151,7 @@
 .chart-box canvas {
     width: 100% !important;
     height: 100% !important;
+    max-height: 300px; /* Prevents extreme stretching */
 }
 
 h4 {
@@ -162,6 +183,8 @@ h4 {
     padding: 0.55rem 0;
     border-bottom: 1px solid #e5e7eb;
     font-size: 1.1rem;
+    flex-wrap: wrap; /* Allows text to wrap on small screens */
+    gap: 0.5rem;
 }
 
 .barangay-item:last-child {
@@ -203,20 +226,6 @@ h4 {
     font-size: 0.95rem;
 }
 
-.summary-value {
-    font-size: 1.4rem;
-    font-weight: 800;
-}
-
-.summary-title {
-    font-size: 1rem;
-    line-height: 1.3rem;
-}
-
-.barangay-item {
-    font-size: 1.1rem;
-}
-
 /* =======================
    Small screens tweaks
    ======================= */
@@ -225,19 +234,26 @@ h4 {
         align-items: center;
     }
     .icon-box {
-        width: 90px;
-        height: 70px;
+        width: 60px; /* Reduced from 90px so it fits better on mobile */
+        height: 60px; /* Reduced from 70px */
+    }
+    .icon-box i {
+        font-size: 24px; /* Scaled down icon for mobile */
     }
     .summary-value {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
     .summary-title {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
+    }
+    .charts-header {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 
 /* =======================
-   Monthly Measurements Chart
+   Specific Chart Overrides
    ======================= */
 #monthlyMeasurementsChart {
     height: 300px !important;
@@ -245,44 +261,42 @@ h4 {
     display: block;
 }
 
-/* =======================
-   Sex Distribution Chart
-   ======================= */
 #sexDistributionChart {
     height: 300px !important;
-    width: 60% !important;
+    width: 100% !important; /* Changed from 60% to 100% for better mobile layout */
+    max-width: 600px; /* Limits size on large screens instead */
+    margin: 0 auto; /* Centers the chart */
     display: block;
 }
 
-/* =======================
-   Optional: Chart containers
-   ======================= */
-.chart-box {
-    padding: 1rem;
-    background-color: white;
-    border-radius: 0.7rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+@media (min-width: 1024px) {
+    #sexDistributionChart {
+        width: 60% !important; /* Restores 60% width ONLY on desktops */
+    }
 }
 
 /* =======================
-   Menu icons
+   Menu & Status Icons
    ======================= */
 .menu-icon1,
 .menu-icon2 {
     width: 3.90rem;
     height: auto;
+    max-width: 100%;
     object-fit: contain;
 }
 
 .damaged-icon{
     width: 3.70rem;
     height: auto;
+    max-width: 100%;
     object-fit: contain;
-    
 }
+
 .available-icon{
     width: 5rem;
     height: auto;
+    max-width: 100%;
     object-fit: contain;
 }
 
@@ -291,46 +305,45 @@ h4 {
     font-weight: bold;
     color: red;
 }
+
+/* =======================
+   Calendar Wrapper
+   ======================= */
 .calendar-wrapper {
     width: 100%;
     max-width: 100%;
     margin: auto;
-    overflow: hidden; /* prevents horizontal scroll */
+    overflow-x: auto; /* Allows horizontal scroll on tiny screens if needed */
 }
 
-/* Calendar container */
 #calendar {
     width: 100%;
+    min-width: 280px; /* Prevents it from crushing into oblivion */
     margin: auto;
 }
 
-/* Month title ONLY */
 .fc .fc-toolbar-title {
-    font-size: 18px !important;
+    font-size: clamp(14px, 4vw, 18px) !important; /* Fluid typography */
     font-weight: 600;
 }
 
-/* Keep day headers small */
 .fc .fc-col-header-cell {
     font-size: 10px;
     font-weight: 500;
 }
 
-/* Day numbers */
 .fc .fc-daygrid-day-number {
     font-size: 10px;
     font-weight: bold;
     color: rgb(60, 60, 60);
 }
 
-/* Buttons */
 .fc .fc-button {
     font-size: 12px !important;
     padding: 3px 6px !important;
     border-radius: 6px;
 }
 
-/* Fix calendar height and prevent vertical scroll */
 .fc .fc-scroller-liquid-absolute {
     overflow: hidden !important;
     max-height: none !important;
@@ -340,7 +353,6 @@ h4 {
     width: 100% !important;
 }
 
-/* Optional: card hover animation */
 .calendar-wrapper .fc {
     transition: transform 0.3s ease;
 }
@@ -348,47 +360,56 @@ h4 {
 .calendar-wrapper .fc:hover {
     transform: translateY(1px);
 }
+
 .fc .fc-day-today {
-    background-color: #92baee !important; /* light yellow */
+    background-color: #92baee !important; 
     border-radius: 6px;
 }
-/* Table wrapper */
+
+/* =======================
+   Tables
+   ======================= */
 .charts-grid .p-3 {
     background-color: #fff;
     border-radius: 12px;
     padding: 2rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow-x: auto; /* CRITICAL: Allows table to be swiped on mobile instead of breaking layout */
 }
 
-/* Status color coding */
+/* Ensure table elements don't get squished */
+table {
+    width: 100%;
+    min-width: 400px; /* Forces scroll if screen is too small */
+    border-collapse: collapse;
+}
+
 .charts-grid tbody td:nth-child(3) {
     font-weight: 600;
     text-transform: capitalize;
 }
 
 .charts-grid tbody td:nth-child(3)[data-status="Received"] {
-    color: #16a34a; /* green */
+    color: #16a34a; 
 }
 
 .charts-grid tbody td:nth-child(3)[data-status="Damaged"] {
-    color: #dc2626; /* red */
+    color: #dc2626; 
 }
 
-/* Timestamp small text */
 .charts-grid tbody td small {
     display: block;
     color: #6b7280;
     font-size: 11px;
 }
 
-
-
 .charts-grid tbody tr {
     animation: fadeInUp 0.5s ease forwards;
 }
 
-th, td{
+th, td {
     text-align: center;
-    color: red;
+    color: red; /* Original styling kept */
+    padding: 0.5rem; /* Give table cells breathing room */
 }

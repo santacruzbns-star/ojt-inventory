@@ -71,48 +71,49 @@
                         <h5 class="fw-bold text-gray-700 mb-0">Recent Issued Item Activity</h5>
                     </div>
 
-                    <table class="table table-striped">
-                        <thead class="table-light text-center">
+                    <table class="table table-striped mb-0 text-start">
+                        <thead class="table-light">
                             <tr>
-                                <th>Personnel</th>
-                                <th>Item</th>
-                                <th>Quantity</th>
-                                <th>Status</th>
-                                <th>Timestamp</th>
+                                <th class="text-start">Personnel</th>
+                                <th class="text-start">Product Name</th>
+                                <th class="text-start">Quantity</th>
+                                <th class="text-start">Item Status</th>
+                                <th class="text-start">Timestamp</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="align-middle">
                             @forelse($recentActivities as $activity)
                                 @php
                                     $remarkColor = [
-                                        'To be delivered' =>
-                                            'bg-info text-dark                                                                                                                      ',
+                                        'To be delivered' => 'bg-info text-dark',
                                         'Not Receive' => 'bg-danger',
-                                        'Issued' => 'bg-warning text-dark ',
+                                        'Issued' => 'bg-warning text-dark',
                                         'Received' => 'bg-success',
-                                        'Returned' => 'bg-primary ',
+                                        'Returned' => 'bg-primary',
                                     ];
                                 @endphp
                                 <tr>
-                                    <td class="text-center">
-                                        {{ $activity->personnel->personnel_name ?? 'Unknown Personnel' }}</td>
-                                    <td class="text-center">{{ $activity->item->item_name ?? 'Unknown Item' }}</td>
-                                    <td class="text-center">{{ $activity->personnel_item_quantity }}</td>
-                                    <td>
+                                    <td class="text-start">
+                                        {{ $activity->personnel->personnel_name ?? 'Unknown Personnel' }}
+                                    </td>
+                                    <td class="text-start">{{ $activity->item->item_name ?? 'Unknown Item' }}</td>
+                                    <td class="text-start">{{ $activity->personnel_item_quantity }}</td>
+                                    <td class="text-start">
                                         <span
                                             class="badge {{ $remarkColor[$activity->personnel_item_remarks] ?? 'bg-secondary' }}">
                                             {{ $activity->personnel_item_remarks ?? '-' }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-start">
                                         {{ $activity->created_at->setTimezone('Asia/Manila')->format('M d, Y h:i A') }}
                                         <br>
-                                        <small>{{ $activity->created_at->setTimezone('Asia/Manila')->diffForHumans() }}</small>
+                                        <small
+                                            class="text-muted d-block text-start">{{ $activity->created_at->setTimezone('Asia/Manila')->diffForHumans() }}</small>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">No recent activity</td>
+                                    <td colspan="5" class="text-start text-muted py-4">No recent activity</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -134,7 +135,7 @@
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        
+
 
         <script>
             @if (session('success'))

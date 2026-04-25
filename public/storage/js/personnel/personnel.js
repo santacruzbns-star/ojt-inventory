@@ -1,3 +1,4 @@
+//checking
 let selectedOutboundIds = new Set();
 let fetchOutboundTable;
 let shouldHighlightOutbound = false; // For New Items
@@ -513,7 +514,8 @@ function updateBulkButtonUI() {
 
 function buildOutboundExportUrl(exportType) {
     const params = new URLSearchParams({ export: exportType });
-    const search = document.getElementById("OutboundSearch")?.value?.trim() || "";
+    const search =
+        document.getElementById("OutboundSearch")?.value?.trim() || "";
     if (search) {
         params.set("search", search);
     }
@@ -642,7 +644,6 @@ if (bulkDeleteBtn) {
 
 // 🔥 UPDATE, RETURN, ADD ACTIONS 🔥
 $(document).ready(function () {
-
     // --- 1. UPDATE RECORD ---
     $(document).on("submit", ".needs-validation-update", function (e) {
         e.preventDefault();
@@ -662,7 +663,7 @@ $(document).ready(function () {
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#6c757d",
             confirmButtonText: "Yes, update it!",
-            cancelButtonText: "No"
+            cancelButtonText: "No",
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
@@ -674,8 +675,10 @@ $(document).ready(function () {
                         if (modalEl.length) {
                             let modal = bootstrap.Modal.getInstance(modalEl[0]);
                             if (modal) modal.hide();
-                            $('.modal-backdrop').remove(); 
-                            $('body').removeClass('modal-open').css('overflow', '');
+                            $(".modal-backdrop").remove();
+                            $("body")
+                                .removeClass("modal-open")
+                                .css("overflow", "");
                         }
 
                         $form.removeClass("was-validated");
@@ -691,12 +694,15 @@ $(document).ready(function () {
                         });
 
                         shouldHighlightOutboundUpdated = true;
-                        if (typeof fetchOutboundTable === "function") fetchOutboundTable();
+                        if (typeof fetchOutboundTable === "function")
+                            fetchOutboundTable();
                     },
                     error: function (xhr) {
-                        let msg = xhr.responseJSON?.message || "Failed to update record.";
+                        let msg =
+                            xhr.responseJSON?.message ||
+                            "Failed to update record.";
                         Swal.fire("Error", msg, "error");
-                    }
+                    },
                 });
             }
         });
@@ -721,7 +727,7 @@ $(document).ready(function () {
             confirmButtonColor: "#ffc107",
             cancelButtonColor: "#6c757d",
             confirmButtonText: "Yes, return it!",
-            cancelButtonText: "No"
+            cancelButtonText: "No",
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
@@ -733,8 +739,10 @@ $(document).ready(function () {
                         if (modalEl.length) {
                             let modal = bootstrap.Modal.getInstance(modalEl[0]);
                             if (modal) modal.hide();
-                            $('.modal-backdrop').remove(); 
-                            $('body').removeClass('modal-open').css('overflow', '');
+                            $(".modal-backdrop").remove();
+                            $("body")
+                                .removeClass("modal-open")
+                                .css("overflow", "");
                         }
 
                         $form.removeClass("was-validated");
@@ -750,7 +758,8 @@ $(document).ready(function () {
                         });
 
                         shouldHighlightOutboundReturned = true;
-                        if (typeof fetchOutboundTable === "function") fetchOutboundTable();
+                        if (typeof fetchOutboundTable === "function")
+                            fetchOutboundTable();
                     },
                     error: function (xhr) {
                         let msg = "Failed to return item.";
@@ -769,6 +778,7 @@ $(document).ready(function () {
         });
     });
 
+    // --- 3. ADD OUTBOUND RECORD ---
     // --- 3. ADD OUTBOUND RECORD ---
     $(document).on("submit", ".text-confirm-submit", function (e) {
         e.preventDefault();
@@ -791,11 +801,57 @@ $(document).ready(function () {
             cancelButtonText: "No"
         }).then((result) => {
             if (result.isConfirmed) {
+                
+                // 🔥 GRAB THE ISSUED QUANTITY AND ITEM ID BEFORE FORM RESETS 🔥
+                let issuedQty = parseInt($form.find('input[name="personnel_item_quantity"]').val());
+                let selectedItemId = $form.find('input[name="item_id"]').val();
+
                 $.ajax({
                     url: $form.attr("action"),
                     type: "POST",
                     data: $form.serialize(),
                     success: function (response) {
+                        
+                        // 1. UPDATE STOCK VISUALLY
+                        let itemBtn = $(`.item-btn[data-id='${selectedItemId}']`);
+                        if (itemBtn.length) {
+                            let currentQty = parseInt(itemBtn.attr("data-qty"));
+                            let newQty = currentQty - issuedQty;
+                            
+                            itemBtn.attr("data-qty", newQty);
+                            
+                            let badge = itemBtn.find('.badge');
+                            if (badge.length) {
+                                badge.text(`${newQty} Left`);
+                                if (newQty <= 0) {
+                                    badge.removeClass('bg-success').addClass('bg-danger');
+                                    // Fix the white text bug by removing active classes early
+                                    itemBtn.removeClass("active bg-success text-white");
+                                    itemBtn.addClass('disabled bg-light opacity-75').attr('disabled', true);
+                                }
+                            }
+                        }
+
+                        // 2. 🔥 FULLY RESET THE CUSTOM UI 🔥
+                        
+                        // Clear Item Selection
+                        $(".item-btn").removeClass("active bg-success text-white");
+                        $(".item-btn .text-light").removeClass("text-light").addClass("text-muted");
+                        $("#selectedItemCard").addClass("d-none");
+                        $("#selected_item_id").val("");
+
+                        // Clear Personnel Selection
+                        $(".personnel-item").removeClass("active bg-primary text-white");
+                        $(".personnel-item .text-light").removeClass("text-light").addClass("text-muted");
+                        $("#selectedPersonnelCard").addClass("d-none");
+                        $("#selected_personnel_id").val("");
+
+                        // Lock Quantity Input again
+                        $("#personnel_item_quantity").prop("disabled", true).val("").removeClass("is-invalid");
+                        $("#qtyAvailableText").addClass("d-none");
+                        $("#submitBtn").prop("disabled", true);
+
+                        // 3. CLOSE MODAL & SHOW TOAST
                         let modalEl = $form.closest(".modal");
                         if (modalEl.length) {
                             let modal = bootstrap.Modal.getInstance(modalEl[0]);
@@ -827,9 +883,7 @@ $(document).ready(function () {
             }
         });
     });
-
 });
-
 
 //paginate no reloading
 $(document).on("click", "#pagination-container a", function (e) {
@@ -891,7 +945,9 @@ function syncReturnReasonDetailRequired(form) {
 function initAllReturnReasonSelects() {
     document.querySelectorAll('[id^="return_condition_"]').forEach((cond) => {
         const suffix = cond.id.replace("return_condition_", "");
-        const preset = document.getElementById("return_reason_preset_" + suffix);
+        const preset = document.getElementById(
+            "return_reason_preset_" + suffix,
+        );
         if (preset && !preset.disabled) {
             fillReturnReasonPresetSelect(preset, cond.value === "Good");
         }
@@ -904,7 +960,9 @@ document.addEventListener("change", function (e) {
     const t = e.target;
     if (t.id && t.id.startsWith("return_condition_")) {
         const suffix = t.id.replace("return_condition_", "");
-        const preset = document.getElementById("return_reason_preset_" + suffix);
+        const preset = document.getElementById(
+            "return_reason_preset_" + suffix,
+        );
         if (preset) {
             fillReturnReasonPresetSelect(preset, t.value === "Good");
         }
