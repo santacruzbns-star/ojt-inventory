@@ -213,7 +213,25 @@ $(document).ready(function () {
         $(this).removeClass("is-invalid");
     });
 });
-   
+
+//paginate no reloading
+$(document).on("click", "#pagination-container a", function (e) {
+    e.preventDefault();
+    let url = $(this).attr("href");
+
+    $.ajax({
+        url: url,
+        type: "GET",
+        dataType: "json", // Crucial: forces jQuery to parse the JSON
+        success: function (response) {
+            // 'response.table' matches the key you set in your Controller
+            $("#table-data").html(response.table);
+
+            window.history.pushState({}, "", url);
+            window.syncCheckboxes();
+        },
+    });
+});
 
 //searchbar of the category list in the manage categories section of inventory page
 $(document).ready(function () {
