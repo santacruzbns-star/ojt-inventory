@@ -33,7 +33,9 @@ class PersonnelItemController extends Controller
             ->where('personnel_item_quantity', '>', 0)
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
-                    $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
+                    // Updated to search both item_name OR item_serial_no within the item relationship
+                    $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%")
+                        ->orWhere('item_serialno', 'like', "%{$search}%"))
                         ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
                 });
             })
@@ -46,8 +48,8 @@ class PersonnelItemController extends Controller
             })
             ->when($remarksFilter, fn($q) => $q->where('personnel_item_remarks', $remarksFilter))
             // 🔥 ORDERING FOR WEB VIEW:
-            ->orderBy('updated_at', 'desc')           // 1. Most recently touched
-            ->orderBy('personnel_item_id', 'desc')    // 2. Highest ID wins (Tie-breaker for Returns)
+            ->orderBy('updated_at', 'desc')          // 1. Most recently touched
+            ->orderBy('personnel_item_id', 'desc')   // 2. Highest ID wins (Tie-breaker for Returns)
             ->paginate(20)
             ->withQueryString();
 

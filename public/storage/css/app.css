@@ -21,7 +21,7 @@
 }
 
 body {
-    font-family: 'Poppins', Arial, Helvetica, sans-serif;
+    font-family: "Poppins", Arial, Helvetica, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     font-size: 16px;
@@ -35,62 +35,127 @@ body {
    Global Loader (Refresh Arrow Animation)
    ============================================ */
 #global-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: var(--white); 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: transform 0.6s cubic-bezier(0.86, 0, 0.07, 1);
-        }
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: transform 0.6s cubic-bezier(0.86, 0, 0.07, 1);
+}
 
-        #global-loader.slide-up {
-            transform: translateY(-100%);
-        }
+#global-loader.slide-up {
+    transform: translateY(-100%);
+}
 
-        .loader-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
 
-        /* The Spinning Blue Arrow */
-        .loader-spinner {
-            width: 80px;
-            height: 80px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 50 10 A 40 40 0 1 1 10 50' fill='none' stroke='%230d6efd' stroke-width='12' stroke-linecap='square'/%3E%3Cpolygon points='46,0 46,20 74,10' fill='%230d6efd'/%3E%3C/svg%3E");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            /* 👇 Changed from 1s to 0.6s for a faster spin */
-            animation: spin 0.6s linear infinite; 
-        }
+/* 👇 NEW: The Goldtown Impact Label */
+.goldtown-label {
+    font-family: "Impact", sans-serif;
+    color: #0d6efd; /* Matches the blue in your SVG arrow */
+    font-size: 42px; /* Make it nice and big */
+    letter-spacing: 2px;
+    margin: 0;
+    line-height: 1;
+}
 
-        .loading-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--active-blue);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            /* 👇 Changed from 1.5s to 0.8s for a faster pulse */
-            animation: textPulse 0.8s infinite ease-in-out; 
-            margin: 0;
-        }
+/* The Spinning Blue Arrow */
+.loader-spinner {
+    width: 80px;
+    height: 80px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 50 10 A 40 40 0 1 1 10 50' fill='none' stroke='%230d6efd' stroke-width='12' stroke-linecap='square'/%3E%3Cpolygon points='46,0 46,20 74,10' fill='%230d6efd'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    animation: spin 0.6s linear infinite;
+}
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+.loading-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--active-blue);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    animation: textPulse 0.8s infinite ease-in-out;
+    margin: 0;
+}
 
-        @keyframes textPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes textPulse {
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+.container {
+    --uib-size: 150px;
+    --uib-color: rgb(1, 30, 96);
+    --uib-speed: 0.5s;
+    --uib-stroke: 5px;
+    --uib-bg-opacity: 0.1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--uib-stroke);
+    width: var(--uib-size);
+    border-radius: calc(var(--uib-stroke) / 2);
+    overflow: hidden;
+    transform: translate3d(0, 0, 0);
+}
+
+.container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: var(--uib-color);
+    opacity: var(--uib-bg-opacity);
+    transition: background-color 0.3s ease;
+}
+
+.container::after {
+    content: "";
+    height: 100%;
+    width: 100%;
+    border-radius: calc(var(--uib-stroke) / 2);
+    animation: zoom var(--uib-speed) ease-in-out infinite;
+    transform: translateX(-100%);
+    background-color: var(--uib-color);
+    transition: background-color 0.3s ease;
+}
+
+@keyframes zoom {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
 
 /* ============================================
    Modern Header & Navigation
@@ -155,7 +220,7 @@ body {
 
 .nav-link i {
     font-size: 1.1rem;
-    display: inline-block; 
+    display: inline-block;
     transition: color var(--transition-speed);
     transform-origin: center;
 }
@@ -179,11 +244,16 @@ body {
 /* ============================================
    Custom Icon Animations (HOVER ONLY)
    ============================================ */
-   
+
 /* 1. Dashboard (Grid) - Smooth Pulse */
 @keyframes pulseDashboard {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
 }
 .nav-link:hover .bi-grid {
     animation: pulseDashboard 1.2s ease-in-out infinite;
@@ -191,11 +261,21 @@ body {
 
 /* 2. Inventory (Box) - "Pop Open" Squish & Stretch */
 @keyframes openBox {
-    0% { transform: scale(1) translateY(0); }
-    30% { transform: scaleX(1.2) scaleY(0.8) translateY(2px); } /* Squish down */
-    60% { transform: scaleX(0.9) scaleY(1.2) translateY(-6px); } /* Burst up */
-    80% { transform: scaleX(1.05) scaleY(0.95) translateY(-4px); } /* Recoil */
-    100% { transform: scale(1.1) translateY(-5px); } /* Settle in open/popped state */
+    0% {
+        transform: scale(1) translateY(0);
+    }
+    30% {
+        transform: scaleX(1.2) scaleY(0.8) translateY(2px);
+    } /* Squish down */
+    60% {
+        transform: scaleX(0.9) scaleY(1.2) translateY(-6px);
+    } /* Burst up */
+    80% {
+        transform: scaleX(1.05) scaleY(0.95) translateY(-4px);
+    } /* Recoil */
+    100% {
+        transform: scale(1.1) translateY(-5px);
+    } /* Settle in open/popped state */
 }
 .nav-link:hover .bi-box-seam {
     animation: openBox 0.5s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
@@ -203,9 +283,16 @@ body {
 
 /* 3. Outbound (Truck) - Driving Animation */
 @keyframes driveTruck {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(3px) translateY(-1px); }
-    75% { transform: translateX(1px) translateY(1px); }
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(3px) translateY(-1px);
+    }
+    75% {
+        transform: translateX(1px) translateY(1px);
+    }
 }
 .nav-link:hover .bi-truck {
     animation: driveTruck 1s linear infinite;
@@ -213,8 +300,13 @@ body {
 
 /* 4. Return (Arrow) - Swoop Back Animation */
 @keyframes returnSwoop {
-    0%, 100% { transform: translateX(0) scale(1); }
-    50% { transform: translateX(-4px) scale(1.1); }
+    0%,
+    100% {
+        transform: translateX(0) scale(1);
+    }
+    50% {
+        transform: translateX(-4px) scale(1.1);
+    }
 }
 .nav-link:hover .bi-arrow-return-left {
     animation: returnSwoop 0.8s ease-in-out infinite;
@@ -222,8 +314,12 @@ body {
 
 /* 5. Profile (Gear) - Spinning Animation */
 @keyframes spinGear {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(180deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(180deg);
+    }
 }
 .nav-link:hover .bi-gear {
     animation: spinGear 2s linear infinite;
@@ -290,12 +386,12 @@ body {
    Modern Footer with Grid Pattern
    ============================================ */
 .modern-footer {
-    background-color: #0b253a; 
-    background-image: 
+    background-color: #0b253a;
+    background-image:
         linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 40px 40px; 
-    
+    background-size: 40px 40px;
+
     color: var(--white);
     padding: 10px 5px;
     text-align: center;
@@ -328,9 +424,15 @@ body {
    Responsive Design
    ============================================ */
 @media (max-width: 992px) {
-    .nav-container { padding: 0 20px; }
-    .nav-menu { gap: 5px; }
-    .nav-link { padding: 8px 12px; }
+    .nav-container {
+        padding: 0 20px;
+    }
+    .nav-menu {
+        gap: 5px;
+    }
+    .nav-link {
+        padding: 8px 12px;
+    }
 }
 
 @media (max-width: 768px) {

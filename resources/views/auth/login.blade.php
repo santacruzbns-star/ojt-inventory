@@ -1,8 +1,16 @@
 <x-guest-layout>
+    <style>
+        /* Animation styles for the Welcome Back text */
+        .welcome-label .letter {
+            display: inline-block;
+            opacity: 0; /* Starts hidden for the Anime.js fade-in */
+        }
+    </style>
+
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <div class="form-header">
-        <h3>Welcome Back</h3>
+        <h3 class="welcome-label">Welcome Back</h3>
         <p>Please enter your details to sign in.</p>
     </div>
 
@@ -131,6 +139,29 @@
                 submitBtn.style.cursor = 'pointer';
                 submitBtn.disabled = false;
             });
+        });
+    </script>
+
+    <script type="module">
+        // Using the ESM build from CDN so native imports work directly in the browser
+        import { animate, stagger } from 'https://cdn.jsdelivr.net/npm/animejs@3.2.2/+esm';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const welcomeLabel = document.querySelector('.welcome-label');
+            
+            if (welcomeLabel) {
+                // Wrap every non-whitespace character in a <span> so they can move individually
+                welcomeLabel.innerHTML = welcomeLabel.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
+
+                // Execute the wave animation
+                animate('.welcome-label .letter', {
+                    translateY: [20, 0],     // Slide up from 20px below
+                    opacity: [0, 1],         // Fade from invisible to fully visible
+                    duration: 800,           // 0.8 seconds per letter
+                    ease: 'outExpo',         // Smooth snap into place
+                    delay: stagger(50, { start: 600 }) // Wait 600ms for the card to slide up first, then animate each letter 50ms apart
+                });
+            }
         });
     </script>
 </x-guest-layout>

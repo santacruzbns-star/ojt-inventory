@@ -24,8 +24,9 @@
 <body>
     <div id="global-loader">
         <div class="loader-content">
-            <div class="loader-spinner"></div>
-            <p class="loading-text">LOADING...</p>
+     
+            <h1 class="goldtown-label">GOLDTOWN</h1>
+          <div class="container"></div>
         </div>
     </div>
 

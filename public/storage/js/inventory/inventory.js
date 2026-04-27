@@ -102,33 +102,45 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 $(document).ready(function () {
-    // add category form submission with ajax
-    $(document).on("submit", ".category-form", function (e) {
-        e.preventDefault();
+    $(document).ready(function () {
+        // add category form submission with ajax
+        $(document).on("submit", ".category-form", function (e) {
+            e.preventDefault();
 
-        let form = this;
-        let url = $(form).attr("action");
+            let form = this;
+            let url = $(form).attr("action");
 
-        // SIMPLE VALIDATION
-        let name = $("#category_name").val().trim();
+            // 1. Target the submit button and store its original content
+            let submitBtn = $(form).find('button[type="submit"]');
+            let originalBtnHtml = submitBtn.html();
 
-        if (name === "") {
-            $("#category_name").addClass("is-invalid");
-            return;
-        }
+            // SIMPLE VALIDATION
+            let name = $("#category_name").val().trim();
 
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: $(form).serialize(),
+            if (name === "") {
+                $("#category_name").addClass("is-invalid");
+                return;
+            }
 
-            success: function (response) {
-                // 1. Update the Category List UI (What you already had)
-                let icon = response.item_category_icon
-                    ? `<i class="bi ${response.item_category_icon} me-2 fs-5"></i>`
-                    : "";
+            // 2. Set the button to a "Creating..." loading state and disable it
+            submitBtn
+                .html(
+                    '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Creating...',
+                )
+                .prop("disabled", true);
 
-                let newItem = `
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: $(form).serialize(),
+
+                success: function (response) {
+                    // 1. Update the Category List UI
+                    let icon = response.item_category_icon
+                        ? `<i class="bi ${response.item_category_icon} me-2 fs-5"></i>`
+                        : "";
+
+                    let newItem = `
                     <li class="list-group-item d-flex justify-content-between align-items-center category-item">
                         <span class="d-flex align-items-center">
                             ${icon}
@@ -142,78 +154,78 @@ $(document).ready(function () {
                     </li>
                 `;
 
-                $("#categoryList").prepend(newItem);
+                    $("#categoryList").prepend(newItem);
 
-                // 🔥 2. SYNC WITH THE ITEM MODAL DROPDOWN
-                // This adds the new category to the "Add Item" select menu immediately
-                let newOption = `
+                    // 🔥 2. SYNC WITH THE ITEM MODAL DROPDOWN
+                    let newOption = `
                     <option value="${response.item_category_id}" 
                             data-name="${response.item_category_name}" 
                             data-icon="${response.item_category_icon || "bi-question-circle"}">
                         ${response.item_category_name}
                     </option>`;
 
-                // Append to the dropdown (Check if your ID is #item_category_id)
-                $("#item_category_id").append(newOption);
+                    $("#item_category_id").append(newOption);
 
-                // 🔥 3. UPDATE GLOBAL DATA FOR AUTO-GENERATION
-                // This ensures "Category 001" logic works for this new category right away
-                if (window.itemsData) {
-                    // We add a dummy entry so the filter finds this category ID
-                    // and starts the count at 001
-                    window.itemsData.push({
-                        item_id: null,
-                        name: response.item_category_name + " 000",
-                        category_id: response.item_category_id,
-                    });
-                }
+                    // 🔥 3. UPDATE GLOBAL DATA FOR AUTO-GENERATION
+                    if (window.itemsData) {
+                        window.itemsData.push({
+                            item_id: null,
+                            name: response.item_category_name + " 000",
+                            category_id: response.item_category_id,
+                        });
+                    }
 
-                // 4. Reset Form and Validation
-                form.reset();
-                $("#category_name").removeClass("is-invalid is-valid");
-                form.classList.remove("was-validated");
-                $(form)
-                    .find(".is-invalid, .is-valid")
-                    .removeClass("is-invalid is-valid");
-                $(form).find(".invalid-feedback, .valid-feedback").hide();
+                    // 4. Reset Form and Validation
+                    form.reset();
+                    $("#category_name").removeClass("is-invalid is-valid");
+                    form.classList.remove("was-validated");
+                    $(form)
+                        .find(".is-invalid, .is-valid")
+                        .removeClass("is-invalid is-valid");
+                    $(form).find(".invalid-feedback, .valid-feedback").hide();
 
-                // reset icon UI
-                $("#selectedIcon").attr("class", "bi");
-                $("#selectedIconText").text("None");
-
-                Swal.fire({
-                    toast: true,
-                    position: "top-end",
-                    icon: "success",
-                    title: "Category added!",
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: true,
-                });
-            },
-
-            error: function (xhr) {
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    let firstError = Object.values(errors)[0][0];
+                    // reset icon UI
+                    $("#selectedIcon").attr("class", "bi");
+                    $("#selectedIconText").text("None");
 
                     Swal.fire({
-                        icon: "warning",
-                        title: "Validation Error",
-                        text: firstError,
+                        toast: true,
+                        position: "top-end",
+                        icon: "success",
+                        title: "Category added!",
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true,
                     });
-                } else {
-                    Swal.fire("Error", "Failed to add category.", "error");
-                }
-            },
+                },
+
+                error: function (xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let firstError = Object.values(errors)[0][0];
+
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Validation Error",
+                            text: firstError,
+                        });
+                    } else {
+                        Swal.fire("Error", "Failed to add category.", "error");
+                    }
+                },
+
+                // 3. Reset the button after the request finishes (Success OR Error)
+                complete: function () {
+                    submitBtn.html(originalBtnHtml).prop("disabled", false);
+                },
+            });
+        });
+
+        $("#category_name").on("input", function () {
+            $(this).removeClass("is-invalid");
         });
     });
-
-    $("#category_name").on("input", function () {
-        $(this).removeClass("is-invalid");
-    });
 });
-   
 
 //searchbar of the category list in the manage categories section of inventory page
 $(document).ready(function () {
@@ -258,7 +270,8 @@ function buildInventoryListExportUrl(exportType) {
     if (remark !== "") {
         params.set("remark", remark);
     }
-    const category = document.querySelector("select[name='category']")?.value || "";
+    const category =
+        document.querySelector("select[name='category']")?.value || "";
     if (category !== "") {
         params.set("category", category);
     }
@@ -377,17 +390,26 @@ $(document).ready(function () {
             return;
         }
 
-        // 1. Perform the Duplicate Check (Now checks Name, Category, Brand, Serial, AND Status)
+        // 1. Target the button and store original state
+        let submitBtn = $form.find('button[type="submit"]');
+        let originalBtnHtml = submitBtn.html();
+
+        // 2. Set to a "Checking..." state for the duplicate check phase
+        submitBtn.html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Checking...')
+                 .prop("disabled", true);
+
+        // Perform the Duplicate Check
         $.ajax({
             url: window.routes.checkDuplicate,
             type: "POST",
             data: $form.serialize(),
             success: function (response) {
-                // response.exists is only true if ALL fields (including Category) match
                 if (response.exists) {
+                    // 3a. Restore the button BEFORE showing the modal so the UI doesn't look frozen
+                    submitBtn.html(originalBtnHtml).prop("disabled", false);
+
                     Swal.fire({
                         title: "Exact Match Found!",
-                        // Updated text to reflect the Category requirement
                         text: "This item already exists in this Category with the same Brand, Serial, and Status. Merge the quantities?",
                         icon: "info",
                         showCancelButton: true,
@@ -397,18 +419,19 @@ $(document).ready(function () {
                         cancelButtonText: "No, Cancel",
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            saveItem(form, url);
+                            // Pass the button info to saveItem so it can spin again
+                            saveItem(form, url, submitBtn, originalBtnHtml);
                         }
                     });
                 } else {
-                    /** * If the Name exists but Category is different, 
-                     * response.exists will be false. 
-                     * It proceeds here to create a new record.
-                     */
-                    saveItem(form, url);
+                    // 3b. No duplicate. Go straight to saveItem (keep the loading state active)
+                    saveItem(form, url, submitBtn, originalBtnHtml);
                 }
             },
             error: function () {
+                // Restore button if duplicate check fails
+                submitBtn.html(originalBtnHtml).prop("disabled", false);
+                
                 Swal.fire(
                     "Error",
                     "Could not verify duplicate status.",
@@ -418,9 +441,14 @@ $(document).ready(function () {
         });
     });
 
-
     // Helper function to handle the actual AJAX saving
-    function saveItem(form, url) {
+    // Updated to accept submitBtn and originalBtnHtml arguments
+    function saveItem(form, url, submitBtn, originalBtnHtml) {
+        
+        // 4. Set to "Saving..." state (Important if the user just clicked "Yes, Merge it" from Swal)
+        submitBtn.html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Saving...')
+                 .prop("disabled", true);
+
         $.ajax({
             url: url,
             type: "POST",
@@ -431,12 +459,9 @@ $(document).ready(function () {
                 $(form).removeClass("was-validated");
 
                 // Reset Category Icon Preview (if applicable)
-                const iconPreview = document.getElementById(
-                    "categoryIconPreview",
-                );
+                const iconPreview = document.getElementById("categoryIconPreview");
                 if (iconPreview) {
-                    iconPreview.className =
-                        "bi position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary";
+                    iconPreview.className = "bi position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary";
                 }
 
                 // Close Modal
@@ -469,6 +494,10 @@ $(document).ready(function () {
                     Swal.fire("Error", "Failed to save item.", "error");
                 }
             },
+            // 5. Final Reset: Restore the button regardless of success or failure
+            complete: function() {
+                submitBtn.html(originalBtnHtml).prop("disabled", false);
+            }
         });
     }
 });
@@ -878,4 +907,3 @@ document.addEventListener("shown.bs.modal", function (e) {
         .querySelectorAll('input[name="item_serialno"]')
         .forEach(applySerialQuantityLock);
 });
-

@@ -12,6 +12,7 @@
         "alpinejs": "^3.4.2",
         "axios": "^1.11.0",
         "laravel-vite-plugin": "^2.0.0",
+        "ldrs": "^1.1.9",
         "vite": "^7.3.2"
     },
     "devDependencies": {
