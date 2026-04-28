@@ -23,12 +23,11 @@
 
 <body>
     <div id="global-loader">
-        <div class="loader-content">
-     
-            <h1 class="goldtown-label">GOLDTOWN</h1>
-          <div class="container"></div>
-        </div>
+    <div class="loader-content">
+        <h1 class="goldtown-label">GOLDTOWN</h1>
+        <div class="loader-bar"></div> 
     </div>
+</div>
 
     <header class="modern-header">
         <nav class="nav-container">

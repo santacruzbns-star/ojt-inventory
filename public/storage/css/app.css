@@ -108,7 +108,7 @@ body {
         opacity: 1;
     }
 }
-.container {
+.loader-bar {
     --uib-size: 150px;
     --uib-color: rgb(1, 30, 96);
     --uib-speed: 0.5s;
@@ -125,7 +125,7 @@ body {
     transform: translate3d(0, 0, 0);
 }
 
-.container::before {
+.loader-bar::before {
     content: "";
     position: absolute;
     top: 0;
@@ -137,7 +137,7 @@ body {
     transition: background-color 0.3s ease;
 }
 
-.container::after {
+.loader-bar::after {
     content: "";
     height: 100%;
     width: 100%;

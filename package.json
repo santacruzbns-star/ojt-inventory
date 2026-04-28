@@ -10,6 +10,7 @@
     "dependencies": {
         "@tailwindcss/vite": "^4.0.0",
         "alpinejs": "^3.4.2",
+        "animejs": "^4.3.6",
         "axios": "^1.11.0",
         "laravel-vite-plugin": "^2.0.0",
         "ldrs": "^1.1.9",

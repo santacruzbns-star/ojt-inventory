@@ -5,6 +5,25 @@
             display: inline-block;
             opacity: 0; /* Starts hidden for the Anime.js fade-in */
         }
+
+        /* Eye Icon styles */
+        .input-wrapper .icon-right {
+            position: absolute;
+            right: 14px;
+            color: #94a3b8;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .input-wrapper .icon-right:hover {
+            color: #1e6091; /* Matches var(--accent-blue) */
+        }
+
+        /* Ensure password text doesn't overlap the eye icon */
+        #password {
+            padding-right: 42px;
+        }
     </style>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -54,6 +73,7 @@
                     required 
                     autocomplete="current-password"
                     class="@error('password') is-invalid @enderror">
+                <i class="fa-solid fa-eye-slash icon-right" id="togglePassword" title="Toggle Password Visibility"></i>
             </div>
             
             @error('password')
@@ -84,6 +104,21 @@
     </form>
 
     <script>
+        // Password Visibility Toggle
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePassword.addEventListener('click', function () {
+            // Toggle the type attribute
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle the eye slash / eye icon
+            this.classList.toggle('fa-eye-slash');
+            this.classList.toggle('fa-eye');
+        });
+
+        // Form Validation Logic
         document.getElementById('login-form').addEventListener('submit', function(e) {
             let isValid = true;
             
@@ -97,7 +132,6 @@
             }
 
             // Check Password
-            const passwordInput = document.getElementById('password');
             const passwordError = document.getElementById('password-empty-error');
             if (!passwordInput.value.trim()) {
                 passwordInput.classList.add('is-invalid');

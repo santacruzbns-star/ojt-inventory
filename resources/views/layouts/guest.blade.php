@@ -37,7 +37,9 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            overflow: hidden;
+            /* 👇 FIXED: Allow vertical scrolling on mobile */
+            overflow-x: hidden;
+            overflow-y: auto;
 
             /* Modern Box Grid Background */
             background-image:
@@ -54,12 +56,10 @@
         .login-form {
             position: relative;
             width: 100%;
-            max-width: 900px; /* Widened for 2 cards */
+            max-width: 900px;
             z-index: 10;
             display: flex;
-            flex-direction: row; /* Split left and right */
-            
-            /* Moved Glassmorphism here so it wraps both sides */
+            flex-direction: row;
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
@@ -69,14 +69,14 @@
                 0 20px 40px -10px rgba(0, 0, 0, 0.25),
                 0 10px 20px -5px rgba(0, 0, 0, 0.15),
                 inset 0 1px 1px rgba(255, 255, 255, 1);
-            overflow: hidden; /* Keeps border radius clean */
+            overflow: hidden;
             animation: slideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
         /* --- Left Side: Branding & Animation --- */
         .split-left {
             flex: 1;
-            background: var(--bg-base); /* Dark blue background */
+            background: var(--bg-base);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -114,23 +114,48 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            /* Background/shadows moved to .login-form parent */
             background: transparent;
             border: none;
             box-shadow: none;
         }
 
-        /* Responsive: Stack cards on mobile */
+        /* ============================================
+               Responsive Mobile Adjustments
+           ============================================ */
         @media (max-width: 768px) {
+            /* Switch to a stacked layout */
             .login-form {
                 flex-direction: column;
-                max-width: 420px;
+                max-width: 480px; /* Perfect width for mobile */
+                margin: 20px auto;
             }
             .split-left {
-                padding: 30px;
+                padding: 30px 20px;
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
             }
             .split-left h2 {
                 font-size: 36px;
+                margin-bottom: 5px;
+            }
+            .split-left p {
+                margin-bottom: 20px; /* Reduced gap so the form stays visible */
+            }
+            .login-card {
+                padding: 36px 24px; /* Tighter padding for mobile */
+            }
+            /* Slightly shrink the particle animation to save screen space */
+            .particle-system {
+                --uib-size: 55px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px; /* Give the card more room on tiny screens */
+            }
+            .login-card {
+                padding: 30px 20px;
             }
         }
 
@@ -344,23 +369,16 @@
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ============================================
                Particle Animation (Left Card)
-               Renamed to .particle-system to avoid conflicts
            ============================================ */
         .particle-system {
             --uib-size: 70px;
-            --uib-color: #ffffff; /* White to match dark background */
+            --uib-color: #ffffff;
             --uib-speed: 1.75s;
             position: relative;
             height: var(--uib-size);
@@ -431,7 +449,7 @@
         }
 
         /* ============================================
-               Global Loader (Fast Spinning Blue Arrow)
+               Global Loader
            ============================================ */
         #global-loader {
             position: fixed;
@@ -456,27 +474,6 @@
             flex-direction: column;
             align-items: center;
             gap: 20px;
-        }
-
-        .loader-spinner {
-            width: 80px;
-            height: 80px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 50 10 A 40 40 0 1 1 10 50' fill='none' stroke='%230d6efd' stroke-width='12' stroke-linecap='square'/%3E%3Cpolygon points='46,0 46,20 74,10' fill='%230d6efd'/%3E%3C/svg%3E");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            animation: spin 0.6s linear infinite;
-        }
-
-        .loading-text {
-            font-family: 'Instrument Sans', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: #0d6efd;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            animation: textPulse 0.8s infinite ease-in-out;
-            margin: 0;
         }
 
         .goldtown-label {
