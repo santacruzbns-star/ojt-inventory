@@ -18,7 +18,93 @@
     <link rel="stylesheet" href="storage/css/app.css">
 </head>
 <style>
+.admin-dropdown {
+    position: relative;
+}
 
+/* BUTTON */
+.admin-dropdown-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.25rem 0.5rem; /* tighter spacing */
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem; /* label + icon closer */
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    text-decoration: none;
+}
+
+.admin-dropdown-btn:hover {
+    color: var(--active-blue);
+}
+
+/* DROPDOWN ICON */
+.admin-dropdown-btn i.dropdown-icon {
+    transition: transform 0.3s ease;
+    font-size: 0.75rem;
+}
+
+/* ROTATE ICON WHEN ACTIVE */
+.admin-dropdown.active .admin-dropdown-btn i.dropdown-icon {
+    transform: rotate(180deg);
+}
+
+/* DROPDOWN MENU */
+.admin-dropdown-menu {
+    position: absolute;
+    top: calc(100% - 2px); /* visually attached */
+    right: 0;
+
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+
+    min-width: 200px;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+
+    transition: all 0.25s ease;
+    z-index: 1000;
+
+    overflow: hidden;
+}
+
+/* SHOW MENU */
+.admin-dropdown.active .admin-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* ITEMS */
+.admin-dropdown-item {
+    padding: 0.75rem 1rem;
+    color: #333;
+    cursor: pointer;
+
+    transition: background 0.2s ease;
+
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    text-decoration: none;
+}
+
+.admin-dropdown-item:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.admin-dropdown-item i {
+    font-size: 1rem;
+    width: 20px;
+}
 </style>
 
 <body>
@@ -56,17 +142,21 @@
            <i class="bi bi-box-arrow-in-down-left"></i> Item Returns
         </a>
     </li>
-    <li>
-        <a href="/profile" class="nav-link {{ request()->is('profile') ? 'active' : '' }}">
-            <i class="bi bi-gear"></i> Account Settings
-        </a>
-    </li>
-    <li class="logout-item">
-        <form id="logout-form" method="POST" action="{{ route('logout') }}" style="margin: 0;">
-            @csrf
-            <button type="button" class="btn btn-outline-danger btn-logout" onclick="confirmLogout()">
+     <li class="nav-item admin-dropdown" id="adminDropdown">
+        <button class="nav-link admin-dropdown-btn" style="background: none; border: none;">
+            <i class="bi bi-person-circle"></i> Admin
+            <i class="bi bi-chevron-down dropdown-icon"></i>
+        </button>
+        <div class="admin-dropdown-menu">
+            <a href="/profile" class="admin-dropdown-item">
+                <i class="bi bi-gear"></i> Account Settings
+            </a>
+            <div class="admin-dropdown-item" onclick="confirmLogout()">
                 <i class="bi bi-box-arrow-right"></i> Sign Out
-            </button>
+            </div>
+        </div>
+        <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display: none;">
+            @csrf
         </form>
     </li>
 </ul>
@@ -108,25 +198,51 @@
             }
         });
 
+        // Admin Dropdown Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminDropdown = document.getElementById('adminDropdown');
+            const adminBtn = adminDropdown ? adminDropdown.querySelector('.admin-dropdown-btn') : null;
+            
+            if (adminBtn) {
+                adminBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    adminDropdown.classList.toggle('active');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!adminDropdown.contains(e.target)) {
+                        adminDropdown.classList.remove('active');
+                    }
+                });
+            }
+        });
+
         // Mobile Menu Toggle Logic
         const hamburger = document.querySelector(".hamburger");
         const navMenu = document.querySelector(".nav-menu");
-        const navLinks = document.querySelectorAll(".nav-link");
+        const navLinks = document.querySelectorAll(".nav-link, .admin-dropdown-item");
 
-        hamburger.addEventListener("click", () => {
-            hamburger.classList.toggle("active");
-            navMenu.classList.toggle("active");
-        });
+        if (hamburger) {
+            hamburger.addEventListener("click", () => {
+                hamburger.classList.toggle("active");
+                navMenu.classList.toggle("active");
+            });
+        }
 
         navLinks.forEach(link => {
             link.addEventListener("click", () => {
-                hamburger.classList.remove("active");
-                navMenu.classList.remove("active");
+                if (hamburger) hamburger.classList.remove("active");
+                if (navMenu) navMenu.classList.remove("active");
             });
         });
 
         // SweetAlert Logout
         function confirmLogout() {
+            // Close dropdown
+            const adminDropdown = document.getElementById('adminDropdown');
+            if (adminDropdown) adminDropdown.classList.remove('active');
+            
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You will be logged out of your session.",
@@ -189,26 +305,27 @@
                 title: "{{ session('info') }}"
             });
         @endif
+
+        // This event fires the exact millisecond the browser finishes loading all page assets
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('global-loader');
+            const content = document.getElementById('main-content');
+            
+            if (loader) {
+                // 1. Trigger the CSS slide-up animation immediately
+                loader.classList.add('slide-up');
+                
+                // 2. Show your main content
+                if (content) content.style.display = 'block';
+                
+                // 3. (Optional but recommended) Remove the loader from the HTML completely 
+                // after the 0.6s CSS transition finishes so it doesn't block clicks
+                setTimeout(() => {
+                    loader.remove();
+                }, 600);
+            }
+        });
     </script>
-    <script>
-    // This event fires the exact millisecond the browser finishes loading all page assets
-    window.addEventListener('load', function() {
-        const loader = document.getElementById('global-loader');
-        const content = document.getElementById('main-content');
-        
-        // 1. Trigger the CSS slide-up animation immediately
-        loader.classList.add('slide-up');
-        
-        // 2. Show your main content
-        content.style.display = 'block';
-        
-        // 3. (Optional but recommended) Remove the loader from the HTML completely 
-        // after the 0.6s CSS transition finishes so it doesn't block clicks
-        setTimeout(() => {
-            loader.remove();
-        }, 600);
-    });
-</script>
 </body>
 
 </html>
