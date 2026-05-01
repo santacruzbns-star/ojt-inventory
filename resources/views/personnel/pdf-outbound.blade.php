@@ -8,7 +8,7 @@
         /* 1. Page Margins */
         @page {
             size: A4 portrait;
-            margin: 30px 25px 80px 25px; 
+            margin: 30px 25px 80px 25px;
         }
 
         body {
@@ -22,12 +22,12 @@
             height: 90px;
             background-color: #ffffff;
             border-bottom: 6px solid #ffffff;
-            padding: 0 0 15px 0; 
+            padding: 0 0 15px 0;
             margin-bottom: 20px;
         }
 
         .logo {
-            height: 75px;
+            height: 110px;
             float: left;
             object-fit: contain;
         }
@@ -112,11 +112,10 @@
         <table>
             <tbody>
                 <tr class="table-header-row">
+                    <th>No.</th>
                     <th>Asset Name</th>
                     <th>Product Name</th>
                     <th>Serial No.</th>
-                    <th>Issued Date</th>
-                    <th>Received Date</th>
                     <th>Custodian</th>
                     <th>Branch</th>
                     <th>Department</th>
@@ -130,17 +129,17 @@
                         $deptName = $row->personnel?->branch?->branch_department ?? 'Unassigned';
                     @endphp
 
-                    {{-- Background-color style removed from <tr> --}}
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $categoryName }}</td>
                         <td>
-                            {{ $row->item?->item_name ?? '-' }} 
+                            {{ $row->item?->item_name ?? '-' }}
                             <strong>(x{{ $row->personnel_item_quantity }})</strong>
                         </td>
                         <td>{{ $row->item?->item_serialno ?? '-' }}</td>
-                        <td>{{ $row->personnel_date_issued ? \Carbon\Carbon::parse($row->personnel_date_issued)->setTimezone('Asia/Manila')->format('M d, Y ') : '-' }}</td>
-                        <td>{{ $row->personnel_date_receive ? \Carbon\Carbon::parse($row->personnel_date_receive)->setTimezone('Asia/Manila')->format('M d, Y ') : '-' }}</td>
                         <td>{{ $row->personnel?->personnel_name ?? '-' }}</td>
+                        {{-- <td>{{ $row->personnel_date_issued ? \Carbon\Carbon::parse($row->personnel_date_issued)->setTimezone('Asia/Manila')->format('M d, Y ') : '-' }}</td>
+                        <td>{{ $row->personnel_date_receive ? \Carbon\Carbon::parse($row->personnel_date_receive)->setTimezone('Asia/Manila')->format('M d, Y ') : '-' }}</td> --}}
                         <td>{{ $branchName }}</td>
                         <td>{{ $deptName }}</td>
                         <td>{{ $row->personnel_item_remarks ?? '-' }}</td>
@@ -150,4 +149,5 @@
         </table>
     </main>
 </body>
+
 </html>

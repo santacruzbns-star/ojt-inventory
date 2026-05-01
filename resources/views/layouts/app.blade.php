@@ -36,40 +36,40 @@
             </a>
 
             <ul class="nav-menu">
-                <li>
-                    <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-grid"></i> Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="/inventory" class="nav-link {{ request()->is('inventory') ? 'active' : '' }}">
-                        <i class="bi bi-box-seam"></i> Inventory
-                    </a>
-                </li>
-                <li>
-                    <a href="/outbound" class="nav-link {{ request()->is('outbound') ? 'active' : '' }}">
-                        <i class="bi bi-truck"></i> Issued Items
-                    </a>
-                </li>
-                <li>
-                    <a href="/return" class="nav-link {{ request()->is('return') ? 'active' : '' }}">
-                        <i class="bi bi-arrow-return-left"></i> Returned Items
-                    </a>
-                </li>
-                <li>
-                    <a href="/profile" class="nav-link {{ request()->is('profile') ? 'active' : '' }}">
-                        <i class="bi bi-gear"></i> Settings
-                    </a>
-                </li>
-                <li class="logout-item">
-                    <form id="logout-form" method="POST" action="{{ route('logout') }}" style="margin: 0;">
-                        @csrf
-                        <button type="button" class="btn btn-outline-danger btn-logout" onclick="confirmLogout()">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </button>
-                    </form>
-                </li>
-            </ul>
+    <li>
+        <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">
+            <i class="bi bi-grid"></i> Dashboard
+        </a>
+    </li>
+    <li>
+        <a href="/inventory" class="nav-link {{ request()->is('inventory') ? 'active' : '' }}">
+            <i class="bi bi-box-seam"></i> Inventory Management
+        </a>
+    </li>
+    <li>
+        <a href="/outbound" class="nav-link {{ request()->is('outbound') ? 'active' : '' }}">
+            <i class="bi bi-repeat"></i> Item Dispatch
+        </a>
+    </li>
+    <li>
+        <a href="/return" class="nav-link {{ request()->is('return') ? 'active' : '' }}">
+           <i class="bi bi-box-arrow-in-down-left"></i> Item Returns
+        </a>
+    </li>
+    <li>
+        <a href="/profile" class="nav-link {{ request()->is('profile') ? 'active' : '' }}">
+            <i class="bi bi-gear"></i> Account Settings
+        </a>
+    </li>
+    <li class="logout-item">
+        <form id="logout-form" method="POST" action="{{ route('logout') }}" style="margin: 0;">
+            @csrf
+            <button type="button" class="btn btn-outline-danger btn-logout" onclick="confirmLogout()">
+                <i class="bi bi-box-arrow-right"></i> Sign Out
+            </button>
+        </form>
+    </li>
+</ul>
 
             <div class="header-actions">
                 <button class="hamburger" aria-label="Toggle Navigation">

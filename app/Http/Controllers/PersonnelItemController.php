@@ -211,51 +211,77 @@ EOT;
      */
     public function store(Request $request)
     {
+        // 1. Convert the comma-separated string into an array before validation
+        if ($request->has('item_id')) {
+            $request->merge([
+                'item_ids_array' => explode(',', $request->item_id)
+            ]);
+        }
+
+        // 2. Validate the request
         $request->validate([
             'personnel_id' => 'required|exists:personnels,personnel_id',
-            'item_id' => 'required|exists:items,item_id',
+            'item_ids_array' => 'required|array',
+            'item_ids_array.*' => 'exists:items,item_id', // Ensures every ID in the array exists
             'personnel_item_quantity' => 'required|integer|min:1',
             'personnel_date_receive' => 'nullable|date',
             'personnel_date_issued' => 'nullable|date',
             'personnel_item_remarks' => 'required|string|max:500',
         ]);
 
-        // Use a transaction to ensure stock consistency
-        \DB::transaction(function () use ($request) {
-            $item = Item::findOrFail($request->item_id);
+        try {
+            // 3. Use a transaction to ensure stock consistency across all selected items
+            DB::transaction(function () use ($request) {
 
-            // Check if enough remaining stock exists
-            if ($item->item_quantity_remaining < $request->personnel_item_quantity) {
-                throw new \Exception('Not enough remaining stock available.');
-            }
+                // Loop through each selected item ID
+                foreach ($request->item_ids_array as $itemId) {
 
-            // Decrement remaining quantity
-            $item->item_quantity_remaining -= $request->personnel_item_quantity;
+                    $item = Item::findOrFail($itemId);
 
-            // Update quantity status
-            if ($item->item_quantity_remaining == 0) {
-                $item->item_quantity_status = 'Out of Stock';
-            } elseif ($item->item_quantity_remaining < ($item->item_quantity_total * 0.2)) {
-                $item->item_quantity_status = 'Low Stock';
-            } else {
-                $item->item_quantity_status = 'Available';
-            }
+                    // Check if enough remaining stock exists
+                    if ($item->item_quantity_remaining < $request->personnel_item_quantity) {
+                        // Throwing a ValidationException redirects the user back with an error message
+                        throw ValidationException::withMessages([
+                            'item_id' => 'Not enough remaining stock available for item ID: ' . $item->item_id
+                        ]);
+                    }
 
-            $item->save();
+                    // Decrement remaining quantity
+                    $item->item_quantity_remaining -= $request->personnel_item_quantity;
 
-            // Record outbound
-            PersonnelItem::create([
-                'personnel_id' => $request->personnel_id,
-                'item_id' => $request->item_id,
-                'personnel_item_quantity' => $request->personnel_item_quantity,
-                'personnel_date_receive' => $request->personnel_date_receive,
-                'personnel_date_issued' => $request->personnel_date_issued,
-                'personnel_item_remarks' => $request->personnel_item_remarks,
-            ]);
-        });
+                    // Update quantity status
+                    if ($item->item_quantity_remaining == 0) {
+                        $item->item_quantity_status = 'Out of Stock';
+                    } elseif ($item->item_quantity_remaining < ($item->item_quantity_total * 0.2)) {
+                        $item->item_quantity_status = 'Low Stock';
+                    } else {
+                        $item->item_quantity_status = 'Available';
+                    }
 
-        return redirect()->route('outbound.index')
-            ->with('success', 'Item outbound recorded successfully!');
+                    $item->save();
+
+                    // Record outbound for THIS specific item
+                    PersonnelItem::create([
+                        'personnel_id' => $request->personnel_id,
+                        'item_id' => $itemId, // Use the individual ID from the loop
+                        'personnel_item_quantity' => $request->personnel_item_quantity,
+                        // 'personnel_date_receive' => $request->personnel_date_receive,
+                        // 'personnel_date_issued' => $request->personnel_date_issued,
+                        'personnel_item_remarks' => $request->personnel_item_remarks,
+                    ]);
+                }
+            });
+
+            return redirect()->route('outbound.index')
+                ->with('success', 'Items outbound recorded successfully!');
+
+        } catch (ValidationException $e) {
+            // Re-throw validation exceptions so Laravel can handle the redirect & errors
+            throw $e;
+        } catch (\Exception $e) {
+            // Catch any other general database errors
+            return back()->withInput()->withErrors(['error' => 'Failed to record outbound: ' . $e->getMessage()]);
+        }
     }
 
     public function storePersonnel(Request $request)

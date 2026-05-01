@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>ITEM INVENTORY REPORT</title>
     <style>
+        /* 1. Page Margins */
         @page {
             size: A4 portrait;
             margin: 30px 25px 80px 25px;
@@ -12,7 +13,7 @@
 
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 8px; 
+            font-size: 9px;
             color: #232323;
             text-transform: uppercase;
         }
@@ -26,7 +27,7 @@
         }
 
         .logo {
-            height: 75px;
+            height: 110px;
             float: left;
             object-fit: contain;
         }
@@ -38,7 +39,7 @@
         }
 
         .header-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
             color: #1a252f;
             text-transform: uppercase;
@@ -47,28 +48,11 @@
         }
 
         .header-address {
-            font-size: 9px;
+            font-size: 11px;
             color: #555;
-            line-height: 1.4;
+            line-height: 1.5;
             text-transform: uppercase;
         }
-
-        footer {
-            position: fixed;
-            bottom: -50px;
-            left: 0px;
-            right: 0px;
-            height: 30px;
-            border-top: 1px solid #ccc;
-            padding-top: 5px;
-            font-size: 8px;
-            color: #777;
-            text-transform: uppercase;
-        }
-
-        .footer-date { float: left; }
-        .footer-page { float: right; }
-        .page-number:before { content: counter(page); }
 
         .clearfix::after {
             content: "";
@@ -77,8 +61,8 @@
         }
 
         h1 {
-            font-size: 14px;
-            margin-bottom: 8px;
+            font-size: 16px;
+            margin-bottom: 12px;
             margin-top: 0;
             color: #1a252f;
             text-transform: uppercase;
@@ -89,15 +73,15 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 8px;
+            margin-top: 10px;
         }
 
         tbody th,
         tbody td {
             border: 1px solid #94a3b8;
-            padding: 4px 4px;
+            padding: 5px 4px;
             text-align: left;
-            text-transform: uppercase; 
+            text-transform: uppercase;
         }
 
         tr.table-header-row th {
@@ -105,10 +89,8 @@
             font-weight: bold;
             color: #ffffff;
             text-transform: uppercase;
-            font-size: 8px;
+            font-size: 9px;
         }
-
-       
     </style>
 </head>
 
@@ -129,6 +111,7 @@
         <table>
             <tbody>
                 <tr class="table-header-row">
+                    <th>No.</th>
                     <th>Product</th>
                     <th>Category</th>
                     <th>Serial No.</th>
@@ -141,13 +124,18 @@
                 @foreach ($allItems as $item)
                     @php
                         $remarkClass = '';
-                        if ($item->item_remark === 'Damaged') $remarkClass = 'text-danger';
-                        elseif ($item->item_remark === 'Missing') $remarkClass = 'text-warning';
-                        elseif ($item->item_remark === 'Good') $remarkClass = 'text-success';
+                        if ($item->item_remark === 'Damaged') {
+                            $remarkClass = 'text-danger';
+                        } elseif ($item->item_remark === 'Missing') {
+                            $remarkClass = 'text-warning';
+                        } elseif ($item->item_remark === 'Good') {
+                            $remarkClass = 'text-success';
+                        }
                     @endphp
 
                     {{-- Removed the style attribute here --}}
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td><strong>{{ $item->item_name }}</strong></td>
                         <td>{{ $item->category?->item_category_name ?? 'Uncategorized' }}</td>
                         <td>{{ $item->item_serialno ?? '-' }}</td>
@@ -163,4 +151,5 @@
         </table>
     </main>
 </body>
+
 </html>

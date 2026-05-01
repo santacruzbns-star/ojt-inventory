@@ -294,7 +294,7 @@ body {
         transform: translateX(1px) translateY(1px);
     }
 }
-.nav-link:hover .bi-truck {
+.nav-link:hover .bi-repeat {
     animation: driveTruck 1s linear infinite;
 }
 
@@ -308,7 +308,7 @@ body {
         transform: translateX(-4px) scale(1.1);
     }
 }
-.nav-link:hover .bi-arrow-return-left {
+.nav-link:hover .bi-box-arrow-in-down-left {
     animation: returnSwoop 0.8s ease-in-out infinite;
 }
 
