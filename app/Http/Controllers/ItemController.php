@@ -509,7 +509,8 @@ EOT;
                 $query->where('item_brand_id', $request->brand);
             }
             if ($request->has('search') && $request->search != '') {
-                $query->where('item_name', 'like', '%' . $request->search . '%');
+                $searchTerm = strtolower($request->search);
+                $query->whereRaw('LOWER(item_name) like ?', ['%' . $searchTerm . '%']);
             }
 
             $query->delete();

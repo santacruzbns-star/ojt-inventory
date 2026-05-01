@@ -33,10 +33,11 @@ class PersonnelItemController extends Controller
             ->where('personnel_item_quantity', '>', 0)
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
+                    $searchTerm = strtolower($search);
                     // Updated to search both item_name OR item_serial_no within the item relationship
-                    $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%")
-                        ->orWhere('item_serialno', 'like', "%{$search}%"))
-                        ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
+                    $sub->whereHas('item', fn($q2) => $q2->whereRaw('LOWER(item_name) like ?', ["%{$searchTerm}%"])
+                        ->orWhereRaw('LOWER(item_serialno) like ?', ["%{$searchTerm}%"]))
+                        ->orWhereHas('personnel', fn($q2) => $q2->whereRaw('LOWER(personnel_name) like ?', ["%{$searchTerm}%"]));
                 });
             })
             ->when($personnelFilter, fn($q) => $q->where('personnel_id', $personnelFilter))
@@ -87,8 +88,9 @@ class PersonnelItemController extends Controller
                 $dbQuery
                     ->when($search, function ($q) use ($search) {
                         $q->where(function ($sub) use ($search) {
-                            $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
-                                ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
+                            $searchTerm = strtolower($search);
+                            $sub->whereHas('item', fn($q2) => $q2->whereRaw('LOWER(item_name) like ?', ["%{$searchTerm}%"]))
+                                ->orWhereHas('personnel', fn($q2) => $q2->whereRaw('LOWER(personnel_name) like ?', ["%{$searchTerm}%"]));
                         });
                     })
                     ->when($personnelFilter, fn($q) => $q->where('personnel_id', $personnelFilter))
@@ -164,8 +166,9 @@ EOT;
                 $dbQuery
                     ->when($search, function ($q) use ($search) {
                         $q->where(function ($sub) use ($search) {
-                            $sub->whereHas('item', fn($q2) => $q2->where('item_name', 'like', "%{$search}%"))
-                                ->orWhereHas('personnel', fn($q2) => $q2->where('personnel_name', 'like', "%{$search}%"));
+                            $searchTerm = strtolower($search);
+                            $sub->whereHas('item', fn($q2) => $q2->whereRaw('LOWER(item_name) like ?', ["%{$searchTerm}%"]))
+                                ->orWhereHas('personnel', fn($q2) => $q2->whereRaw('LOWER(personnel_name) like ?', ["%{$searchTerm}%"]));
                         });
                     })
                     ->when($personnelFilter, fn($q) => $q->where('personnel_id', $personnelFilter))
